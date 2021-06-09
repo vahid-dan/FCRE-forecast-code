@@ -1,7 +1,7 @@
 lake_directory <- "/Users/quinn/Downloads/FCRE-forecast-code/"
 
 config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_flare.yml"))
-run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
+run_config <- yaml::read_yaml(config$file_path$run_config)
 
 config$run_config <- run_config
 # Set up timings
@@ -43,9 +43,12 @@ if(length(forecast_files) > 0){
 
   #Step up Drivers
 
+  noaa_forecast_path <- file.path(config$file_path$noaa_directory, config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
+
+
   met_out <- FLAREr::generate_glm_met_files(obs_met_file = observed_met_file,
-                                            out_dir = config$file_path$execute_location,
-                                            forecast_dir = config$file_path$forecast_output_directory,
+                                            out_dir = config$file_path$execute_directory,
+                                            forecast_dir = noaa_forecast_path,
                                             config = config)
 
   met_file_names <- met_out$met_file_names
@@ -53,11 +56,11 @@ if(length(forecast_files) > 0){
 
   #Inflow Drivers (already done)
 
-  inflow_forecast_path <- file.path(config$data_location, config$forecast_inflow_model,config$lake_name_code,lubridate::as_date(forecast_start_datetime_UTC),forecast_hour)
+  inflow_forecast_path <- file.path(config$file_path$inflow_directory, config$inflow$forecast_inflow_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
 
-  inflow_outflow_files <- FLAREr::create_glm_inflow_outflow_files(inflow_file_dir = file.path(config$data_location, config$forecast_inflow_model),
+  inflow_outflow_files <- FLAREr::create_glm_inflow_outflow_files(inflow_file_dir = inflow_forecast_path,
                                                                   inflow_obs = cleaned_inflow_file,
-                                                                  working_directory = config$run_config$execute_location,
+                                                                  working_directory = config$file_path$execute_directory,
                                                                   config = config,
                                                                   state_names = states_config$state_names)
 
@@ -69,14 +72,9 @@ if(length(forecast_files) > 0){
                                    obs_config,
                                    config)
 
-  #Set observations in the "future" to NA
-  full_time_forecast <- seq(start_datetime, end_datetime, by = "1 day")
-  obs[ , which(full_time_forecast > forecast_start_datetime), ] <- NA
-
-
   states_config <- FLAREr::generate_states_to_obs_mapping(states_config, obs_config)
 
-  model_sd <- FLAREr::initiate_model_error(config, states_config, config_file_location = file.path(config$run_config$forecast_location, "configuration_files"))
+  model_sd <- FLAREr::initiate_model_error(config, states_config)
 
   init <- FLAREr::generate_initial_conditions(states_config,
                                               obs_config,
@@ -92,7 +90,7 @@ if(length(forecast_files) > 0){
                                        obs = obs,
                                        obs_sd = obs_config$obs_sd,
                                        model_sd = model_sd,
-                                       working_directory = config$run_config$execute_location,
+                                       working_directory = config$file_path$execute_directory,
                                        met_file_names = met_out$filenames,
                                        inflow_file_names = inflow_file_names,
                                        outflow_file_names = outflow_file_names,
@@ -100,27 +98,26 @@ if(length(forecast_files) > 0){
                                        pars_config = pars_config,
                                        states_config = states_config,
                                        obs_config = obs_config,
-                                       management,
-                                       da_method = config$da_method,
-                                       par_fit_method = config$par_fit_method)
+                                       management = NULL,
+                                       da_method = config$da_setup$da_method,
+                                       par_fit_method = config$da_setup$par_fit_method)
 
   # Save forecast
   saved_file <- FLAREr::write_forecast_netcdf(da_output,
-                                              forecast_location = config$run_config$forecast_location)
+                                              forecast_location = config$file_path$forecast_output_directory)
 
   #Create EML Metadata
   FLAREr::create_flare_metadata(file_name = saved_file,
-                                enkf_output)
+                                da_output)
 
-  unlist(config$run_config$execute_location, recursive = TRUE)
+  #unlist(config$$execute_location, recursive = TRUE)
 
-
-  run_config$start_day_local <- run_config$forecast_start_datetime
+  run_config$start_datetime <- run_config$forecast_start_datetime
   run_config$forecast_start_datetime <- as.character(lubridate::as_date(run_config$forecast_start_datetime) + lubridate::days(1))
   run_config$restart_file <- saved_file
-  yaml::write_yaml(run_config, file = file.path(forecast_location, "configuration_files","run_configuration.yml"))
+  yaml::write_yaml(run_config, file = file.path(config$file_path$run_config))
 }else{
   run_config$forecast_start_datetime <- as.character(lubridate::as_date(run_config$forecast_start_datetime) + lubridate::days(1))
-  yaml::write_yaml(run_config, file = file.path(forecast_location, "configuration_files","run_configuration.yml"))
+  yaml::write_yaml(run_config, file = file.path(config$file_path$run_config,"run_configuration.yml"))
 }
 
