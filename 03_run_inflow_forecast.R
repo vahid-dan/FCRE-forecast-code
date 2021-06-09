@@ -1,5 +1,3 @@
-lake_directory <- "/Users/quinn/Downloads/FCRE-forecast-code/"
-
 config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_flare.yml"))
 run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
 
@@ -40,4 +38,4 @@ forecast_inflows_outflows(inflow_obs = file.path(config$file_path$qaqc_data_dire
                           inflow_model = config$inflow$forecast_inflow_model,
                           inflow_process_uncertainty = FALSE,
                           forecast_location = config$file_path$forecast_output_directory,
-                          config_file = config)
+                          config = config)

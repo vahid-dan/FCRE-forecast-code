@@ -1,7 +1,4 @@
-lake_directory <- "/Users/quinn/Downloads/FCRE-forecast-code/"
-
 config_obs <- yaml::read_yaml(file.path(lake_directory,"configuration","observation_processing","observation_processing.yml"))
-
 config_flare <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_flare.yml"))
 
 library(tidyverse)

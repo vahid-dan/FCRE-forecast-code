@@ -1,3 +1,7 @@
+flare_tempdir/*
+forecast_output/*
+
+
 # History files
 .Rhistory
 .Rapp.history

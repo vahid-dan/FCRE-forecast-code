@@ -1,3 +1,5 @@
+#NOTE:  This plot converts to local time zone
+
 
 manager_plot <- function(file_name,
                          qaqc_location,
@@ -11,7 +13,7 @@ manager_plot <- function(file_name,
                                                  qaqc_location,
                                                  extra_historical_days = 5)
   obs <- output$obs
-  full_time_local_extended <- output$full_time_local_extended
+  full_time_extended <- output$full_time_extended
   diagnostic_list <- output$diagnostic_list
   state_list <- output$state_list
   forecast <- output$forecast
@@ -20,10 +22,12 @@ manager_plot <- function(file_name,
   state_names <- output$state_names
   par_names <- output$par_names
   diagnostics_names <- output$diagnostics_names
-  full_time_local <- output$full_time_local
+  full_time <- output$full_time
   obs_long <- output$obs_long
   depths <- output$depths
 
+  full_time_local <- lubridate::with_tz(full_time, tzone = "EST5EDT")
+  full_time_local_extended <- lubridate::with_tz(full_time_extended, tzone = "EST5EDT")
 
   dirname(file_name)
 

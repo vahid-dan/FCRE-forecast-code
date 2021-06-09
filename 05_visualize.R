@@ -1,5 +1,3 @@
-lake_directory <- "/Users/quinn/Downloads/FCRE-forecast-code/"
-
 config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_flare.yml"))
 run_config <- yaml::read_yaml(config$file_path$run_config)
 

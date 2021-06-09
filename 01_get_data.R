@@ -1,6 +1,5 @@
 config <- yaml::read_yaml(file.path(lake_directory,"data_processing", "observation_processing.yml"))
 
-config$data_location <- data_location
 
 if(!file.exists(file.path(config$data_location, config$realtime_insitu_location))){
   stop("Missing temperature data GitHub repo")

@@ -1,4 +1,4 @@
-lake_directory <- "/Users/quinn/Downloads/FCRE-forecast-code/"
+update_run_config <- TRUE
 
 config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_flare.yml"))
 run_config <- yaml::read_yaml(config$file_path$run_config)
@@ -16,8 +16,7 @@ if(is.na(config$run_config$forecast_start_datetime)){
 }
 forecast_hour <- lubridate::hour(forecast_start_datetime)
 if(forecast_hour < 10){forecast_hour <- paste0("0",forecast_hour)}
-forecast_path <- file.path(config$data_location, "NOAAGEFS_1hr",config$lake_name_code,lubridate::as_date(forecast_start_datetime),forecast_hour)
-
+noaa_forecast_path <- file.path(config$file_path$noaa_directory, config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
 
 
 forecast_files <- list.files(noaa_forecast_path, full.names = TRUE)
@@ -40,11 +39,6 @@ if(length(forecast_files) > 0){
   cleaned_observations_file_long <- file.path(config$file_path$qaqc_data_directory,"observations_postQAQC_long.csv")
   cleaned_inflow_file <- file.path(config$file_path$qaqc_data_directory, "/inflow_postQAQC.csv")
   observed_met_file <- file.path(config$file_path$qaqc_data_directory,"observed-met_fcre.nc")
-
-  #Step up Drivers
-
-  noaa_forecast_path <- file.path(config$file_path$noaa_directory, config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
-
 
   met_out <- FLAREr::generate_glm_met_files(obs_met_file = observed_met_file,
                                             out_dir = config$file_path$execute_directory,
@@ -110,14 +104,26 @@ if(length(forecast_files) > 0){
   FLAREr::create_flare_metadata(file_name = saved_file,
                                 da_output)
 
+  #files <- list.files(config$file_path$execute_directory, full.names = TRUE)
   #unlist(config$$execute_location, recursive = TRUE)
 
-  run_config$start_datetime <- run_config$forecast_start_datetime
-  run_config$forecast_start_datetime <- as.character(lubridate::as_date(run_config$forecast_start_datetime) + lubridate::days(1))
-  run_config$restart_file <- saved_file
-  yaml::write_yaml(run_config, file = file.path(config$file_path$run_config))
+  #sapply(files, unlist, recursive = TRUE)
+
+  #unlist(config$file_path$execute_directory,recursive = TRUE)
+
+  if(update_run_config){
+    run_config$start_datetime <- run_config$forecast_start_datetime
+    run_config$forecast_start_datetime <- as.character(lubridate::as_datetime(run_config$forecast_start_datetime) + lubridate::days(1))
+    if(lubridate::hour(run_config$forecast_start_datetime) == 0){
+      run_config$forecast_start_datetime <- paste(run_config$forecast_start_datetime, "00:00:00")
+    }
+    run_config$restart_file <- saved_file
+    yaml::write_yaml(run_config, file = file.path(config$file_path$run_config))
+  }
 }else{
-  run_config$forecast_start_datetime <- as.character(lubridate::as_date(run_config$forecast_start_datetime) + lubridate::days(1))
-  yaml::write_yaml(run_config, file = file.path(config$file_path$run_config,"run_configuration.yml"))
+  if(update_run_config){
+    run_config$forecast_start_datetime <- as.character(lubridate::as_date(run_config$forecast_start_datetime) + lubridate::days(1))
+    yaml::write_yaml(run_config, file = file.path(config$file_path$run_config,"run_configuration.yml"))
+  }
 }
 
