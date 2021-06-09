@@ -1,4 +1,12 @@
-update_run_config <- TRUE
+#Note: lake_directory and update_run_config need to be set prior to running this script
+
+if(!exist(lake_directory)){
+  stop("Missing lake_directory variable")
+}
+
+if(!exist(update_run_config)){
+  stop("Missing update_run_config variable")
+}
 
 config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_flare.yml"))
 run_config <- yaml::read_yaml(config$file_path$run_config)

@@ -1,3 +1,9 @@
+#Note: lake_directory need to be set prior to running this script
+
+if(!exist(lake_directory)){
+  stop("Missing lake_directory variable")
+}
+
 config <- yaml::read_yaml(file.path(lake_directory,"data_processing", "observation_processing.yml"))
 
 

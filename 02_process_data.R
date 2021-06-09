@@ -1,3 +1,9 @@
+#Note: lake_directory need to be set prior to running this script
+
+if(!exist(lake_directory)){
+  stop("Missing lake_directory variable")
+}
+
 config_obs <- yaml::read_yaml(file.path(lake_directory,"configuration","observation_processing","observation_processing.yml"))
 config_flare <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_flare.yml"))
 
