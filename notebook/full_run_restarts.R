@@ -14,7 +14,7 @@ sapply(files.sources, source)
 start_day <- as_date("2018-07-20")
 forecast_start<- as_date("2018-07-30")
 #forecast_start<- as_date("2018-12-31")
-forecast_start<- as_date("2019-12-31")
+#forecast_start<- as_date("2019-12-31")
 #forecast_start<- as_date("2019-12-31")
 holder1 <- start_day
 holder2 <- forecast_start
@@ -35,7 +35,7 @@ saved_file <- NA
 #saved_file <- "/Users/quinn/Dropbox/Research/SSC_forecasting/run_flare_package/wrr_runs/wrr_runs_H_2018_07_12_2018_10_17_F_0_20201109T133722.nc"
 
 #for(i in 1:nrow(forecasting_timings)){
-  for(i in 1:1){
+for(i in 1:1){
 
   config_obs <- yaml::read_yaml(file.path(lake_directory,"configuration","observation_processing","observation_processing.yml"))
   config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_flare_glm_aed.yml"))
@@ -126,17 +126,17 @@ saved_file <- NA
 
   if(config$model_settings$model_name == "glm_aed"){
 
-  file.copy(file.path(config_obs$data_location, "manual-data/FCR_weir_inflow_2013_2019_20200828_allfractions_2poolsDOC.csv"),
-            file.path(config$file_path$execute_directory, "FCR_weir_inflow_2013_2019_20200624_allfractions_2poolsDOC.csv"))
+    file.copy(file.path(config_obs$data_location, "manual-data/FCR_weir_inflow_2013_2019_20200828_allfractions_2poolsDOC.csv"),
+              file.path(config$file_path$execute_directory, "FCR_weir_inflow_2013_2019_20200624_allfractions_2poolsDOC.csv"))
 
-  file.copy(file.path(config_obs$data_location, "manual-data/FCR_wetland_inflow_2013_2019_20200828_allfractions_2DOCpools.csv"),
-            file.path(config$file_path$execute_directory, "FCR_wetland_inflow_2013_2019_20200713_allfractions_2DOCpools.csv"))
+    file.copy(file.path(config_obs$data_location, "manual-data/FCR_wetland_inflow_2013_2019_20200828_allfractions_2DOCpools.csv"),
+              file.path(config$file_path$execute_directory, "FCR_wetland_inflow_2013_2019_20200713_allfractions_2DOCpools.csv"))
 
-  file.copy(file.path(config_obs$data_location, "manual-data/FCR_SSS_inflow_2013_2019_20200701_allfractions_2DOCpools.csv"),
-            file.path(config$file_path$execute_directory, "FCR_SSS_inflow_2013_2019_20200701_allfractions_2DOCpools.csv"))
+    file.copy(file.path(config_obs$data_location, "manual-data/FCR_SSS_inflow_2013_2019_20200701_allfractions_2DOCpools.csv"),
+              file.path(config$file_path$execute_directory, "FCR_SSS_inflow_2013_2019_20200701_allfractions_2DOCpools.csv"))
 
-  file.copy(file.path(config_obs$data_location, "manual-data/FCR_spillway_outflow_SUMMED_WeirWetland_2013_2019_20200615.csv"),
-            file.path(config$file_path$execute_directory, "FCR_spillway_outflow_SUMMED_WeirWetland_2013_2019_20200615.csv"))
+    file.copy(file.path(config_obs$data_location, "manual-data/FCR_spillway_outflow_SUMMED_WeirWetland_2013_2019_20200615.csv"),
+              file.path(config$file_path$execute_directory, "FCR_spillway_outflow_SUMMED_WeirWetland_2013_2019_20200615.csv"))
   }
 
   print("Creating FLARE Inflow files")
@@ -153,15 +153,15 @@ saved_file <- NA
 
   if(config$model_settings$model_name == "glm_aed"){
 
-  file1 <- file.path(config$file_path$execute_directory, "FCR_weir_inflow_2013_2019_20200624_allfractions_2poolsDOC.csv")
-  file2 <- file.path(config$file_path$execute_directory, "FCR_wetland_inflow_2013_2019_20200713_allfractions_2DOCpools.csv")
-  inflow_file_names <- tibble(file1 = file1,
-                              file2 = file2,
-                              file3 = "sss_inflow.csv")
-  outflow_file_names <- tibble(file_1 = file.path(config$file_path$execute_directory, "FCR_spillway_outflow_SUMMED_WeirWetland_2013_2019_20200615.csv"),
-                               file_2 = "sss_outflow.csv")
+    file1 <- file.path(config$file_path$execute_directory, "FCR_weir_inflow_2013_2019_20200624_allfractions_2poolsDOC.csv")
+    file2 <- file.path(config$file_path$execute_directory, "FCR_wetland_inflow_2013_2019_20200713_allfractions_2DOCpools.csv")
+    inflow_file_names <- tibble(file1 = file1,
+                                file2 = file2,
+                                file3 = "sss_inflow.csv")
+    outflow_file_names <- tibble(file_1 = file.path(config$file_path$execute_directory, "FCR_spillway_outflow_SUMMED_WeirWetland_2013_2019_20200615.csv"),
+                                 file_2 = "sss_outflow.csv")
 
-  management <- FLAREr::generate_oxygen_management(config = config)
+    management <- FLAREr::generate_oxygen_management(config = config)
   }else{
     management <- NULL
   }
@@ -190,44 +190,44 @@ saved_file <- NA
   #Run EnKF
   print("Starting EnKF")
   print("-----------------------------------")
-  da_output <- FLAREr::run_da_forecast(states_init = init$states,
-                                       pars_init = init$pars,
-                                       aux_states_init = init$aux_states_init,
-                                       obs = obs,
-                                       obs_sd = obs_config$obs_sd,
-                                       model_sd = model_sd,
-                                       working_directory = config$file_path$execute_directory,
-                                       met_file_names = met_out$filenames,
-                                       inflow_file_names = inflow_file_names,
-                                       outflow_file_names = outflow_file_names,
-                                       config = config,
-                                       pars_config = pars_config,
-                                       states_config = states_config,
-                                       obs_config = obs_config,
-                                       management,
-                                       da_method = config$da_setup$da_method,
-                                       par_fit_method = config$da_setup$par_fit_method)
+  da_forecast_output <- FLAREr::run_da_forecast(states_init = init$states,
+                                                pars_init = init$pars,
+                                                aux_states_init = init$aux_states_init,
+                                                obs = obs,
+                                                obs_sd = obs_config$obs_sd,
+                                                model_sd = model_sd,
+                                                working_directory = config$file_path$execute_directory,
+                                                met_file_names = met_out$filenames,
+                                                inflow_file_names = inflow_file_names,
+                                                outflow_file_names = outflow_file_names,
+                                                config = config,
+                                                pars_config = pars_config,
+                                                states_config = states_config,
+                                                obs_config = obs_config,
+                                                management,
+                                                da_method = config$da_setup$da_method,
+                                                par_fit_method = config$da_setup$par_fit_method)
 
   print("Writing output file")
-  saved_file <- FLAREr::write_forecast_netcdf(da_output,
+  saved_file <- FLAREr::write_forecast_netcdf(da_forecast_output = da_forecast_output,
                                               forecast_location = config$file_path$forecast_output_directory)
 
   #Create EML Metadata
   print("Creating metadata")
   FLAREr::create_flare_metadata(file_name = saved_file,
-                                da_output)
+                                da_forecast_output = da_forecast_output)
 
   unlist(config$file_path$execute_directory, recursive = TRUE)
 
-  rm(da_output)
+  rm(da_forecast_output)
   gc()
 
   #file_name <- saved_file
   print("Generating plot")
-  FLAREr::plotting_general(file_name = run_config$restart_file,
-                           qaqc_location = config$file_path$qaqc_data_directory,
-                           ncore = config$ncore,
-                           plot_profile = FALSE)
+  FLAREr::plotting_general(file_name = saved_file,
+                           qaqc_data_directory = config$file_path$qaqc_data_directory,
+                           ncore = config$model_settings$ncore,
+                           plot_profile = TRUE)
 
 }
 

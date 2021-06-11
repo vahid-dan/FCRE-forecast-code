@@ -133,12 +133,12 @@ if(length(forecast_files) > 0){
                                        par_fit_method = config$da_setup$par_fit_method)
 
   # Save forecast
-  saved_file <- FLAREr::write_forecast_netcdf(da_output,
+  saved_file <- FLAREr::write_forecast_netcdf(da_forecast_output = da_forecast_output,
                                               forecast_location = config$file_path$forecast_output_directory)
 
   #Create EML Metadata
   FLAREr::create_flare_metadata(file_name = saved_file,
-                                da_output)
+                                da_forecast_output = da_forecast_output)
 
   #Clean up temp files and large objects in memory
   unlist(config$file_path$execute_directory, recursive = TRUE)
