@@ -1,14 +1,14 @@
 #Note: lake_directory and update_run_config need to be set prior to running this script
 
-if(!exist(lake_directory)){
+if(!exists("lake_directory")){
   stop("Missing lake_directory variable")
 }
 
-if(!exist(update_run_config)){
+if(!exists("update_run_config")){
   stop("Missing update_run_config variable")
 }
 
-config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_flare.yml"))
+config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr",configuration_file))
 run_config <- yaml::read_yaml(config$file_path$run_config)
 
 config$run_config <- run_config
@@ -114,7 +114,7 @@ if(length(forecast_files) > 0){
                                               restart_file = config$run_config$restart_file,
                                               historical_met_error = met_out$historical_met_error)
   #Run EnKF
-  da_output <- FLAREr::run_da_forecast(states_init = init$states,
+  da_forecast_output <- FLAREr::run_da_forecast(states_init = init$states,
                                        pars_init = init$pars,
                                        aux_states_init = init$aux_states_init,
                                        obs = obs,
@@ -134,7 +134,7 @@ if(length(forecast_files) > 0){
 
   # Save forecast
   saved_file <- FLAREr::write_forecast_netcdf(da_forecast_output = da_forecast_output,
-                                              forecast_location = config$file_path$forecast_output_directory)
+                                              forecast_output_directory = config$file_path$forecast_output_directory)
 
   #Create EML Metadata
   FLAREr::create_flare_metadata(file_name = saved_file,

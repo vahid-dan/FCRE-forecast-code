@@ -1,8 +1,8 @@
-restart_file: .na
-start_datetime: '2018-07-20'
+restart_file: /Users/quinn/Downloads/FCRE-forecast-code/forecast_output/test_run_H_2018_07_30_2018_07_31_F_16_20210611T130536.nc
+start_datetime: 2018-07-31 00:00:00
 end_datetime: .na
-forecast_start_datetime: '2018-07-30'
-forecast_horizon: 0.0
+forecast_start_datetime: 2018-08-01 00:00:00
+forecast_horizon: 16.0
 sim_name: test_run
 forecast_output_directory: .na
 forecast_configuration_directory: .na
