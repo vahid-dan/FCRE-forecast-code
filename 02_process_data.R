@@ -1,9 +1,5 @@
+lake_directory <- getwd()
 #Note: lake_directory need to be set prior to running this script
-
-if(!exists("lake_directory")){
-  stop("Missing lake_directory variable")
-}
-
 config_obs <- yaml::read_yaml(file.path(lake_directory,"configuration","observation_processing","observation_processing.yml"))
 config_flare <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr",configuration_file))
 
@@ -52,27 +48,27 @@ if(is.null(config_obs$combined_obs_file)){
   file.copy(file.path(config_obs$data_location,config_obs$combined_obs_file), cleaned_observations_file_long, overwrite = TRUE)
 }
 
-file.copy(file.path(config_obs$data_location,config_obs$sss_fname), file.path(config_obs$qaqc_data_location,basename(config_obs$sss_fname)))
-
-if(!is.null(config_obs$specified_sss_inflow_file)){
-  file.copy(file.path(config_obs$data_location,config_obs$specified_sss_inflow_file), file.path(config_flare$file_path$qaqc_data_directory,basename(config_obs$specified_sss_inflow_file)))
-}
-if(!is.null(config_obs$specified_sss_outflow_file)){
-  file.copy(file.path(config_obs$data_location,config_obs$specified_sss_outflow_file), file.path(config_flare$file_path$qaqc_data_directory,basename(config_obs$specified_sss_outflow_file)))
-}
-if(!is.null(config_obs$specified_metfile)){
-  file.copy(file.path(config_obs$data_location,config_obs$specified_metfile), file.path(config_flare$file_path$qaqc_data_directory,basename(config_obs$specified_metfile)))
-}
-
-if(!is.null(config_obs$specified_inflow1)){
-  file.copy(file.path(config_obs$data_location,config_obs$specified_inflow1), file.path(config_flare$file_path$qaqc_data_directory,basename(config_obs$specified_inflow1)))
-}
-
-if(!is.null(config_obs$specified_inflow2)){
-  file.copy(file.path(config_obs$data_location,config_obs$specified_inflow2), file.path(config_flare$file_path$qaqc_data_directory,basename(config_obs$specified_inflow2)))
-}
-
-if(!is.null(config_obs$specified_outflow1)){
-  file.copy(file.path(config_obs$data_location,config_obs$specified_outflow1), file.path(config_flare$file_path$qaqc_data_directory,basename(config_obs$specified_outflow1)))
-}
-
+# file.copy(file.path(config_obs$data_location,config_obs$sss_fname), file.path(config_obs$qaqc_data_location,basename(config_obs$sss_fname)))
+#
+# if(!is.null(config_obs$specified_sss_inflow_file)){
+#   file.copy(file.path(config_obs$data_location,config_obs$specified_sss_inflow_file), file.path(config_flare$file_path$qaqc_data_directory,basename(config_obs$specified_sss_inflow_file)))
+# }
+# if(!is.null(config_obs$specified_sss_outflow_file)){
+#   file.copy(file.path(config_obs$data_location,config_obs$specified_sss_outflow_file), file.path(config_flare$file_path$qaqc_data_directory,basename(config_obs$specified_sss_outflow_file)))
+# }
+# if(!is.null(config_obs$specified_metfile)){
+#   file.copy(file.path(config_obs$data_location,config_obs$specified_metfile), file.path(config_flare$file_path$qaqc_data_directory,basename(config_obs$specified_metfile)))
+# }
+#
+# if(!is.null(config_obs$specified_inflow1)){
+#   file.copy(file.path(config_obs$data_location,config_obs$specified_inflow1), file.path(config_flare$file_path$qaqc_data_directory,basename(config_obs$specified_inflow1)))
+# }
+#
+# if(!is.null(config_obs$specified_inflow2)){
+#   file.copy(file.path(config_obs$data_location,config_obs$specified_inflow2), file.path(config_flare$file_path$qaqc_data_directory,basename(config_obs$specified_inflow2)))
+# }
+#
+# if(!is.null(config_obs$specified_outflow1)){
+#   file.copy(file.path(config_obs$data_location,config_obs$specified_outflow1), file.path(config_flare$file_path$qaqc_data_directory,basename(config_obs$specified_outflow1)))
+# }
+#

@@ -1,3 +1,5 @@
+lake_directory <- getwd()
+
 config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr",configuration_file))
 run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
 
@@ -31,6 +33,9 @@ config$future_inflow_temp_coeff <- c(0.20291, 0.94214, 0.04278)
 config$future_inflow_temp_error <- 0.943
 
 forecast_files <- list.files(noaa_forecast_path, full.names = TRUE)
+if(length(forecast_files) == 0){
+  stop(paste0("missing forecast files at: ", noaa_forecast_path))
+}
 temp_flow_forecast <- forecast_inflows_outflows(inflow_obs = file.path(config$file_path$qaqc_data_directory, "/inflow_postQAQC.csv"),
                                                 forecast_files = forecast_files,
                                                 obs_met_file = file.path(config$file_path$qaqc_data_directory,"observed-met_fcre.nc"),

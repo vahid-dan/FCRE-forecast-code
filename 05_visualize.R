@@ -1,8 +1,4 @@
-#Note: lake_directory need to be set prior to running this script
-
-if(!exists("lake_directory")){
-  stop("Missing lake_directory variable")
-}
+lake_directory <- getwd()
 
 config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr",configuration_file))
 run_config <- yaml::read_yaml(config$file_path$run_config)

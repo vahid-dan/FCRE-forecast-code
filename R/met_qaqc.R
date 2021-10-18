@@ -25,9 +25,7 @@ met_qaqc <- function(realtime_file,
                             IR01UpCo_Avg = readr::col_double(),
                             IR01DnCo_Avg = readr::col_double(),
                             NR01TK_Avg = readr::col_double(),
-                            Albedo_Avg = readr::col_double())) %>%
-      dplyr::slice(-c(1,2,3,4))
-
+                            Albedo_Avg = readr::col_double()), skip = 4)
     #d1 <- d1[-85572, ]
 
     TIMESTAMP_in <- lubridate::force_tz(d1$TIMESTAMP, tzone = input_file_tz)

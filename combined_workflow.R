@@ -1,12 +1,28 @@
-lake_directory <- "/Users/quinn/Downloads/FCRE-forecast-code"
-update_run_config <- TRUE #TRUE is used for an iterative workflow
-configuration_file <- "configure_flare.yml"
-#source(file.path(lake_directory, "01_get_data.R"))
+lake_directory <- getwd()
+update_run_config <<- TRUE #TRUE is used for an iterative workflow
+configuration_file <<- "configure_flare.yml"
 
-source(file.path(lake_directory, "02_process_data.R"))
+source(file.path("R/check_noaa_present.R"))
 
-source(file.path(lake_directory, "03_run_inflow_forecast.R"))
+noaa_ready <- check_noaa_present(lake_directory)
 
-source(file.path(lake_directory, "04_run_flarer_forecast.R"))
+if(noaa_ready){
 
-source(file.path(lake_directory, "05_visualize.R"))
+  source(file.path("01_get_data.R"))
+
+  setwd(lake_directory)
+
+  source(file.path("02_process_data.R"))
+
+  setwd(lake_directory)
+
+  source(file.path("03_run_inflow_forecast.R"))
+
+  setwd(lake_directory)
+
+  source(file.path("04_run_flarer_forecast.R"))
+
+  setwd(lake_directory)
+
+  source(file.path("05_visualize.R"))
+}

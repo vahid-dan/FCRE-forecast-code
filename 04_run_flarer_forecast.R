@@ -1,8 +1,4 @@
-#Note: lake_directory and update_run_config need to be set prior to running this script
-
-if(!exists("lake_directory")){
-  stop("Missing lake_directory variable")
-}
+lake_directory <- getwd()
 
 if(!exists("update_run_config")){
   stop("Missing update_run_config variable")
@@ -143,7 +139,7 @@ if(length(forecast_files) > 0){
   #Clean up temp files and large objects in memory
   unlist(config$file_path$execute_directory, recursive = TRUE)
 
-  rm(da_output)
+  rm(da_forecast_output)
   gc()
 
   if(update_run_config){
