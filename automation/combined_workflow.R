@@ -1,4 +1,4 @@
-lake_directory <- getwd()
+lake_directory <- dirname(getwd())
 update_run_config <<- TRUE #TRUE is used for an iterative workflow
 configuration_file <<- "configure_flare.yml"
 
