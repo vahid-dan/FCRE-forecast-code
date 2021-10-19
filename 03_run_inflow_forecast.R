@@ -1,9 +1,15 @@
-lake_directory <- getwd()
+lake_directory <- here::here()
 
+configuration_file <- "configure_flare.yml"
+
+#Note: lake_directory need to be set prior to running this script
 config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr",configuration_file))
+config$file_path$qaqc_data_directory <- file.path(lake_directory, "data_processed")
+config$file_path$data_directory <- file.path(lake_directory, "data_raw")
+config$file_path$noaa_directory <- file.path(dirname(lake_directory), "drivers", "noaa")
 run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
-
 config$run_config <- run_config
+
 # Set up timings
 #Weather Drivers
 start_datetime <- lubridate::as_datetime(config$run_config$start_datetime)

@@ -1,5 +1,5 @@
 #Note: lake_directory need to be set prior to running this script
-lake_directory <- getwd()
+lake_directory <- here::here()
 
 config <- yaml::read_yaml(file.path(lake_directory,"configuration","observation_processing","observation_processing.yml"))
 

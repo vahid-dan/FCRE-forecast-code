@@ -1,8 +1,4 @@
-lake_directory <- "/Users/quinn/workfiles/Research/SSC_forecasting/automation_test/FCRE-forecast-code"
-
-if(!exists(lake_directory)){
-  stop("Missing lake_directory variable")
-}
+lake_directory <- here::here()
 
 config <- yaml::read_yaml(file.path(lake_directory,"configuration","observation_processing","observation_processing.yml"))
 

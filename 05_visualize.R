@@ -1,7 +1,11 @@
-lake_directory <- getwd()
+lake_directory <- here::here()
+
+configuration_file <- "configure_flare.yml"
 
 config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr",configuration_file))
 run_config <- yaml::read_yaml(config$file_path$run_config)
+config$file_path$qaqc_data_directory <- file.path(lake_directory, "data_processed")
+
 
 if(!is.na(run_config$restart_file)){
   restart_file <- run_config$restart_file

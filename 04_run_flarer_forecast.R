@@ -1,12 +1,20 @@
-lake_directory <- getwd()
+lake_directory <- here::here()
 
 if(!exists("update_run_config")){
   stop("Missing update_run_config variable")
 }
 
-config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr",configuration_file))
-run_config <- yaml::read_yaml(config$file_path$run_config)
+configuration_file <- "configure_flare.yml"
 
+#Note: lake_directory need to be set prior to running this script
+config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr",configuration_file))
+config$file_path$qaqc_data_directory <- file.path(lake_directory, "data_processed")
+config$file_path$data_directory <- file.path(lake_directory, "data_raw")
+config$file_path$noaa_directory <- file.path(dirname(lake_directory), "drivers", "noaa")
+config$file_path$configuration_directory <- file.path(lake_directory, "configuration")
+config$file_path$execute_directory <- file.path(lake_directory, "flare_tempdir")
+config$file_path$forecast_output_directory <- file.path(dirname(lake_directory), "forecasts", forecast_site)
+run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
 config$run_config <- run_config
 # Set up timings
 #Weather Drivers
