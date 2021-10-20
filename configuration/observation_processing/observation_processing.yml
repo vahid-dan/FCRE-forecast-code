@@ -132,11 +132,9 @@ measurement_methods:
     TP:
         - grab_sample
     fdom:
-        - grab_sample
-       #
+        - exo_sensor
     chla:
         - exo_sensor
-        - ctd
 
 
 
