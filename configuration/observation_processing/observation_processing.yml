@@ -72,7 +72,7 @@ specified_outflow1: fcre-manual-data/FCR_spillway_outflow_SUMMED_WeirWetland_201
 insitu_obs_fname:
     - fcre-catwalk-data/Catwalk.csv
     - fcre-manual-data/Catwalk_cleanedEDI.csv
-secchi_fname: fcre-manual-data/Secchi_depth_2013-2019.csv
+secchi_fname: fcre-manual-data/Secchi_depth_2013-2020.csv
 ctd_fname: fcre-manual-data/CTD_final_2013_2019.csv
 ch4_fname: fcre-manual-data/DATASET_for_EDI_LOL_MS_10May20.csv
 nutrients_fname: fcre-manual-data/chemistry.csv
