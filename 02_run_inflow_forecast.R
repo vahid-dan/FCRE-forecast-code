@@ -1,4 +1,9 @@
+library(tidyverse)
+library(lubridate)
+
 lake_directory <- here::here()
+forecast_site <- "fcre"
+s3_mode <- TRUE
 
 configuration_file <- "configure_flare.yml"
 
@@ -14,9 +19,17 @@ Sys.setenv("AWS_DEFAULT_REGION" = "data",
 config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr",configuration_file))
 config$file_path$qaqc_data_directory <- file.path(lake_directory, "data_processed")
 config$file_path$data_directory <- file.path(lake_directory, "data_raw")
-config$file_path$noaa_directory <- file.path(dirname(lake_directory), "drivers", "noaa")
+
 if(s3_mode){
-  aws.s3::save_object(object = file.path(forecast_site, "configure_run.yml"), bucket = "restart", file = file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
+  restart_exists <- aws.s3::object_exists(object = file.path(forecast_site, "configure_run.yml"), bucket = "restart")
+  if(restart_exists){
+    aws.s3::save_object(object = file.path(forecast_site, "configure_run.yml"), bucket = "restart", file = file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
+  }
+  config$file_path$noaa_directory <- file.path(lake_directory, "drivers", "noaa")
+  config$file_path$inflow_directory <- file.path(lake_directory, "drivers", "inflow")
+}else{
+  config$file_path$noaa_directory <- file.path(dirname(lake_directory), "drivers", "noaa")
+  config$file_path$inflow_directory <- file.path(dirname(lake_directory), "drivers", "inflow")
 }
 run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
 config$run_config <- run_config
@@ -42,13 +55,24 @@ noaa_forecast_path <- file.path(config$file_path$noaa_directory, config$met$fore
 
 if(s3_mode){
   aws.s3::save_object(object = file.path(forecast_site, "fcre-targets-inflow.csv"), bucket = "targets", file = file.path(config$file_path$qaqc_data_directory, "fcre-targets-inflow.csv"))
-  aws.s3::save_object(object = file.path(forecast_site, "/observed-met_fcre.csv"), bucket = "targets", file = file.path(config$file_path$qaqc_data_directory, "observed-met_fcre.csv"))
+  aws.s3::save_object(object = file.path(forecast_site, "observed-met_fcre.nc"), bucket = "targets", file = file.path(config$file_path$qaqc_data_directory, "observed-met_fcre.nc"))
 
   noaa_files = aws.s3::get_bucket(bucket = "drivers", prefix = file.path("noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour))
   noaa_forecast_path <- file.path(lake_directory,"drivers/noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
+  keys <- vapply(noaa_files, `[[`, "", "Key", USE.NAMES = FALSE)
+  empty <- grepl("/$", keys)
+  keys <- keys[!empty]
 
   for(i in 1:length(noaa_files)){
-    aws.s3::save_object(object = noaa_files$object[[i]],bucket = "drivers", file = file.path(lake_directory, "drivers", noaa_files$object[[i]]))
+    aws.s3::save_object(object = keys[i],bucket = "drivers", file = file.path(lake_directory, "drivers", keys[i]))
+  }
+}else{
+  local_noaa_forecast_path <- file.path(config$file_path$noaa_directory, config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
+  noaa_forecast_path <- file.path(lake_directory, "drivers/noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
+  files <- list.files(noaa_forecast_path, full.names = TRUE)
+  for(i in 1:length(files)){
+    dir.create(noaa_forecast_path)
+    file.copy(from = files[i], to = noaa_forecast_path)
   }
 }
 
@@ -72,13 +96,15 @@ temp_flow_forecast <- forecast_inflows_outflows(inflow_obs = file.path(config$fi
                                                 inflow_model = config$inflow$forecast_inflow_model,
                                                 inflow_process_uncertainty = FALSE,
                                                 forecast_location = config$file_path$forecast_output_directory,
-                                                config = config)
+                                                config = config,
+                                                s3_mode = s3_mode,
+                                                bucket = "drivers")
 
 #NEED TO COPY TO BUCKET
 
 if(config$model_settings$model_name == "glm_aed"){
 
-  run_dir <- str_replace_all(dirname(list.files(temp_flow_forecast, full.names = TRUE)[1]), "INFLOW-FLOWS-NOAAGEFS-AR1","INFLOW-FLOWS-NOAAGEFS-AR1-AED")
+  run_dir <- str_replace_all(dirname(list.files(temp_flow_forecast[[1]], full.names = TRUE)[1]), "INFLOW-FLOWS-NOAAGEFS-AR1","INFLOW-FLOWS-NOAAGEFS-AR1-AED")
 
   if(!dir.exists(run_dir)){
     dir.create(run_dir, recursive = TRUE)
@@ -87,7 +113,7 @@ if(config$model_settings$model_name == "glm_aed"){
   historical_chemistry_weir <- read_csv("/Users/quinn/Downloads/FCRE-forecast-code/data_processed/FCR_weir_inflow_2013_2019_20200624_allfractions_2poolsDOC.csv")
 
   for(i in 1:length(inflow_files)){
-    inflow_files <- list.files(temp_flow_forecast, full.names = TRUE)
+    inflow_files <- list.files(temp_flow_forecast[[1]], full.names = TRUE)
     inflow_forecast <- read_csv(inflow_files[i])
 
     historical_chemistry_weir_mean <- historical_chemistry_weir %>%
@@ -96,7 +122,7 @@ if(config$model_settings$model_name == "glm_aed"){
       group_by(doy) %>%
       summarise(across(everything(), mean))
 
-    file_name <- str_replace_all(list.files(temp_flow_forecast, full.names = TRUE)[i], "INFLOW-FLOWS-NOAAGEFS-AR1","INFLOW-FLOWS-NOAAGEFS-AR1-AED")
+    file_name <- str_replace_all(list.files(temp_flow_forecast[[1]], full.names = TRUE)[i], "INFLOW-FLOWS-NOAAGEFS-AR1","INFLOW-FLOWS-NOAAGEFS-AR1-AED")
 
     inflow_forecast_aed <- inflow_forecast %>%
       mutate(doy = lubridate::yday(time)) %>%
@@ -107,6 +133,8 @@ if(config$model_settings$model_name == "glm_aed"){
     #NEED TO COPY TO BUCKET
   }
 }else if(config$model_settings$model_name == "glm_oxy"){
+
+  #NEED TO GET WORKING WITH S3
 
   run_dir <- str_replace_all(dirname(list.files(temp_flow_forecast, full.names = TRUE)[1]), "INFLOW-FLOWS-NOAAGEFS-AR1","INFLOW-FLOWS-NOAAGEFS-AR1-AED")
 
@@ -137,7 +165,14 @@ if(config$model_settings$model_name == "glm_aed"){
 
     #NEED TO COPY TO BUCKET
   }
+
+  unlink(noaa_forecast_path, recursive = TRUE)
+  if(s3_mode){
+  unlink(dirname((temp_flow_forecast[[1]])[1]), recursive = TRUE)
+  }
 }
+
+message(paste0("successfully generated inflow forecats for: ", file.path(config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)))
 
 
 

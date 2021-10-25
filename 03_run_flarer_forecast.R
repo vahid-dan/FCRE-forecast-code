@@ -1,5 +1,8 @@
 lake_directory <- here::here()
 s3_mode <- TRUE
+bucket <- "drivers"
+forecast_site <- "fcre"
+update_run_config <- TRUE
 
 if(file.exists("~/.aws")){
   warning(paste("Detected existing AWS credentials file in ~/.aws,",
@@ -15,19 +18,39 @@ if(!exists("update_run_config")){
 
 configuration_file <- "configure_flare.yml"
 
+#THIS SITS OUTSIDE THE BUCKET AND REPO. NEED TO MOVE
+config$file_path$noaa_directory <- file.path(dirname(lake_directory), "drivers", "noaa")
+
 #Note: lake_directory need to be set prior to running this script
 config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr",configuration_file))
 config$file_path$qaqc_data_directory <- file.path(lake_directory, "data_processed")
 config$file_path$data_directory <- file.path(lake_directory, "data_raw")
-config$file_path$noaa_directory <- file.path(dirname(lake_directory), "drivers", "noaa")
 config$file_path$configuration_directory <- file.path(lake_directory, "configuration")
 config$file_path$execute_directory <- file.path(lake_directory, "flare_tempdir")
-config$file_path$forecast_output_directory <- file.path(dirname(lake_directory), "forecasts", forecast_site)
+config$file_path$run_config <- file.path(lake_directory, "configuration", "FLAREr","configure_run.yml")
+config$file_path$forecast_output_directory <- file.path(lake_directory, "forecast_output")
 if(s3_mode){
-  aws.s3::save_object(object = file.path(forecast_site, "configure_run.yml"), bucket = "restart", file = file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
+  restart_exists <- aws.s3::object_exists(object = file.path(forecast_site, "configure_run.yml"), bucket = "restart")
+  if(restart_exists){
+    aws.s3::save_object(object = file.path(forecast_site, "configure_run.yml"), bucket = "restart", file = file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
+  }
+  run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
+  config$run_config <- run_config
+  restart_file <- basename(run_config$restart_file)
+  if(!is.na(restart_file)){
+    aws.s3::save_object(object = file.path(forecast_site, restart_file), bucket = "restart", file = file.path(lake_directory, "forecast_output", restart_file))
+    restart_file <- basename(run_config$restart_file)
+    config$run_config$restart_file <- file.path(lake_directory, "forecast_output", restart_file)
+  }
+  config$run_config$restart_file <- file.path(lake_directory, "forecast_output", restart_file)
+  config$run_config <- run_config
+}else{
+  run_config <- yaml::read_yaml(config$file_path$run_config)
+  config$run_config <- run_config
+  if(!is.na(run_config$restart_file)){
+    file.copy(from = run_config$restart_file, to = config$file_path$forecast_output_directory)
+  }
 }
-run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
-config$run_config <- run_config
 # Set up timings
 #Weather Drivers
 start_datetime <- lubridate::as_datetime(config$run_config$start_datetime)
@@ -46,16 +69,25 @@ noaa_forecast_path <- file.path(config$file_path$noaa_directory, config$met$fore
 if(s3_mode){
   aws.s3::save_object(object = file.path(forecast_site, "fcre-targets-insitu.csv"), bucket = "targets", file = file.path(config$file_path$qaqc_data_directory, "fcre-targets-insitu.csv"))
   aws.s3::save_object(object = file.path(forecast_site, "fcre-targets-inflow.csv"), bucket = "targets", file = file.path(config$file_path$qaqc_data_directory, "fcre-targets-inflow.csv"))
-  aws.s3::save_object(object = file.path(forecast_site, "/observed-met_fcre.csv"), bucket = "targets", file = file.path(config$file_path$qaqc_data_directory, "observed-met_fcre.csv"))
+  aws.s3::save_object(object = file.path(forecast_site, "observed-met_fcre.nc"), bucket = "targets", file = file.path(config$file_path$qaqc_data_directory, "observed-met_fcre.nc"))
 
   noaa_files = aws.s3::get_bucket(bucket = "drivers", prefix = file.path("noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour))
   noaa_forecast_path <- file.path(lake_directory,"drivers/noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
+  keys <- vapply(noaa_files, `[[`, "", "Key", USE.NAMES = FALSE)
+  empty <- grepl("/$", keys)
+  keys <- keys[!empty]
 
   for(i in 1:length(noaa_files)){
-    aws.s3::save_object(object = noaa_files$object[[i]],bucket = "drivers", file = file.path(lake_directory, "drivers", noaa_files$object[[i]]))
+    aws.s3::save_object(object = keys[i],bucket = "drivers", file = file.path(lake_directory, "drivers", keys[i]))
   }
-
-
+}else{
+  local_noaa_forecast_path <- file.path(config$file_path$noaa_directory, config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
+  noaa_forecast_path <- file.path(lake_directory, "drivers/noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
+  files <- list.files(noaa_forecast_path, full.names = TRUE)
+  for(i in 1:length(files)){
+    dir.create(noaa_forecast_path)
+    file.copy(from = files[i], to = noaa_forecast_path)
+  }
 }
 
 forecast_files <- list.files(noaa_forecast_path, full.names = TRUE)
@@ -89,7 +121,39 @@ if(length(forecast_files) > 0){
 
   if(config$model_settings$model_name == "glm"){
 
-    inflow_forecast_path <- file.path(config$file_path$inflow_directory, config$inflow$forecast_inflow_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
+    if(s3_mode){
+      inflow_forecast_path <- file.path(lake_directory,"drivers/inflow", config$inflow$forecast_inflow_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
+      config$file_path$inflow_directory <- inflow_forecast_path
+      inflow_files = aws.s3::get_bucket(bucket = "drivers", prefix = file.path("inflow",
+                                                                               config$inflow$forecast_inflow_model,
+                                                                               config$location$site_id,
+                                                                               lubridate::as_date(forecast_start_datetime),
+                                                                               forecast_hour))
+      keys <- vapply(inflow_files, `[[`, "", "Key", USE.NAMES = FALSE)
+      empty <- grepl("/$", keys)
+      keys <- keys[!empty]
+
+      if(length(keys) == 0){
+        stop("missing inflow forecasts")
+      }else{for(i in 1:length(inflow_files)){
+        aws.s3::save_object(object = keys[i],bucket = "drivers", file = file.path(lake_directory, "drivers", keys[i]))
+      }
+      }
+    }else{
+      local_inflow_forecast_path <- file.path(config$file_path$inflow_directory, config$inflow$forecast_inflow_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
+      inflow_forecast_path <- file.path(lake_directory,"drivers/inflow", config$inflow$forecast_inflow_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
+      config$file_path$inflow_directory <- inflow_forecast_path
+      files <- list.files(local_inflow_forecast_path, full.names = TRUE)
+      dir.create(noaa_forecast_path)
+      if(length(files) == 0){
+        stop("missing inflow forecasts")
+      }else{
+        for(i in 1:length(files)){
+          dir.create(noaa_forecast_path)
+          file.copy(from = files[i], to = inflow_forecast_path)
+        }
+      }
+    }
 
     #NEED TO DOWNLOAD FROM BUCKET
 
@@ -170,16 +234,11 @@ if(length(forecast_files) > 0){
 
   #Create EML Metadata
   eml_file_name <- FLAREr::create_flare_metadata(file_name = saved_file,
-                                da_forecast_output = da_forecast_output)
-
-  if(s3_mode){
-    aws.s3::put_object(file = saved_file, object = file.path(forecast_site, basename(saved_file)), bucket = "forecasts")
-    aws.s3::put_object(file = eml_file_name, object = file.path(forecast_site, basename(eml_file_name)), bucket = "forecasts")
-  }
-
+                                                 da_forecast_output = da_forecast_output)
 
   #Clean up temp files and large objects in memory
-  unlist(config$file_path$execute_directory, recursive = TRUE)
+  #unlink(config$file_path$execute_directory, recursive = TRUE)
+  #unlink(noaa_forecast_path, recursive = TRUE)
 
   rm(da_forecast_output)
   gc()
@@ -194,18 +253,32 @@ if(length(forecast_files) > 0){
     yaml::write_yaml(run_config, file = file.path(config$file_path$run_config))
     if(s3_mode){
       aws.s3::put_object(file = saved_file, object = file.path(forecast_site, basename(saved_file)), bucket = "restart")
-      #Add metdata
       aws.s3::put_object(file = file.path(lake_directory,"configuration","FLAREr","configure_run.yml"), object = file.path(forecast_site, "configure_run.yml"), bucket = "restart")
+      success <- aws.s3::put_object(file = saved_file, object = file.path(forecast_site, basename(saved_file)), bucket = "forecasts")
+      if(success){
+        unlink(saved_file)
+      }
+      success <- aws.s3::put_object(file = eml_file_name, object = file.path(forecast_site, basename(eml_file_name)), bucket = "forecasts")
+      if(success){
+        unlink(eml_file_name)
+      }
     }
   }
 }else{
   if(update_run_config){
     run_config$forecast_start_datetime <- as.character(lubridate::as_date(run_config$forecast_start_datetime) + lubridate::days(1))
-    yaml::write_yaml(run_config, file = file.path(config$file_path$run_config,"run_configuration.yml"))
+    yaml::write_yaml(run_config, file = file.path(config$file_path$run_config,"configure_run.yml"))
     if(s3_mode){
       aws.s3::put_object(file = saved_file, object = file.path(forecast_site, basename(saved_file)), bucket = "restart")
-      #Add metdata
       aws.s3::put_object(file = file.path(lake_directory,"configuration","FLAREr","configure_run.yml"), object = file.path(forecast_site, "configure_run.yml"), bucket = "restart")
+      success <- aws.s3::put_object(file = saved_file, object = file.path(forecast_site, basename(saved_file)), bucket = "forecasts")
+      if(success){
+        unlink(saved_file)
+      }
+      success <- aws.s3::put_object(file = eml_file_name, object = file.path(forecast_site, basename(eml_file_name)), bucket = "forecasts")
+      if(success){
+        unlink(eml_file_name)
+      }
     }
   }
 }

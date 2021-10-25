@@ -4,6 +4,7 @@ library(lubridate)
 lake_directory <- here::here()
 
 s3_mode <- TRUE
+
 if(file.exists("~/.aws")){
   warning(paste("Detected existing AWS credentials file in ~/.aws,",
                 "Consider renaming these so that automated upload will work"))
@@ -118,9 +119,9 @@ if(is.null(config_obs$combined_obs_file)){
 }
 
 if(s3_mode){
-aws.s3::put_object(file = cleaned_observations_file_long, object = file.path(forecast_site, "fcre-targets-insitu.csv"), bucket = "targets")
-aws.s3::put_object(file = cleaned_inflow_file, object = file.path(forecast_site, "fcre-targets-inflow.csv"), bucket = "targets")
-aws.s3::put_object(file = file.path(config$file_path$qaqc_data_directory, "observed-met_fcre.csv"), object = file.path(forecast_site, "/observed-met_fcre.csv"), bucket = "targets")
+  aws.s3::put_object(file = cleaned_observations_file_long, object = file.path(forecast_site, "fcre-targets-insitu.csv"), bucket = "targets")
+  aws.s3::put_object(file = cleaned_inflow_file, object = file.path(forecast_site, "fcre-targets-inflow.csv"), bucket = "targets")
+  aws.s3::put_object(file = file.path(config$file_path$qaqc_data_directory, "observed-met_fcre.nc"), object = file.path(forecast_site, "observed-met_fcre.nc"), bucket = "targets")
 }
 
 
