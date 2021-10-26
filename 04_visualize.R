@@ -43,7 +43,7 @@ if(s3_mode){
 pdf_file <- FLAREr::plotting_general_2(file_name = restart_file,
                                      target_file = file.path(target_directory, "fcre-targets-insitu.csv"))
 
-sif(s3_mode){
+if(s3_mode){
   success <- aws.s3::put_object(file = pdf_file, object = file.path(forecast_site, basename(pdf_file)), bucket = "analysis")
   if(success){
     unlink(pdf_file)
@@ -58,7 +58,7 @@ if(run_config$forecast_horizon == 16){
                            focal_depths = c(1, 5, 8))
 
   if(s3_mode){
-    success <- aws.s3::put_object(file = png_file_name, object = file.path(forecast_site, basename(pdf_file)), bucket = "analysis")
+    success <- aws.s3::put_object(file = png_file_name, object = file.path(forecast_site, basename(png_file_name)), bucket = "analysis")
     if(success){
       unlink(png_file_name)
     }

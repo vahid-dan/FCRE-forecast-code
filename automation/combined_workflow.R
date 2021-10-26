@@ -3,7 +3,7 @@ setwd(lake_directory)
 
 source(file.path("automation/check_noaa_present.R"))
 
-#noaa_ready <- check_noaa_present(lake_directory)
+noaa_ready <- check_noaa_present(lake_directory, s3_mode = TRUE)
 
 noaa_ready <- TRUE
 
