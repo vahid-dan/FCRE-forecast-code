@@ -267,15 +267,17 @@ eml_file_name <- FLAREr::create_flare_metadata(file_name = saved_file,
 
 #Clean up temp files and large objects in memory
 #unlink(config$file_path$execute_directory, recursive = TRUE)
-unlink(noaa_forecast_path, recursive = TRUE)
 
-success <- aws.s3::put_object(file = saved_file, object = file.path(forecast_site, basename(saved_file)), bucket = "forecasts")
-if(success){
-  unlink(saved_file)
-}
-success <- aws.s3::put_object(file = eml_file_name, object = file.path(forecast_site, basename(eml_file_name)), bucket = "forecasts")
-if(success){
-  unlink(eml_file_name)
+if(s3_mode){
+  unlink(noaa_forecast_path, recursive = TRUE)
+  success <- aws.s3::put_object(file = saved_file, object = file.path(forecast_site, basename(saved_file)), bucket = "forecasts")
+  if(success){
+    unlink(saved_file)
+  }
+  success <- aws.s3::put_object(file = eml_file_name, object = file.path(forecast_site, basename(eml_file_name)), bucket = "forecasts")
+  if(success){
+    unlink(eml_file_name)
+  }
 }
 
 rm(da_forecast_output)
