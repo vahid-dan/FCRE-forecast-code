@@ -1,4 +1,4 @@
-lake_directory <- dirname(getwd())
+lake_directory <- here::here()
 setwd(lake_directory)
 
 source(file.path("automation/check_noaa_present.R"))
