@@ -28,7 +28,7 @@ config$file_path$data_directory <- file.path(lake_directory, "data_raw")
 config$file_path$configuration_directory <- file.path(lake_directory, "configuration")
 config$file_path$execute_directory <- file.path(lake_directory, "flare_tempdir")
 config$file_path$run_config <- file.path(lake_directory, "configuration", "FLAREr","configure_run.yml")
-config$file_path$forecast_output_directory <- file.path(lake_directory, "forecast_output")
+config$file_path$forecast_output_directory <- file.path(lake_directory, "forecasts")
 if(s3_mode){
   restart_exists <- aws.s3::object_exists(object = file.path(forecast_site, "configure_run.yml"), bucket = "restart")
   if(restart_exists){
@@ -38,11 +38,13 @@ if(s3_mode){
   config$run_config <- run_config
   restart_file <- basename(run_config$restart_file)
   if(!is.na(restart_file)){
-    aws.s3::save_object(object = file.path(forecast_site, restart_file), bucket = "restart", file = file.path(lake_directory, "forecast_output", restart_file))
+    aws.s3::save_object(object = file.path(forecast_site, restart_file),
+                        bucket = "forecasts",
+                        file = file.path(lake_directory, "forecasts", restart_file))
     restart_file <- basename(run_config$restart_file)
-    config$run_config$restart_file <- file.path(lake_directory, "forecast_output", restart_file)
+    config$run_config$restart_file <- file.path(lake_directory, "forecasts", restart_file)
   }
-  config$run_config$restart_file <- file.path(lake_directory, "forecast_output", restart_file)
+  config$run_config$restart_file <- file.path(lake_directory, "forecasts", restart_file)
   config$run_config <- run_config
 }else{
   run_config <- yaml::read_yaml(config$file_path$run_config)
@@ -238,7 +240,16 @@ if(length(forecast_files) > 0){
 
   #Clean up temp files and large objects in memory
   #unlink(config$file_path$execute_directory, recursive = TRUE)
-  #unlink(noaa_forecast_path, recursive = TRUE)
+  unlink(noaa_forecast_path, recursive = TRUE)
+
+  success <- aws.s3::put_object(file = saved_file, object = file.path(forecast_site, basename(saved_file)), bucket = "forecasts")
+  if(success){
+    unlink(saved_file)
+  }
+  success <- aws.s3::put_object(file = eml_file_name, object = file.path(forecast_site, basename(eml_file_name)), bucket = "forecasts")
+  if(success){
+    unlink(eml_file_name)
+  }
 
   rm(da_forecast_output)
   gc()
@@ -252,16 +263,7 @@ if(length(forecast_files) > 0){
     run_config$restart_file <- saved_file
     yaml::write_yaml(run_config, file = file.path(config$file_path$run_config))
     if(s3_mode){
-      aws.s3::put_object(file = saved_file, object = file.path(forecast_site, basename(saved_file)), bucket = "restart")
       aws.s3::put_object(file = file.path(lake_directory,"configuration","FLAREr","configure_run.yml"), object = file.path(forecast_site, "configure_run.yml"), bucket = "restart")
-      success <- aws.s3::put_object(file = saved_file, object = file.path(forecast_site, basename(saved_file)), bucket = "forecasts")
-      if(success){
-        unlink(saved_file)
-      }
-      success <- aws.s3::put_object(file = eml_file_name, object = file.path(forecast_site, basename(eml_file_name)), bucket = "forecasts")
-      if(success){
-        unlink(eml_file_name)
-      }
     }
   }
 }else{
@@ -269,17 +271,11 @@ if(length(forecast_files) > 0){
     run_config$forecast_start_datetime <- as.character(lubridate::as_date(run_config$forecast_start_datetime) + lubridate::days(1))
     yaml::write_yaml(run_config, file = file.path(config$file_path$run_config,"configure_run.yml"))
     if(s3_mode){
-      aws.s3::put_object(file = saved_file, object = file.path(forecast_site, basename(saved_file)), bucket = "restart")
       aws.s3::put_object(file = file.path(lake_directory,"configuration","FLAREr","configure_run.yml"), object = file.path(forecast_site, "configure_run.yml"), bucket = "restart")
-      success <- aws.s3::put_object(file = saved_file, object = file.path(forecast_site, basename(saved_file)), bucket = "forecasts")
-      if(success){
-        unlink(saved_file)
-      }
-      success <- aws.s3::put_object(file = eml_file_name, object = file.path(forecast_site, basename(eml_file_name)), bucket = "forecasts")
-      if(success){
-        unlink(eml_file_name)
-      }
     }
   }
 }
+
+message(paste0("successfully generated inflow forecats for: ", run_config$restart_file))
+
 

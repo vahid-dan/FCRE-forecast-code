@@ -9,3 +9,5 @@ delete_restart <- function(site){
     }
   }
 }
+
+delete_restart("fcre")

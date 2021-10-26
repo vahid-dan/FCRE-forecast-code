@@ -170,4 +170,6 @@ manager_plot <- function(file_name,
 
   mtext(paste0('Falling Creek Reservoir\n',lubridate::month(tmp_day),'/',lubridate::day(tmp_day),'/',lubridate::year(tmp_day)), side = 3, line = -2, outer = TRUE, font = 2)
   dev.off()
+
+  invisible(pdf_file_name)
 }
