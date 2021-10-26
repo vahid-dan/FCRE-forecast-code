@@ -1,8 +1,8 @@
-restart_file: /Users/quinn/workfiles/Research/SSC_forecasting/automation_test/forecasts/fcre/test_run_H_2021_10_01_2021_10_15_F_5_20211018T161128.nc
-start_datetime: 2021-10-15 00:00:00
+restart_file: .na
+start_datetime: 2021-10-01 00:00:00
 end_datetime: .na
-forecast_start_datetime: 2021-10-16 00:00:00
-forecast_horizon: 16
+forecast_start_datetime: 2021-10-20 00:00:00
+forecast_horizon: 0
 sim_name: test_run
 forecast_output_directory: .na
 forecast_configuration_directory: .na

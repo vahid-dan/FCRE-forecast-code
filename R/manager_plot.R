@@ -2,15 +2,14 @@
 
 
 manager_plot <- function(file_name,
-                         qaqc_data_directory,
+                         target_file,
                          focal_depths = c(1, 5, 8)){
 
 
   png_file_name <- paste0(tools::file_path_sans_ext(file_name),"_turnover.png")
 
-  print(qaqc_data_directory)
   output <- FLAREr::combine_forecast_observations(file_name,
-                                                  qaqc_data_directory,
+                                                  target_file,
                                                  extra_historical_days = 5)
   obs <- output$obs
   full_time_extended <- output$full_time_extended
@@ -171,5 +170,5 @@ manager_plot <- function(file_name,
   mtext(paste0('Falling Creek Reservoir\n',lubridate::month(tmp_day),'/',lubridate::day(tmp_day),'/',lubridate::year(tmp_day)), side = 3, line = -2, outer = TRUE, font = 2)
   dev.off()
 
-  invisible(pdf_file_name)
+  invisible(png_file_name)
 }

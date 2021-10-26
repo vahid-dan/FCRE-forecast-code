@@ -1,4 +1,8 @@
+library(tidyverse)
+library(lubridate)
+
 lake_directory <- here::here()
+forecast_site <- "fcre"
 
 s3_mode <- TRUE
 
@@ -28,18 +32,18 @@ if(s3_mode){
   restart_file <- file.path(lake_directory, "forecasts", basename(run_config$restart_file))
 }
 
-config$file_path$qaqc_data_directory <- file.path(lake_directory, "data_processed")
+target_directory <- file.path(lake_directory, "data_processed")
 
 if(s3_mode){
   aws.s3::save_object(object = file.path(forecast_site, "fcre-targets-insitu.csv"),
                       bucket = "targets",
-                      file = file.path(config$file_path$qaqc_data_directory, "fcre-targets-insitu.csv"))
+                      file = file.path(target_directory, "fcre-targets-insitu.csv"))
 }
 
-pdf_file <- FLAREr::plotting_general(file_name = restart_file,
-                                     qaqc_data_directory = config$file_path$qaqc_data_directory)
+pdf_file <- FLAREr::plotting_general_2(file_name = restart_file,
+                                     target_file = file.path(target_directory, "fcre-targets-insitu.csv"))
 
-if(s3_mode){
+sif(s3_mode){
   success <- aws.s3::put_object(file = pdf_file, object = file.path(forecast_site, basename(pdf_file)), bucket = "analysis")
   if(success){
     unlink(pdf_file)
@@ -49,15 +53,21 @@ if(s3_mode){
 source(file.path(lake_directory, "R","manager_plot.R"))
 
 if(run_config$forecast_horizon == 16){
-  pdf_file <- manager_plot(file_name = run_config$restart_file,
-                           qaqc_data_directory = config$file_path$qaqc_data_directory,
+  png_file_name <- manager_plot(file_name = run_config$restart_file,
+                           target_file = file.path(target_directory, "fcre-targets-insitu.csv"),
                            focal_depths = c(1, 5, 8))
 
   if(s3_mode){
-    success <- aws.s3::put_object(file = pdf_file, object = file.path(forecast_site, basename(pdf_file)), bucket = "analysis")
+    success <- aws.s3::put_object(file = png_file_name, object = file.path(forecast_site, basename(pdf_file)), bucket = "analysis")
     if(success){
-      unlink(pdf_file)
+      unlink(png_file_name)
     }
   }
+
+}
+
+if(s3_mode){
+  unlink(file.path(target_directory, "fcre-targets-insitu.csv"))
+  unlink(restart_file)
 }
 

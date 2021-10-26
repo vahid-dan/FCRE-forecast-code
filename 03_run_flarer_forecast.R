@@ -1,3 +1,6 @@
+library(tidyverse)
+library(lubridate)
+
 lake_directory <- here::here()
 s3_mode <- TRUE
 bucket <- "drivers"
@@ -231,8 +234,10 @@ if(length(forecast_files) > 0){
                                                 par_fit_method = config$da_setup$par_fit_method)
 
   # Save forecast
+
   saved_file <- FLAREr::write_forecast_netcdf(da_forecast_output = da_forecast_output,
-                                              forecast_output_directory = config$file_path$forecast_output_directory)
+                                              forecast_output_directory = config$file_path$forecast_output_directory,
+                                              use_short_filename = TRUE)
 
   #Create EML Metadata
   eml_file_name <- FLAREr::create_flare_metadata(file_name = saved_file,

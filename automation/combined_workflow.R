@@ -5,6 +5,8 @@ source(file.path("automation/check_noaa_present.R"))
 
 #noaa_ready <- check_noaa_present(lake_directory)
 
+noaa_ready <- TRUE
+
 if(noaa_ready){
 
   source(file.path("01_generate_targets.R"))
