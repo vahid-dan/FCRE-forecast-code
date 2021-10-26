@@ -297,6 +297,6 @@ if(update_run_config){
   }
 }
 
-message(paste0("successfully generated inflow forecats for: ", run_config$restart_file))
+message(paste0("successfully generated flare forecats for: ", run_config$restart_file))
 
 

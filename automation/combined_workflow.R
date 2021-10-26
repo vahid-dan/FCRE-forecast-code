@@ -1,11 +1,14 @@
+library(tidyverse)
+library(lubridate)
 lake_directory <- here::here()
 setwd(lake_directory)
+forecast_site <- "fcre"
+configuration_file <- "configure_flare.yml"
+update_run_config <- TRUE
 
 source(file.path("automation/check_noaa_present.R"))
 
-noaa_ready <- check_noaa_present(lake_directory, s3_mode = TRUE)
-
-noaa_ready <- TRUE
+noaa_ready <- check_noaa_present(lake_directory, s3_mode = TRUE, forecast_site = forecast_site, configuration_file = configuration_file)
 
 if(noaa_ready){
 
