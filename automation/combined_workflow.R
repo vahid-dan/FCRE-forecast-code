@@ -1,3 +1,5 @@
+renv::restore()
+
 library(tidyverse)
 library(lubridate)
 lake_directory <- here::here()
