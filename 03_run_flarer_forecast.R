@@ -1,11 +1,17 @@
+renv::restore()
+
 library(tidyverse)
 library(lubridate)
 
 lake_directory <- here::here()
+
 s3_mode <- TRUE
 bucket <- "drivers"
 forecast_site <- "fcre"
 update_run_config <- TRUE
+
+files.sources <- list.files(file.path(lake_directory, "R"), full.names = TRUE)
+sapply(files.sources, source)
 
 if(file.exists("~/.aws")){
   warning(paste("Detected existing AWS credentials file in ~/.aws,",
@@ -90,15 +96,11 @@ if(s3_mode){
   aws.s3::save_object(object = file.path(forecast_site, "observed-met_fcre.nc"), bucket = "targets", file = file.path(config$file_path$qaqc_data_directory, "observed-met_fcre.nc"))
 
   if(config$run_config$forecast_horizon > 0){
-    noaa_files = aws.s3::get_bucket(bucket = "drivers", prefix = file.path("noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour))
     noaa_forecast_path <- file.path(lake_directory,"drivers/noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
-    keys <- vapply(noaa_files, `[[`, "", "Key", USE.NAMES = FALSE)
-    empty <- grepl("/$", keys)
-    keys <- keys[!empty]
 
-    for(i in 1:length(noaa_files)){
-      aws.s3::save_object(object = keys[i],bucket = "drivers", file = file.path(lake_directory, "drivers", keys[i]))
-    }
+    download_s3_objects(lake_directory,
+                        bucket = "drivers",
+                        prefix = file.path("noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour))
   }
 }else{
   if(config$run_config$forecast_horizon > 0){
@@ -149,22 +151,14 @@ if(config$model_settings$model_name == "glm"){
     if(s3_mode){
       inflow_forecast_path <- file.path(lake_directory,"drivers/inflow", config$inflow$forecast_inflow_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
       config$file_path$inflow_directory <- inflow_forecast_path
-      inflow_files = aws.s3::get_bucket(bucket = "drivers", prefix = file.path("inflow",
-                                                                               config$inflow$forecast_inflow_model,
-                                                                               config$location$site_id,
-                                                                               lubridate::as_date(forecast_start_datetime),
-                                                                               forecast_hour))
-      keys <- vapply(inflow_files, `[[`, "", "Key", USE.NAMES = FALSE)
-      empty <- grepl("/$", keys)
-      keys <- keys[!empty]
 
-      if(length(keys) == 0){
-        stop("missing inflow forecasts")
-      }else{
-        for(i in 1:length(inflow_files)){
-          aws.s3::save_object(object = keys[i],bucket = "drivers", file = file.path(lake_directory, "drivers", keys[i]))
-        }
-      }
+      download_s3_objects(lake_directory,
+                          bucket = "drivers",
+                          prefix = file.path("inflow",
+                                             config$inflow$forecast_inflow_model,
+                                             config$location$site_id,
+                                             lubridate::as_date(forecast_start_datetime),
+                                             forecast_hour))
     }else{
       local_inflow_forecast_path <- file.path(config$file_path$inflow_directory, config$inflow$forecast_inflow_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
       inflow_forecast_path <- file.path(lake_directory,"drivers/inflow", config$inflow$forecast_inflow_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)

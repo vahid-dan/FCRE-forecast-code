@@ -62,13 +62,14 @@ forecast_inflows_outflows <- function(inflow_obs,
 
     if(s3_mode){
       previous_run_dir_bucket <- file.path("inflow", inflow_model, lake_name_code, run_date, run_cycle)
-      inflow_files = aws.s3::get_bucket(bucket = "drivers", prefix = previous_run_dir_bucket)
-      keys <- vapply(inflow_files, `[[`, "", "Key", USE.NAMES = FALSE)
-      empty <- grepl("/$", keys)
-      keys <- keys[!empty]
 
-      for(i in 1:length(inflow_files)){
-        aws.s3::save_object(object = keys[i],bucket = "drivers", file = file.path(lake_directory, "drivers", keys[i]))
+
+      if(config$run_config$forecast_horizon > 0){
+        noaa_forecast_path <- file.path(lake_directory,"drivers/noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
+
+        download_s3_objects(lake_directory,
+                            bucket = "drivers",
+                            prefix = previous_run_dir_bucket)
       }
 
     }

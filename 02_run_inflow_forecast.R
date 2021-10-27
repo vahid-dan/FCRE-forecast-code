@@ -1,5 +1,10 @@
+renv::restore()
+
 library(tidyverse)
 library(lubridate)
+
+files.sources <- list.files(file.path(lake_directory, "R"), full.names = TRUE)
+sapply(files.sources, source)
 
 lake_directory <- here::here()
 forecast_site <- "fcre"
@@ -59,14 +64,12 @@ if(config$run_config$forecast_horizon > 0){
     aws.s3::save_object(object = file.path(forecast_site, "fcre-targets-inflow.csv"), bucket = "targets", file = file.path(config$file_path$qaqc_data_directory, "fcre-targets-inflow.csv"))
     aws.s3::save_object(object = file.path(forecast_site, "observed-met_fcre.nc"), bucket = "targets", file = file.path(config$file_path$qaqc_data_directory, "observed-met_fcre.nc"))
 
-    noaa_files <- aws.s3::get_bucket(bucket = "drivers", prefix = file.path("noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour))
-    noaa_forecast_path <- file.path(lake_directory,"drivers/noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
-    keys <- vapply(noaa_files, `[[`, "", "Key", USE.NAMES = FALSE)
-    empty <- grepl("/$", keys)
-    keys <- keys[!empty]
+    if(config$run_config$forecast_horizon > 0){
+      noaa_forecast_path <- file.path(lake_directory,"drivers/noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
 
-    for(i in 1:length(noaa_files)){
-      aws.s3::save_object(object = keys[i],bucket = "drivers", file = file.path(lake_directory, "drivers", keys[i]))
+      download_s3_objects(lake_directory,
+                          bucket = "drivers",
+                          prefix = file.path("noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour))
     }
   }else{
     local_noaa_forecast_path <- file.path(config$file_path$noaa_directory, config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
@@ -79,7 +82,6 @@ if(config$run_config$forecast_horizon > 0){
   }
 
   message("Forecasting inflow and outflows")
-  source(paste0(lake_directory, "/R/forecast_inflow_outflows.R"))
   # Forecast Inflows
 
   config$future_inflow_flow_coeff <- c(0.0010803, 0.9478724, 0.3478991)

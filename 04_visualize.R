@@ -1,8 +1,13 @@
+renv::restore()
+
 library(tidyverse)
 library(lubridate)
 
 lake_directory <- here::here()
 forecast_site <- "fcre"
+
+files.sources <- list.files(file.path(lake_directory, "R"), full.names = TRUE)
+sapply(files.sources, source)
 
 s3_mode <- TRUE
 
@@ -49,8 +54,6 @@ if(s3_mode){
     unlink(pdf_file)
   }
 }
-
-source(file.path(lake_directory, "R","manager_plot.R"))
 
 if(run_config$forecast_horizon == 16){
   png_file_name <- manager_plot(file_name = run_config$restart_file,
