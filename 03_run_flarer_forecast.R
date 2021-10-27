@@ -7,7 +7,9 @@ lake_directory <- here::here()
 
 s3_mode <- TRUE
 bucket <- "drivers"
-forecast_site <- "fcre"
+configuration_file <- "configure_flare.yml"
+run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
+forecast_site <- run_config$forecast_site
 update_run_config <- TRUE
 
 files.sources <- list.files(file.path(lake_directory, "R"), full.names = TRUE)
@@ -24,9 +26,6 @@ Sys.setenv("AWS_DEFAULT_REGION" = "data",
 if(!exists("update_run_config")){
   stop("Missing update_run_config variable")
 }
-
-configuration_file <- "configure_flare.yml"
-
 
 #Note: lake_directory need to be set prior to running this script
 config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr",configuration_file))
@@ -92,9 +91,9 @@ if(config$run_config$forecast_horizon > 0){
 }
 
 if(s3_mode){
-  aws.s3::save_object(object = file.path(forecast_site, "fcre-targets-insitu.csv"), bucket = "targets", file = file.path(config$file_path$qaqc_data_directory, "fcre-targets-insitu.csv"))
-  aws.s3::save_object(object = file.path(forecast_site, "fcre-targets-inflow.csv"), bucket = "targets", file = file.path(config$file_path$qaqc_data_directory, "fcre-targets-inflow.csv"))
-  aws.s3::save_object(object = file.path(forecast_site, "observed-met_fcre.nc"), bucket = "targets", file = file.path(config$file_path$qaqc_data_directory, "observed-met_fcre.nc"))
+  aws.s3::save_object(object = file.path(forecast_site, paste0(forecast_site, "-targets-insitu.csv")), bucket = "targets", file = file.path(config$file_path$qaqc_data_directory, paste0(forecast_site, "-targets-insitu.csv")))
+  aws.s3::save_object(object = file.path(forecast_site, paste0(forecast_site, "-targets-inflow.csv")), bucket = "targets", file = file.path(config$file_path$qaqc_data_directory, paste0(forecast_site, "-targets-inflow.csv")))
+  aws.s3::save_object(object = file.path(forecast_site, paste0("observed-met_",forecast_site,".nc")), bucket = "targets", file = file.path(config$file_path$qaqc_data_directory, paste0("observed-met-noaa_",forecast_site,".nc")))
 
   if(config$run_config$forecast_horizon > 0){
     noaa_forecast_path <- file.path(lake_directory,"drivers/noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
@@ -129,9 +128,9 @@ states_config <- readr::read_csv(file.path(config$file_path$configuration_direct
 
 #Download and process observations (already done)
 
-cleaned_observations_file_long <- file.path(config$file_path$qaqc_data_directory,"fcre-targets-insitu.csv")
-cleaned_inflow_file <- file.path(config$file_path$qaqc_data_directory, "fcre-targets-inflow.csv")
-observed_met_file <- file.path(config$file_path$qaqc_data_directory,"observed-met_fcre.nc")
+cleaned_observations_file_long <- file.path(config$file_path$qaqc_data_directory,paste0(forecast_site, "-targets-insitu.csv"))
+cleaned_inflow_file <- file.path(config$file_path$qaqc_data_directory, paste0(forecast_site, "-targets-inflow.csv"))
+observed_met_file <- file.path(config$file_path$qaqc_data_directory, paste0("observed-met_",forecast_site,".nc"))
 
 met_out <- FLAREr::generate_glm_met_files(obs_met_file = observed_met_file,
                                           out_dir = config$file_path$execute_directory,

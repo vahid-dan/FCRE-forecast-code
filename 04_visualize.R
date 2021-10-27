@@ -4,14 +4,14 @@ library(tidyverse)
 library(lubridate)
 
 lake_directory <- here::here()
-forecast_site <- "fcre"
+configuration_file <- "configure_flare.yml"
+run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr",configuration_file))
+forecast_site <- run_config$forecast_site
 
 files.sources <- list.files(file.path(lake_directory, "R"), full.names = TRUE)
 sapply(files.sources, source)
 
 s3_mode <- TRUE
-
-configuration_file <- "configure_flare.yml"
 
 if(s3_mode){
   restart_exists <- aws.s3::object_exists(object = file.path(forecast_site, "configure_run.yml"),

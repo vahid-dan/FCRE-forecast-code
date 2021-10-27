@@ -1,5 +1,10 @@
 flare_tempdir/*
-forecast_output/*
+forecasts/*
+data_processed/*
+data_raw/*
+drivers/*
+analysis/*
+automation/*.log
 
 
 # History files

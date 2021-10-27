@@ -1,9 +1,10 @@
-restart_file: /home/rstudio/FCRE-forecast-code/forecasts/test_run_H_2021_10_01_2021_10_20_F_0_20211026T135710.nc
+restart_file: .na
 start_datetime: 2021-10-20 00:00:00
 end_datetime: .na
-forecast_start_datetime: 2021-10-21 00:00:00
-forecast_horizon: 16.0
+forecast_start_datetime: 2021-10-25 00:00:00
+forecast_horizon: 0.0
 sim_name: test_run
+forecast_site: fcre
 forecast_output_directory: .na
 forecast_configuration_directory: .na
 execute_directory: .na

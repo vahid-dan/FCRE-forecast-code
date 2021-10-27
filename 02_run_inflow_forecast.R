@@ -7,10 +7,11 @@ files.sources <- list.files(file.path(lake_directory, "R"), full.names = TRUE)
 sapply(files.sources, source)
 
 lake_directory <- here::here()
-forecast_site <- "fcre"
 s3_mode <- TRUE
 
 configuration_file <- "configure_flare.yml"
+run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
+forecast_site <- run_config$forecast_site
 
 if(file.exists("~/.aws")){
   warning(paste("Detected existing AWS credentials file in ~/.aws,",
