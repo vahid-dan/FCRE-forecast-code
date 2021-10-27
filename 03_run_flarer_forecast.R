@@ -71,6 +71,7 @@ if(s3_mode){
     file.copy(from = run_config$restart_file, to = config$file_path$forecast_output_directory)
   }
 }
+
 # Set up timings
 #Weather Drivers
 start_datetime <- lubridate::as_datetime(config$run_config$start_datetime)

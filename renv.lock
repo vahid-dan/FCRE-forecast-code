@@ -45,8 +45,14 @@
     "FLAREr": {
       "Package": "FLAREr",
       "Version": "2.1.0",
-      "Source": "unknown",
-      "Hash": "ae6ba385fc51bb46f758d5f3bf94770d"
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "FLAREr",
+      "RemoteUsername": "FLARE-forecast",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "35a75e15831141615a972f694c8515d3de338070",
+      "Hash": "817419b2566a7ff53047b1c6992a2461"
     },
     "GEOmap": {
       "Package": "GEOmap",
@@ -133,8 +139,14 @@
     "Rnoaa4cast": {
       "Package": "Rnoaa4cast",
       "Version": "0.0.1.02.5",
-      "Source": "unknown",
-      "Hash": "d240c85bfdd595a1cfa56b00c6bd7d44"
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteRepo": "Rnoaa4cast",
+      "RemoteUsername": "FLARE-forecast",
+      "RemoteRef": "HEAD",
+      "RemoteSha": "e20cb8284f0d546e659a21e6acc08d3b64407080",
+      "Hash": "d7028b58623887825c1728f6df9bc384"
     },
     "TTR": {
       "Package": "TTR",
