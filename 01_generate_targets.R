@@ -107,6 +107,8 @@ if(is.null(config_obs$inflow1_file)){
 
 cleaned_observations_file_long <- paste0(config$file_path$qaqc_data_directory,
                                          "/fcre-targets-insitu.csv")
+
+config_obs$data_location <- config$file_path$data_directory
 if(is.null(config_obs$combined_obs_file)){
   in_situ_qaqc(insitu_obs_fname = file.path(config$file_path$data_directory,config_obs$insitu_obs_fname),
                data_location = config$file_path$data_directory,
