@@ -55,7 +55,7 @@ inflow_qaqc <- function(realtime_file,
            WVWA_Flow_cms = ifelse(is.nan(WVWA_Flow_cms), NA, WVWA_Flow_cms),
            WVWA_Temp_C = ifelse(is.nan(WVWA_Temp_C), NA, WVWA_Temp_C)) %>%
     dplyr::rename("time" = date) %>%
-    na.omit(time) %>%
+    dplyr::filter(!is.na(time)) %>%
     dplyr::arrange(time)
 
   inflow_temp_flow <- tibble(time = seq(first(flow$time), last(flow$time), by = "1 day")) %>%
