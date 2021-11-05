@@ -10,7 +10,7 @@ lake_directory <- here::here()
 configuration_file <- "configure_run.yml"
 run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr",configuration_file))
 forecast_site <- run_config$forecast_site
-
+sim_name <- run_config$sim_name
 files.sources <- list.files(file.path(lake_directory, "R"), full.names = TRUE)
 sapply(files.sources, source)
 
