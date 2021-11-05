@@ -20,8 +20,8 @@ if(file.exists("~/.aws")){
                 "Consider renaming these so that automated upload will work"))
 }
 
-Sys.setenv("AWS_DEFAULT_REGION" = "data",
-           "AWS_S3_ENDPOINT" = "rquinnthomas.com")
+Sys.setenv("AWS_DEFAULT_REGION" = "s3",
+           "AWS_S3_ENDPOINT" = "flare-forecast.org")
 
 if(!exists("update_run_config")){
   stop("Missing update_run_config variable")

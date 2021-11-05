@@ -3,8 +3,11 @@ renv::restore()
 library(tidyverse)
 library(lubridate)
 
+Sys.setenv("AWS_DEFAULT_REGION" = "s3",
+           "AWS_S3_ENDPOINT" = "flare-forecast.org")
+
 lake_directory <- here::here()
-configuration_file <- "configure_flare.yml"
+configuration_file <- "configure_run.yml"
 run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr",configuration_file))
 forecast_site <- run_config$forecast_site
 
@@ -40,13 +43,13 @@ if(s3_mode){
 target_directory <- file.path(lake_directory, "data_processed")
 
 if(s3_mode){
-  aws.s3::save_object(object = file.path(forecast_site, "fcre-targets-insitu.csv"),
+  aws.s3::save_object(object = file.path(forecast_site, paste0(forecast_site, "-targets-insitu.csv")),
                       bucket = "targets",
-                      file = file.path(target_directory, "fcre-targets-insitu.csv"))
+                      file = file.path(target_directory, paste0(forecast_site, "-targets-insitu.csv")))
 }
 
 pdf_file <- FLAREr::plotting_general_2(file_name = restart_file,
-                                     target_file = file.path(target_directory, "fcre-targets-insitu.csv"))
+                                     target_file = file.path(target_directory, paste0(forecast_site, "-targets-insitu.csv")))
 
 if(s3_mode){
   success <- aws.s3::put_object(file = pdf_file, object = file.path(forecast_site, basename(pdf_file)), bucket = "analysis")
@@ -57,7 +60,7 @@ if(s3_mode){
 
 if(run_config$forecast_horizon == 16){
   png_file_name <- manager_plot(file_name = run_config$restart_file,
-                           target_file = file.path(target_directory, "fcre-targets-insitu.csv"),
+                           target_file = file.path(target_directory, paste0(forecast_site, "-targets-insitu.csv")),
                            focal_depths = c(1, 5, 8))
 
   if(s3_mode){
@@ -70,7 +73,7 @@ if(run_config$forecast_horizon == 16){
 }
 
 if(s3_mode){
-  unlink(file.path(target_directory, "fcre-targets-insitu.csv"))
+  unlink(file.path(target_directory, paste0(forecast_site, "-targets-insitu.csv")))
   unlink(restart_file)
 }
 

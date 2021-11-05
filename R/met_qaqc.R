@@ -1,6 +1,6 @@
 met_qaqc <- function(realtime_file,
                      qaqc_file,
-                     cleaned_met_file_dir,
+                     cleaned_met_file,
                      input_file_tz,
                      nldas = NULL){
 
@@ -260,19 +260,13 @@ met_qaqc <- function(realtime_file,
              wind_speed = imputeTS::na_interpolation(wind_speed, option = "linear"))
   }
 
-  model_name <- "observed-met"
-  site <- "fcre"
   lat <- 37.27
   lon <- 360-79.9
   start_time <- dplyr::first((d$time))
   end_time <- dplyr::last((d$time))
   cf_units <- cf_var_units1
 
-  identifier <- paste(model_name, site,sep="_")
-
-  fname <- paste0(identifier,".nc")
-
-  output_file <- file.path(cleaned_met_file_dir, fname)
+  output_file <- cleaned_met_file
 
   start_time <- min(d$time)
   end_time <- max(d$time)

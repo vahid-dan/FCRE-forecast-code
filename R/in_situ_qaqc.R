@@ -109,6 +109,8 @@ in_situ_qaqc <- function(insitu_obs_fname,
 
   d_clean <- d_clean %>% select(date, hour, depth, value, variable)
 
+  d_clean$value <- round(d_clean$value, digits = 4)
+
   readr::write_csv(d_clean, cleaned_observations_file_long)
 
   #rm(d_clean, d, d_secchi, d_ch4, d_nutrients, d_ctd)

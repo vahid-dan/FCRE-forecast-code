@@ -12,8 +12,8 @@ if(file.exists("~/.aws")){
                 "Consider renaming these so that automated upload will work"))
 }
 
-Sys.setenv("AWS_DEFAULT_REGION" = "data",
-           "AWS_S3_ENDPOINT" = "rquinnthomas.com")
+Sys.setenv("AWS_DEFAULT_REGION" = "s3",
+           "AWS_S3_ENDPOINT" = "flare-forecast.org")
 
 configuration_file <- "configure_flare.yml"
 run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
@@ -82,10 +82,12 @@ if(!file.exists(file.path(lake_directory, "data_raw", config_obs$secchi_fname)))
 files.sources <- list.files(file.path(lake_directory, "R"), full.names = TRUE)
 sapply(files.sources, source)
 
+cleaned_met_file <- file.path(config$file_path$qaqc_data_directory,
+                              paste0("observed-met_",forecast_site,".nc"))
 if(is.null(config_obs$met_file)){
   met_qaqc(realtime_file = file.path(config$file_path$data_directory, config_obs$met_raw_obs_fname[1]),
            qaqc_file = file.path(config$file_path$data_directory, config_obs$met_raw_obs_fname[2]),
-           cleaned_met_file_dir = config$file_path$qaqc_data_directory,
+           cleaned_met_file = cleaned_met_file,
            input_file_tz = "EST",
            nldas = file.path(config$file_path$data_directory, config_obs$nldas))
 }else{
@@ -124,9 +126,9 @@ if(is.null(config_obs$combined_obs_file)){
 }
 
 if(s3_mode){
-  aws.s3::put_object(file = cleaned_observations_file_long, object = file.path(forecast_site, "fcre-targets-insitu.csv"), bucket = "targets")
-  aws.s3::put_object(file = cleaned_inflow_file, object = file.path(forecast_site, "fcre-targets-inflow.csv"), bucket = "targets")
-  aws.s3::put_object(file = file.path(config$file_path$qaqc_data_directory, "observed-met_fcre.nc"), object = file.path(forecast_site, "observed-met_fcre.nc"), bucket = "targets")
+  aws.s3::put_object(file = cleaned_observations_file_long, object = file.path(forecast_site, basename(cleaned_observations_file_long)), bucket = "targets")
+  aws.s3::put_object(file = cleaned_inflow_file, object = file.path(forecast_site, basename(cleaned_inflow_file)), bucket = "targets")
+  aws.s3::put_object(file = cleaned_met_file, object = file.path(forecast_site, basename(cleaned_met_file)), bucket = "targets")
 }
 
 
