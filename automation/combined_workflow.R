@@ -10,7 +10,10 @@ update_run_config <- TRUE
 
 source(file.path("automation/check_noaa_present.R"))
 
-noaa_ready <- check_noaa_present(lake_directory, s3_mode = TRUE, forecast_site = forecast_site, configuration_file = configuration_file)
+noaa_ready <- check_noaa_present(lake_directory,
+                                 s3_mode = TRUE,
+                                 forecast_site = forecast_site,
+                                 configuration_file = configuration_file)
 
 if(noaa_ready){
 
