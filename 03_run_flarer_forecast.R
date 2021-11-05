@@ -59,18 +59,18 @@ if(s3_mode){
                         bucket = "forecasts",
                         file = file.path(lake_directory, "forecasts", restart_file))
     restart_file <- basename(run_config$restart_file)
-    config$run_config$restart_file <- file.path(lake_directory, "forecasts", restart_file)
+    run_config$restart_file <- file.path(lake_directory, "forecasts", restart_file)
   }
   if(!is.na(run_config$restart_file)){
-    config$run_config$restart_file <- file.path(lake_directory, "forecasts", restart_file)
+    run_config$restart_file <- file.path(lake_directory, "forecasts", restart_file)
   }
   config$run_config <- run_config
 }else{
-  run_config <- yaml::read_yaml(config$file_path$run_config)
-  config$run_config <- run_config
+  run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
   if(!is.na(run_config$restart_file)){
-    config$run_config$restart_file <- file.path(lake_directory, "forecasts", restart_file)
+    run_config$restart_file <- file.path(lake_directory, "forecasts", restart_file)
   }
+  config$run_config <- run_config
 }
 
 # Set up timings
