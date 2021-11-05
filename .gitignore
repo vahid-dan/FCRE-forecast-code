@@ -3,7 +3,6 @@ forecasts/*
 data_processed/*
 data_raw/*
 drivers/*
-analysis/*
 automation/*.log
 
 
