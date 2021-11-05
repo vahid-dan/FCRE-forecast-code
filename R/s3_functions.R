@@ -11,8 +11,8 @@ download_s3_objects <- function(lake_directory, bucket, prefix){
   }
 }
 
-delete_restart <- function(site){
-  files <- aws.s3::get_bucket(bucket = "restart", prefix = site)
+delete_restart <- function(site, sim_name){
+  files <- aws.s3::get_bucket(bucket = "restart", prefix = file.path(site, sim_name))
   keys <- vapply(files, `[[`, "", "Key", USE.NAMES = FALSE)
   empty <- grepl("/$", keys)
   keys <- keys[!empty]

@@ -17,10 +17,12 @@ sapply(files.sources, source)
 s3_mode <- TRUE
 
 if(s3_mode){
-  restart_exists <- aws.s3::object_exists(object = file.path(forecast_site, "configure_run.yml"),
+  restart_exists <- aws.s3::object_exists(object = file.path(forecast_site, sim_name, "configure_run.yml"),
                                           bucket = "restart")
   if(restart_exists){
-    aws.s3::save_object(object = file.path(forecast_site, "configure_run.yml"), bucket = "restart", file = file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
+    aws.s3::save_object(object = file.path(forecast_site, sim_name, "configure_run.yml"),
+                        bucket = "restart",
+                        file = file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
   }
   run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
   restart_file <- basename(run_config$restart_file)
@@ -35,9 +37,8 @@ if(s3_mode){
 }else{
   run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
   if(!is.na(run_config$restart_file)){
-    file.copy(from = run_config$restart_file, to = file.path(lake_directory, "forecasts"))
+    restart_file <- file.path(lake_directory, "forecasts", run_config$restart_file)
   }
-  restart_file <- file.path(lake_directory, "forecasts", basename(run_config$restart_file))
 }
 
 target_directory <- file.path(lake_directory, "data_processed")
