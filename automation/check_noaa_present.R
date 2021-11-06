@@ -30,19 +30,11 @@ check_noaa_present <- function(lake_directory, s3_mode, forecast_site, configura
   }
 
   if(run_config$forecast_horizon > 0){
-    if(s3_mode){
-      noaa_files = aws.s3::get_bucket(bucket = "drivers", prefix = file.path("noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour))
-      noaa_forecast_path <- file.path(lake_directory,"drivers/noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
-      keys <- vapply(noaa_files, `[[`, "", "Key", USE.NAMES = FALSE)
-      empty <- grepl("/$", keys)
-      forecast_files <- keys[!empty]
-    }else{
-      if(run_config$forecast_horizon > 0){
-        local_noaa_forecast_path <- file.path(config$file_path$noaa_directory, config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
-        noaa_forecast_path <- file.path(lake_directory, "drivers/noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
-        forecast_files <- list.files(noaa_forecast_path, full.names = TRUE)
-      }
-    }
+    noaa_files = aws.s3::get_bucket(bucket = "drivers", prefix = file.path("noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour))
+    noaa_forecast_path <- file.path(lake_directory,"drivers/noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
+    keys <- vapply(noaa_files, `[[`, "", "Key", USE.NAMES = FALSE)
+    empty <- grepl("/$", keys)
+    forecast_files <- keys[!empty]
     noaa_forecasts_ready <- FALSE
   }else{
     forecast_files <- NULL

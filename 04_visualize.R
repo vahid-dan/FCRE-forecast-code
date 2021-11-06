@@ -16,32 +16,21 @@ sapply(files.sources, source)
 
 s3_mode <- TRUE
 
-if(s3_mode){
-  restart_exists <- aws.s3::object_exists(object = file.path(forecast_site, sim_name, "configure_run.yml"),
-                                          bucket = "restart")
-  if(restart_exists){
-    aws.s3::save_object(object = file.path(forecast_site, sim_name, "configure_run.yml"),
-                        bucket = "restart",
-                        file = file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
-  }
-  run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
+run_config <- get_run_config(lake_directory, forecast_site, sim_name, s3_mode, clean_start = FALSE)
+
+if(!is.na(run_config$restart_file)){
   restart_file <- basename(run_config$restart_file)
-  if(!is.na(restart_file)){
+  if(s3_mode){
     aws.s3::save_object(object = file.path(forecast_site, restart_file),
                         bucket = "forecasts",
                         file = file.path(lake_directory, "forecasts", restart_file))
-    run_config$restart_file <- file.path(lake_directory, "forecasts", basename(restart_file))
   }
-
-  restart_file <- file.path(lake_directory, "forecasts", basename(run_config$restart_file))
+  run_config$restart_file <- file.path(lake_directory, "forecasts", restart_file)
 }else{
-  run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
-  if(!is.na(run_config$restart_file)){
-    restart_file <- file.path(lake_directory, "forecasts", run_config$restart_file)
-  }
+  restart_file <- NA
 }
 
-target_directory <- file.path(lake_directory, "data_processed")
+target_directory <- file.path(lake_directory, "targets")
 
 if(s3_mode){
   aws.s3::save_object(object = file.path(forecast_site, paste0(forecast_site, "-targets-insitu.csv")),

@@ -5,7 +5,7 @@ library(lubridate)
 
 lake_directory <- here::here()
 
-s3_mode <- TRUE
+s3_mode <- FALSE
 
 if(file.exists("~/.aws")){
   warning(paste("Detected existing AWS credentials file in ~/.aws,",
@@ -82,37 +82,28 @@ if(!file.exists(file.path(lake_directory, "data_raw", config_obs$secchi_fname)))
 files.sources <- list.files(file.path(lake_directory, "R"), full.names = TRUE)
 sapply(files.sources, source)
 
-cleaned_met_file <- file.path(config$file_path$qaqc_data_directory,
-                              paste0("observed-met_",forecast_site,".nc"))
-if(is.null(config_obs$met_file)){
-  met_qaqc(realtime_file = file.path(config$file_path$data_directory, config_obs$met_raw_obs_fname[1]),
+cleaned_met_file <- file.path(config$file_path$qaqc_data_directory, paste0("observed-met_",forecast_site,".nc"))
+met_qaqc(realtime_file = file.path(config$file_path$data_directory, config_obs$met_raw_obs_fname[1]),
            qaqc_file = file.path(config$file_path$data_directory, config_obs$met_raw_obs_fname[2]),
            cleaned_met_file = cleaned_met_file,
            input_file_tz = "EST",
            nldas = file.path(config$file_path$data_directory, config_obs$nldas))
-}else{
-  file.copy(file.path(config$file_path$data_directory,config_obs$met_file), cleaned_met_file, overwrite = TRUE)
-}
 
 cleaned_inflow_file <- paste0(config$file_path$qaqc_data_directory, "/fcre-targets-inflow.csv")
-
-if(is.null(config_obs$inflow1_file)){
-  inflow_qaqc(realtime_file = file.path(config$file_path$data_directory, config_obs$inflow_raw_file1[1]),
+inflow_qaqc(realtime_file = file.path(config$file_path$data_directory, config_obs$inflow_raw_file1[1]),
               qaqc_file = file.path(config$file_path$data_directory, config_obs$inflow_raw_file1[2]),
               nutrients_file = file.path(config$file_path$data_directory, config_obs$nutrients_fname),
               cleaned_inflow_file ,
               input_file_tz = 'EST')
-}else{
-  file.copy(file.path(config$file_path$data_directory,config_obs$inflow1_file), cleaned_inflow_file, overwrite = TRUE)
-}
+
 
 
 cleaned_observations_file_long <- paste0(config$file_path$qaqc_data_directory,
                                          "/fcre-targets-insitu.csv")
 
 config_obs$data_location <- config$file_path$data_directory
-if(is.null(config_obs$combined_obs_file)){
-  in_situ_qaqc(insitu_obs_fname = file.path(config$file_path$data_directory,config_obs$insitu_obs_fname),
+
+in_situ_qaqc(insitu_obs_fname = file.path(config$file_path$data_directory,config_obs$insitu_obs_fname),
                data_location = config$file_path$data_directory,
                maintenance_file = file.path(config$file_path$data_directory,config_obs$maintenance_file),
                ctd_fname = file.path(config$file_path$data_directory,config_obs$ctd_fname),
@@ -121,9 +112,7 @@ if(is.null(config_obs$combined_obs_file)){
                cleaned_observations_file_long = cleaned_observations_file_long,
                lake_name_code = forecast_site,
                config = config_obs)
-}else{
-  file.copy(file.path(config$file_path$data_directory,config_obs$combined_obs_file), cleaned_observations_file_long, overwrite = TRUE)
-}
+
 
 if(s3_mode){
   aws.s3::put_object(file = cleaned_observations_file_long, object = file.path(forecast_site, basename(cleaned_observations_file_long)), bucket = "targets")

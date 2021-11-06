@@ -30,7 +30,7 @@ if(!exists("update_run_config")){
 
 #Note: lake_directory need to be set prior to running this script
 config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr",configuration_file))
-config$file_path$qaqc_data_directory <- file.path(lake_directory, "data_processed")
+config$file_path$qaqc_data_directory <- file.path(lake_directory, "targets")
 config$file_path$data_directory <- file.path(lake_directory, "data_raw")
 config$file_path$configuration_directory <- file.path(lake_directory, "configuration")
 config$file_path$execute_directory <- file.path(lake_directory, "flare_tempdir")
@@ -41,37 +41,20 @@ config$file_path$forecast_output_directory <- file.path(lake_directory, "forecas
 config$file_path$noaa_directory <- file.path(dirname(lake_directory), "drivers", "noaa")
 
 
-if(s3_mode){
-  restart_exists <- aws.s3::object_exists(object = file.path(forecast_site, sim_name, "configure_run.yml"),
-                                          bucket = "restart")
-  if(restart_exists){
-    aws.s3::save_object(object = file.path(forecast_site, sim_name, "configure_run.yml"), bucket = "restart", file = file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
-  }
-  run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
-  config$run_config <- run_config
-  if(!is.na(run_config$restart_file)){
-    restart_file <- basename(run_config$restart_file)
-  }else{
-    restart_file <- NA
-  }
-  if(!is.na(restart_file)){
+run_config <- get_run_config(lake_directory, forecast_site, sim_name, s3_mode, clean_start = FALSE)
+
+if(!is.na(run_config$restart_file)){
+  restart_file <- basename(run_config$restart_file)
+  if(s3_mode){
     aws.s3::save_object(object = file.path(forecast_site, restart_file),
                         bucket = "forecasts",
                         file = file.path(lake_directory, "forecasts", restart_file))
-    restart_file <- basename(run_config$restart_file)
-    run_config$restart_file <- file.path(lake_directory, "forecasts", restart_file)
   }
-  if(!is.na(run_config$restart_file)){
-    run_config$restart_file <- file.path(lake_directory, "forecasts", restart_file)
-  }
-  config$run_config <- run_config
+  run_config$restart_file <- file.path(lake_directory, "forecasts", restart_file)
 }else{
-  run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
-  if(!is.na(run_config$restart_file)){
-    run_config$restart_file <- file.path(lake_directory, "forecasts", restart_file)
-  }
-  config$run_config <- run_config
+  restart_file <- NA
 }
+config$run_config <- run_config
 
 # Set up timings
 #Weather Drivers
@@ -96,28 +79,25 @@ if(s3_mode){
   aws.s3::save_object(object = file.path(forecast_site, paste0(forecast_site, "-targets-insitu.csv")), bucket = "targets", file = file.path(config$file_path$qaqc_data_directory, paste0(forecast_site, "-targets-insitu.csv")))
   aws.s3::save_object(object = file.path(forecast_site, paste0(forecast_site, "-targets-inflow.csv")), bucket = "targets", file = file.path(config$file_path$qaqc_data_directory, paste0(forecast_site, "-targets-inflow.csv")))
   aws.s3::save_object(object = file.path(forecast_site, paste0("observed-met_",forecast_site,".nc")), bucket = "targets", file = file.path(config$file_path$qaqc_data_directory, paste0("observed-met-noaa_",forecast_site,".nc")))
-
-  if(config$run_config$forecast_horizon > 0){
-    noaa_forecast_path <- file.path(lake_directory,"drivers/noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
-
-    download_s3_objects(lake_directory,
-                        bucket = "drivers",
-                        prefix = file.path("noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour))
-  }
-}else{
-  if(config$run_config$forecast_horizon > 0){
-    local_noaa_forecast_path <- file.path(config$file_path$noaa_directory, config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
-    noaa_forecast_path <- file.path(lake_directory, "drivers/noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
-    files <- list.files(noaa_forecast_path, full.names = TRUE)
-    for(i in 1:length(files)){
-      dir.create(noaa_forecast_path)
-      file.copy(from = files[i], to = noaa_forecast_path)
-    }
-  }
-
-  forecast_files <- list.files(noaa_forecast_path, full.names = TRUE)
-
 }
+
+
+if(config$run_config$forecast_horizon > 0){
+  noaa_forecast_path <- file.path(lake_directory,"drivers/noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
+  download_s3_objects(lake_directory,
+                      bucket = "drivers",
+                      prefix = file.path("noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour))
+}
+
+if(config$run_config$forecast_horizon > 0){
+  noaa_forecast_path <- file.path(lake_directory,"drivers/noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
+
+  download_s3_objects(lake_directory,
+                      bucket = "drivers",
+                      prefix = file.path("noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour))
+  forecast_files <- list.files(noaa_forecast_path, full.names = TRUE)
+}
+
 
 if(!dir.exists(config$file_path$execute_directory)){
   dir.create(config$file_path$execute_directory)

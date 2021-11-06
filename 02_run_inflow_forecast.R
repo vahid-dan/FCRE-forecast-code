@@ -9,8 +9,6 @@ s3_mode <- TRUE
 files.sources <- list.files(file.path(lake_directory, "R"), full.names = TRUE)
 sapply(files.sources, source)
 
-
-
 configuration_file <- "configure_flare.yml"
 run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
 forecast_site <- run_config$forecast_site
@@ -26,21 +24,12 @@ Sys.setenv("AWS_DEFAULT_REGION" = "s3",
 
 #Note: lake_directory need to be set prior to running this script
 config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr",configuration_file))
-config$file_path$qaqc_data_directory <- file.path(lake_directory, "data_processed")
+config$file_path$qaqc_data_directory <- file.path(lake_directory, "targets")
 config$file_path$data_directory <- file.path(lake_directory, "data_raw")
+config$file_path$noaa_directory <- file.path(lake_directory, "drivers", "noaa")
+config$file_path$inflow_directory <- file.path(lake_directory, "drivers", "inflow")
 
-if(s3_mode){
-  restart_exists <- aws.s3::object_exists(object = file.path(forecast_site, sim_name, "configure_run.yml"), bucket = "restart")
-  if(restart_exists){
-    aws.s3::save_object(object = file.path(forecast_site, sim_name, "configure_run.yml"), bucket = "restart", file = file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
-  }
-  config$file_path$noaa_directory <- file.path(lake_directory, "drivers", "noaa")
-  config$file_path$inflow_directory <- file.path(lake_directory, "drivers", "inflow")
-}else{
-  config$file_path$noaa_directory <- file.path(dirname(lake_directory), "drivers", "noaa")
-  config$file_path$inflow_directory <- file.path(dirname(lake_directory), "drivers", "inflow")
-}
-run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
+run_config <- get_run_config(lake_directory, forecast_site, sim_name, s3_mode, clean_start = FALSE)
 config$run_config <- run_config
 
 
@@ -67,22 +56,13 @@ if(config$run_config$forecast_horizon > 0){
   if(s3_mode){
     aws.s3::save_object(object = file.path(forecast_site, "fcre-targets-inflow.csv"), bucket = "targets", file = file.path(config$file_path$qaqc_data_directory, "fcre-targets-inflow.csv"))
     aws.s3::save_object(object = file.path(forecast_site, "observed-met_fcre.nc"), bucket = "targets", file = file.path(config$file_path$qaqc_data_directory, "observed-met_fcre.nc"))
+  }
 
-    if(config$run_config$forecast_horizon > 0){
-      noaa_forecast_path <- file.path(lake_directory,"drivers/noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
-
-      download_s3_objects(lake_directory,
-                          bucket = "drivers",
-                          prefix = file.path("noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour))
-    }
-  }else{
-    local_noaa_forecast_path <- file.path(config$file_path$noaa_directory, config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
-    noaa_forecast_path <- file.path(lake_directory, "drivers/noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
-    files <- list.files(noaa_forecast_path, full.names = TRUE)
-    for(i in 1:length(files)){
-      dir.create(noaa_forecast_path)
-      file.copy(from = files[i], to = noaa_forecast_path)
-    }
+  if(config$run_config$forecast_horizon > 0){
+    noaa_forecast_path <- file.path(lake_directory,"drivers/noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour)
+    download_s3_objects(lake_directory,
+                        bucket = "drivers",
+                        prefix = file.path("noaa", config$met$forecast_met_model,config$location$site_id,lubridate::as_date(forecast_start_datetime),forecast_hour))
   }
 
   message("Forecasting inflow and outflows")
@@ -118,7 +98,7 @@ if(config$run_config$forecast_horizon > 0){
       dir.create(run_dir, recursive = TRUE)
     }
 
-    historical_chemistry_weir <- read_csv("/Users/quinn/Downloads/FCRE-forecast-code/data_processed/FCR_weir_inflow_2013_2019_20200624_allfractions_2poolsDOC.csv")
+    historical_chemistry_weir <- read_csv("/Users/quinn/Downloads/FCRE-forecast-code/targets/FCR_weir_inflow_2013_2019_20200624_allfractions_2poolsDOC.csv")
 
     for(i in 1:length(inflow_files)){
       inflow_files <- list.files(temp_flow_forecast[[1]], full.names = TRUE)
