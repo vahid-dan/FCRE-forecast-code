@@ -5,119 +5,68 @@ library(lubridate)
 
 lake_directory <- here::here()
 
-s3_mode <- FALSE
-
-if(file.exists("~/.aws")){
-  warning(paste("Detected existing AWS credentials file in ~/.aws,",
-                "Consider renaming these so that automated upload will work"))
-}
-
-Sys.setenv("AWS_DEFAULT_REGION" = "s3",
-           "AWS_S3_ENDPOINT" = "flare-forecast.org")
-
-configuration_file <- "configure_flare.yml"
-run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr","configure_run.yml"))
-forecast_site <- run_config$forecast_site
-
-#Note: lake_directory need to be set prior to running this script
-lake_directory <- here::here()
-
-config_obs <- yaml::read_yaml(file.path(lake_directory,"configuration","observation_processing","observation_processing.yml"))
-#Note: lake_directory need to be set prior to running this script
-config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr",configuration_file))
-config$file_path$qaqc_data_directory <- file.path(lake_directory, "data_processed")
-config$file_path$data_directory <- file.path(lake_directory, "data_raw")
-config_obs$data_location <- config$file_path$data_directory
-config$file_path$noaa_directory <- file.path(dirname(lake_directory), "drivers", "noaa")
-
-setwd(file.path(lake_directory, "data_raw"))
-if(!dir.exists(file.path(lake_directory, "data_raw", config_obs$realtime_insitu_location))){
-  system(paste0("git clone --depth 1 --single-branch --branch ",config_obs$realtime_insitu_location, " https://github.com/FLARE-forecast/FCRE-data.git ", config_obs$realtime_insitu_location))
-}else{
-  setwd(file.path(lake_directory, "data_raw", config_obs$realtime_insitu_location))
-  system("git pull")
-}
-
-setwd(file.path(lake_directory, "data_raw"))
-if(!dir.exists(file.path(lake_directory, "data_raw", config_obs$realtime_met_station_location))){
-  system(paste0("git clone --depth 1 --single-branch --branch ",config_obs$realtime_met_station_location, " https://github.com/FLARE-forecast/FCRE-data.git ", config_obs$realtime_met_station_location))
-}else{
-  setwd(file.path(lake_directory, "data_raw", config_obs$realtime_met_station_location))
-  system("git pull")
-}
-
-setwd(file.path(lake_directory, "data_raw"))
-if(!dir.exists(file.path(lake_directory, "data_raw", config_obs$realtime_inflow_data_location))){
-  system(paste0("git clone --depth 1 --single-branch --branch ",config_obs$realtime_inflow_data_location, " https://github.com/FLARE-forecast/FCRE-data.git ", config_obs$realtime_inflow_data_location))
-}else{
-  setwd(file.path(lake_directory, "data_raw", config_obs$realtime_inflow_data_location))
-  system("git pull")
-}
-
-setwd(file.path(lake_directory, "data_raw"))
-if(!dir.exists(file.path(lake_directory, "data_raw", config_obs$manual_data_location))){
-  system(paste0("git clone --depth 1 --single-branch --branch ",config_obs$manual_data_location, " https://github.com/FLARE-forecast/FCRE-data.git ", config_obs$manual_data_location))
-}else{
-  setwd(file.path(lake_directory, "data_raw", config_obs$manual_data_location))
-  system("git pull")
-}
-
-if(!file.exists(file.path(lake_directory, "data_raw", config_obs$met_raw_obs_fname[2]))){
-  download.file("https://pasta.lternet.edu/package/data/eml/edi/389/5/3d1866fecfb8e17dc902c76436239431", destfile = file.path(lake_directory, "data_raw",config_obs$manual_data_location,"/Met_final_2015_2020.csv"), method="curl")
-}
-
-if(!file.exists(file.path(lake_directory, "data_raw", config_obs$inflow_raw_file1[2]))){
-  download.file("https://pasta.lternet.edu/package/data/eml/edi/202/7/f5fa5de4b49bae8373f6e7c1773b026e", destfile = file.path(lake_directory, "data_raw",config_obs$manual_data_location,"/inflow_for_EDI_2013_10Jan2021.csv"), method="curl")
-}
-
-if(!file.exists(file.path(lake_directory, "data_raw", config_obs$insitu_obs_fname[2]))){
-  download.file("https://pasta.lternet.edu/package/data/eml/edi/271/5/c1b1f16b8e3edbbff15444824b65fe8f", destfile = file.path(lake_directory, "data_raw",config_obs$manual_data_location,"/Catwalk_cleanedEDI.csv"), method="curl")
-}
-
-if(!file.exists(file.path(lake_directory, "data_raw", config_obs$secchi_fname))){
-  download.file("https://pasta.lternet.edu/package/data/eml/edi/198/8/336d0a27c4ae396a75f4c07c01652985", destfile = file.path(lake_directory, "data_raw",config_obs$manual_data_location,"/Secchi_depth_2013-2020.csv"), method="curl")
-}
-
-
 files.sources <- list.files(file.path(lake_directory, "R"), full.names = TRUE)
 sapply(files.sources, source)
 
-cleaned_met_file <- file.path(config$file_path$qaqc_data_directory, paste0("observed-met_",forecast_site,".nc"))
-met_qaqc(realtime_file = file.path(config$file_path$data_directory, config_obs$met_raw_obs_fname[1]),
-           qaqc_file = file.path(config$file_path$data_directory, config_obs$met_raw_obs_fname[2]),
-           cleaned_met_file = cleaned_met_file,
-           input_file_tz = "EST",
-           nldas = file.path(config$file_path$data_directory, config_obs$nldas))
+configure_run_file <- "configure_run.yml"
+config <- set_configuration(configure_run_file,lake_directory)
 
-cleaned_inflow_file <- paste0(config$file_path$qaqc_data_directory, "/fcre-targets-inflow.csv")
-inflow_qaqc(realtime_file = file.path(config$file_path$data_directory, config_obs$inflow_raw_file1[1]),
-              qaqc_file = file.path(config$file_path$data_directory, config_obs$inflow_raw_file1[2]),
-              nutrients_file = file.path(config$file_path$data_directory, config_obs$nutrients_fname),
-              cleaned_inflow_file ,
+get_git_repo(lake_directory,
+             directory = config$obs_config$realtime_insitu_location,
+             git_repo = "https://github.com/FLARE-forecast/FCRE-data.git")
+
+get_git_repo(lake_directory,
+             directory = config$obs_config$realtime_met_station_location,
+             git_repo = "https://github.com/FLARE-forecast/FCRE-data.git")
+
+get_git_repo(lake_directory,
+             directory = config$obs_config$realtime_inflow_data_location,
+             git_repo = "https://github.com/FLARE-forecast/FCRE-data.git")
+
+get_git_repo(lake_directory,
+             directory = config$obs_config$manual_data_location,
+             git_repo = "https://github.com/FLARE-forecast/FCRE-data.git")
+
+get_edi_file(edi_https = "https://pasta.lternet.edu/package/data/eml/edi/389/5/3d1866fecfb8e17dc902c76436239431",
+                         file = config$obs_config$met_raw_obs_fname[2],
+                         lake_directory)
+
+get_edi_file(edi_https = "https://pasta.lternet.edu/package/data/eml/edi/271/5/c1b1f16b8e3edbbff15444824b65fe8f",
+             file = config$obs_config$insitu_obs_fname[2],
+             lake_directory)
+
+get_edi_file(edi_https = "https://pasta.lternet.edu/package/data/eml/edi/198/8/336d0a27c4ae396a75f4c07c01652985",
+             file = config$obs_config$secchi_fname,
+             lake_directory)
+
+get_edi_file(edi_https = "https://pasta.lternet.edu/package/data/eml/edi/202/7/f5fa5de4b49bae8373f6e7c1773b026e",
+             file = config$obs_config$inflow_raw_file1[2],
+             lake_directory)
+
+cleaned_met_file <- met_qaqc(realtime_file = file.path(config$file_path$data_directory, config$obs_config$met_raw_obs_fname[1]),
+           qaqc_file = file.path(config$file_path$data_directory, config$obs_config$met_raw_obs_fname[2]),
+           cleaned_met_file = file.path(config$file_path$qaqc_data_directory, paste0("observed-met_",config$location$site_id,".nc")),
+           input_file_tz = "EST",
+           nldas = file.path(config$file_path$data_directory, config$obs_config$nldas))
+
+cleaned_inflow_file <- inflow_qaqc(realtime_file = file.path(config$file_path$data_directory, config$obs_config$inflow_raw_file1[1]),
+              qaqc_file = file.path(config$file_path$data_directory, config$obs_config$inflow_raw_file1[2]),
+              nutrients_file = file.path(config$file_path$data_directory, config$obs_config$nutrients_fname),
+              cleaned_inflow_file = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id,"-targets-inflow.csv")),
               input_file_tz = 'EST')
 
-
-
-cleaned_observations_file_long <- paste0(config$file_path$qaqc_data_directory,
-                                         "/fcre-targets-insitu.csv")
-
-config_obs$data_location <- config$file_path$data_directory
-
-in_situ_qaqc(insitu_obs_fname = file.path(config$file_path$data_directory,config_obs$insitu_obs_fname),
+cleaned_insitu_file <- in_situ_qaqc(insitu_obs_fname = file.path(config$file_path$data_directory,config$obs_config$insitu_obs_fname),
                data_location = config$file_path$data_directory,
-               maintenance_file = file.path(config$file_path$data_directory,config_obs$maintenance_file),
-               ctd_fname = file.path(config$file_path$data_directory,config_obs$ctd_fname),
-               nutrients_fname =  file.path(config$file_path$data_directory, config_obs$nutrients_fname),
-               secchi_fname = file.path(config$file_path$data_directory, config_obs$secchi_fname),
-               cleaned_observations_file_long = cleaned_observations_file_long,
-               lake_name_code = forecast_site,
-               config = config_obs)
+               maintenance_file = file.path(config$file_path$data_directory,config$obs_config$maintenance_file),
+               ctd_fname = NA,
+               nutrients_fname =  NA,
+               secchi_fname = file.path(config$file_path$data_directory, config$obs_config$secchi_fname),
+               cleaned_insitu_file = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id,"-targets-insitu.csv")),
+               lake_name_code = config$location$site_id,
+               config = config$obs_config)
 
-
-if(s3_mode){
-  aws.s3::put_object(file = cleaned_observations_file_long, object = file.path(forecast_site, basename(cleaned_observations_file_long)), bucket = "targets")
-  aws.s3::put_object(file = cleaned_inflow_file, object = file.path(forecast_site, basename(cleaned_inflow_file)), bucket = "targets")
-  aws.s3::put_object(file = cleaned_met_file, object = file.path(forecast_site, basename(cleaned_met_file)), bucket = "targets")
-}
-
+put_targets(config = config,
+            cleaned_insitu_file,
+            cleaned_met_file,
+            cleaned_inflow_file)
 

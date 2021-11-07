@@ -302,4 +302,6 @@ met_qaqc <- function(realtime_file,
 
   ncdf4::nc_close(nc_flptr)  #Write to the disk/storage
 
+  return(cleaned_met_file)
+
 }

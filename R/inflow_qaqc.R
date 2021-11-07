@@ -193,6 +193,8 @@ inflow_qaqc <- function(realtime_file,
 
   readr::write_csv(inflow_clean, cleaned_inflow_file)
 
+  return(cleaned_inflow_file)
+
 }
 
 

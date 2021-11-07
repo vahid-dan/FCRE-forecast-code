@@ -4,7 +4,7 @@ in_situ_qaqc <- function(insitu_obs_fname,
                          ctd_fname,
                          nutrients_fname,
                          secchi_fname,
-                         cleaned_observations_file_long,
+                         cleaned_insitu_file,
                          lake_name_code,
                          config){
 
@@ -111,8 +111,8 @@ in_situ_qaqc <- function(insitu_obs_fname,
 
   d_clean$value <- round(d_clean$value, digits = 4)
 
-  readr::write_csv(d_clean, cleaned_observations_file_long)
+  readr::write_csv(d_clean, cleaned_insitu_file)
 
-  #rm(d_clean, d, d_secchi, d_ch4, d_nutrients, d_ctd)
-  #gc()
+  return(cleaned_insitu_file)
+
 }

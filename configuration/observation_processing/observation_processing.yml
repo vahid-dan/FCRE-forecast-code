@@ -22,7 +22,7 @@ noaa_location: FCRE
 
 met_raw_obs_fname:
     - fcre-metstation-data/FCRmet.csv
-    - fcre-manual-data/Met_final_2015_2020.csv
+    - Met_final_2015_2020.csv
 #specified_metfile: .na #NA #paste0(manual_data_location, "/met_full_postQAQC.csv")
 
 downscaling_coeff: fcre-manual-data/debiased.coefficients.2018_07_12_2019_07_11.RData
@@ -36,7 +36,7 @@ nldas: fcre-manual-data/FCR_GLM_NLDAS_010113_123119_GMTadjusted.csv
 #specified_inflow1: .na #manual-data/FCR_weir_inflow_2013_2019_20200624_allfractions_2poolsDOC.csv
 inflow_raw_file1:
     - fcre-weir-data/FCRweir.csv
-    - fcre-manual-data/inflow_for_EDI_2013_10Jan2021.csv
+    - inflow_for_EDI_2013_10Jan2021.csv
 #specified_inflow2: .na #manual-data/FCR_wetland_inflow_2013_2019_20200713_allfractions_2DOCpools.csv
 #specified_outflow1: .na #manual-data/FCR_spillway_outflow_SUMMED_WeirWetland_2013_2019_20200615.csv
 
@@ -71,8 +71,8 @@ specified_outflow1: fcre-manual-data/FCR_spillway_outflow_SUMMED_WeirWetland_201
 
 insitu_obs_fname:
     - fcre-catwalk-data/Catwalk.csv
-    - fcre-manual-data/Catwalk_cleanedEDI.csv
-secchi_fname: fcre-manual-data/Secchi_depth_2013-2020.csv
+    - Catwalk_cleanedEDI.csv
+secchi_fname: Secchi_depth_2013-2020.csv
 ctd_fname: fcre-manual-data/CTD_final_2013_2019.csv
 ch4_fname: fcre-manual-data/DATASET_for_EDI_LOL_MS_10May20.csv
 nutrients_fname: fcre-manual-data/chemistry.csv
