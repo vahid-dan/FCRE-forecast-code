@@ -13,7 +13,7 @@ lake_directory <- here::here()
 files.sources <- list.files(file.path(lake_directory, "R"), full.names = TRUE)
 sapply(files.sources, source)
 
-#' Generate the `config_obs` object and create directories if neccesary
+#' Generate the `config_obs` object and create directories if necessary
 
 config_obs <- initialize_obs_processing(lake_directory, observation_yml = "observation_processing.yml")
 use_s3 <- TRUE
