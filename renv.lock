@@ -28,12 +28,12 @@
       "Version": "2.1.0",
       "Source": "GitHub",
       "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "FLAREr",
       "RemoteUsername": "FLARE-forecast",
+      "RemoteRepo": "FLAREr",
       "RemoteRef": "HEAD",
-      "RemoteSha": "c626e1324f1ad5f6964f1c14f792f44821f14c40",
-      "Hash": "178369b413c02b3537f1352036874737"
+      "RemoteSha": "02438a51f3edc0f9a3ad9e792ad4161cb529487c",
+      "RemoteHost": "api.github.com",
+      "Hash": "4f6484806181c733b3f5346ad9d48737"
     },
     "GLM3r": {
       "Package": "GLM3r",
