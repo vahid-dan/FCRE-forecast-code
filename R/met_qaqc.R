@@ -195,7 +195,7 @@ met_qaqc <- function(realtime_file,
 
   d$air_pressure <- d$air_pressure * 1000
 
-  d$specific_humidity <-  Rnoaa4cast:::rh2qair(rh = d$relative_humidity,
+  d$specific_humidity <-  rh2qair(rh = d$relative_humidity,
                                                   T = d$air_temperature,
                                                   press = d$air_pressure)
 
@@ -268,6 +268,10 @@ met_qaqc <- function(realtime_file,
 
   output_file <- cleaned_met_file
 
+  if(!dir.exists(dirname(cleaned_met_file))){
+    dir.create(dirname(cleaned_met_file), recursive = TRUE)
+  }
+
   start_time <- min(d$time)
   end_time <- max(d$time)
 
@@ -302,4 +306,27 @@ met_qaqc <- function(realtime_file,
 
   ncdf4::nc_close(nc_flptr)  #Write to the disk/storage
 
+  return(cleaned_met_file)
+
 }
+
+
+##' converts relative humidity to specific humidity
+##' @title RH to SH
+##' @param rh relative humidity (proportion, not percent)
+##' @param T absolute temperature (Kelvin)
+##' @param press air pressure (Pascals)
+##' @noRd
+##' @author Mike Dietze, Ankur Desai
+##' @aliases rh2rv
+rh2qair <- function(rh, T, press = 101325) {
+  stopifnot(T[!is.na(T)] >= 0)
+  Tc <- T - 273.15
+  es <- 6.112 * exp((17.67 * Tc) / (Tc + 243.5))
+  e <- rh * es
+  p_mb <- press / 100
+  qair <- (0.622 * e) / (p_mb - (0.378 * e))
+  ## qair <- rh * 2.541e6 * exp(-5415.0 / T) * 18/29
+  return(qair)
+} # rh2qair
+

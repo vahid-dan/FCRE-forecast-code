@@ -191,7 +191,13 @@ inflow_qaqc <- function(realtime_file,
   #   facet_wrap(~Nutrient, scales = "free")
 
 
+  if(!dir.exists(dirname(cleaned_inflow_file))){
+    dir.create(dirname(cleaned_inflow_file), recursive = TRUE)
+  }
+
   readr::write_csv(inflow_clean, cleaned_inflow_file)
+
+  return(cleaned_inflow_file)
 
 }
 

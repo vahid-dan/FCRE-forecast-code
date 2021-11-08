@@ -5,6 +5,8 @@ data_raw/*
 drivers/*
 analysis/*
 automation/*.log
+restart/*
+targets/*
 
 
 # History files
