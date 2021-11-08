@@ -83,7 +83,7 @@ get_edi_file <- function(edi_https, file, lake_directory){
 #' @export
 #'
 #' @examples
-put_targets <- function(site_id, cleaned_insitu_file, cleaned_met_file, cleaned_inflow_file = NA, use_s3){
+put_targets <- function(site_id, cleaned_insitu_file = NA, cleaned_met_file = NA, cleaned_inflow_file = NA, use_s3){
 
   if(use_s3){
     if(!is.na(cleaned_insitu_file)){
@@ -127,7 +127,7 @@ get_targets <- function(lake_directory, config){
 get_stacked_noaa <- function(lake_directory, config, averaged = TRUE){
   if(config$run_config$use_s3){
     if(averaged){
-    download_s3_objects(lake_directory, bucket = "drivers", prefix = file.path("noaa/NOAAGEFS_1hr_stacked_average/",config$location$site_id))
+      download_s3_objects(lake_directory, bucket = "drivers", prefix = file.path("noaa/NOAAGEFS_1hr_stacked_average/",config$location$site_id))
     }else{
       download_s3_objects(lake_directory, bucket = "drivers", prefix = file.path("noaa/NOAAGEFS_1hr_stacked/",config$location$site_id))
     }
@@ -369,18 +369,26 @@ delete_restart <- function(site, sim_name){
 #' @export
 #'
 #' @examples
-initialize_obs_processing <- function(lake_directory, observation_yml){
-  config_obs <- yaml::read_yaml(file.path(lake_directory,"configuration","observation_processing", observation_yml))
-  curr_dir <- file.path(lake_directory, "data_raw")
-  config_obs$file_path$data_directory <- curr_dir
-  if(!dir.exists(curr_dir)){
-    dir.create(curr_dir, recursive = TRUE)
+initialize_obs_processing <- function(lake_directory, observation_yml = NA){
+
+  curr_dir1 <- file.path(lake_directory, "data_raw")
+  if(!dir.exists(curr_dir1)){
+    dir.create(curr_dir1, recursive = TRUE)
   }
-  curr_dir <- file.path(lake_directory, "targets")
-  config_obs$file_path$targets_directory <- curr_dir
-  if(!dir.exists(curr_dir)){
-    dir.create(curr_dir, recursive = TRUE)
+  curr_dir2 <- file.path(lake_directory, "targets")
+  if(!dir.exists(curr_dir2)){
+    dir.create(curr_dir2, recursive = TRUE)
   }
+
+  if(!is.na(observation_yml)){
+    config_obs <- yaml::read_yaml(file.path(lake_directory,"configuration","observation_processing", observation_yml))
+    config_obs$file_path$data_directory <- curr_dir1
+    config_obs$file_path$targets_directory <- curr_dir2
+    return(config_obs)
+  }else{
+    return(NULL)
+  }
+
   return(config_obs)
 }
 

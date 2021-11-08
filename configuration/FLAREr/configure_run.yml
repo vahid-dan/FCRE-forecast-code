@@ -4,7 +4,6 @@ end_datetime: .na
 forecast_start_datetime: 2021-10-28 00:00:00
 forecast_horizon: 5
 sim_name: test_run_3
-forecast_site: fcre
 configure_flare: configure_flare.yml
 configure_obs: observation_processing.yml
 use_s3: TRUE
