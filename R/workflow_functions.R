@@ -1,3 +1,14 @@
+#' Title
+#'
+#' @param configure_run_file
+#' @param lake_directory
+#' @param config
+#' @param clean_start
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_run_config <- function(configure_run_file, lake_directory, config, clean_start){
 
   if(clean_start | !config$run_config$use_s3){
@@ -17,6 +28,16 @@ get_run_config <- function(configure_run_file, lake_directory, config, clean_sta
   return(run_config)
 }
 
+#' Title
+#'
+#' @param lake_directory
+#' @param directory
+#' @param git_repo
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_git_repo <- function(lake_directory, directory, git_repo){
   setwd(file.path(lake_directory, "data_raw"))
   if(!dir.exists(file.path(lake_directory, "data_raw", directory))){
@@ -28,6 +49,16 @@ get_git_repo <- function(lake_directory, directory, git_repo){
   setwd(lake_directory)
 }
 
+#' Title
+#'
+#' @param edi_https
+#' @param file
+#' @param lake_directory
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_edi_file <- function(edi_https, file, lake_directory){
 
   if(!file.exists(file.path(lake_directory, "data_raw", file))){
@@ -41,27 +72,77 @@ get_edi_file <- function(edi_https, file, lake_directory){
 }
 
 
-put_targets <- function(config, cleaned_insitu_file, cleaned_met_file, cleaned_inflow_file = NA){
+#' Title
+#'
+#' @param config
+#' @param cleaned_insitu_file
+#' @param cleaned_met_file
+#' @param cleaned_inflow_file
+#'
+#' @return
+#' @export
+#'
+#' @examples
+put_targets <- function(site_id, cleaned_insitu_file, cleaned_met_file, cleaned_inflow_file = NA, use_s3){
 
-  if(config$run_config$use_s3){
+  if(use_s3){
     if(!is.na(cleaned_insitu_file)){
-      aws.s3::put_object(file = cleaned_insitu_file, object = file.path(config$location$site_id, basename(cleaned_insitu_file)), bucket = "targets")
+      aws.s3::put_object(file = cleaned_insitu_file, object = file.path(site_id, basename(cleaned_insitu_file)), bucket = "targets")
     }
     if(!is.na(cleaned_inflow_file)){
-      aws.s3::put_object(file = cleaned_inflow_file, object = file.path(config$location$site_id, basename(cleaned_inflow_file)), bucket = "targets")
+      aws.s3::put_object(file = cleaned_inflow_file, object = file.path(site_id, basename(cleaned_inflow_file)), bucket = "targets")
     }
     if(!is.na(cleaned_met_file)){
-      aws.s3::put_object(file = cleaned_met_file, object = file.path(config$location$site_id, basename(cleaned_met_file)), bucket = "targets")
+      aws.s3::put_object(file = cleaned_met_file, object = file.path(site_id, basename(cleaned_met_file)), bucket = "targets")
     }
   }
 }
 
+#' Title
+#'
+#' @param lake_directory
+#' @param config
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_targets <- function(lake_directory, config){
   if(config$run_config$use_s3){
     download_s3_objects(lake_directory, bucket = "targets", prefix = config$location$site_id)
   }
 }
 
+
+#' Title
+#'
+#' @param lake_directory
+#' @param config
+#' @param averaged
+#'
+#' @return
+#' @export
+#'
+#' @examples
+get_stacked_noaa <- function(lake_directory, config, averaged = TRUE){
+  if(config$run_config$use_s3){
+    if(averaged){
+    download_s3_objects(lake_directory, bucket = "drivers", prefix = file.path("noaa/NOAAGEFS_1hr_stacked_average/",config$location$site_id))
+    }else{
+      download_s3_objects(lake_directory, bucket = "drivers", prefix = file.path("noaa/NOAAGEFS_1hr_stacked/",config$location$site_id))
+    }
+  }
+}
+
+#' Title
+#'
+#' @param config
+#' @param forecast_model
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_driver_forecast_path <- function(config, forecast_model){
   if(config$run_config$forecast_horizon > 0){
     # Set up timings
@@ -85,6 +166,15 @@ get_driver_forecast_path <- function(config, forecast_model){
   return(forecast_path)
 }
 
+#' Title
+#'
+#' @param lake_directory
+#' @param forecast_path
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_driver_forecast <- function(lake_directory, forecast_path){
 
   download_s3_objects(lake_directory,
@@ -92,21 +182,28 @@ get_driver_forecast <- function(lake_directory, forecast_path){
                       prefix = forecast_path)
 }
 
+#' Title
+#'
+#' @param configure_run_file
+#' @param lake_directory
+#' @param clean_start
+#'
+#' @return
+#' @export
+#'
+#' @examples
 set_configuration <- function(configure_run_file, lake_directory, clean_start = FALSE){
   run_config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr",configure_run_file))
   config <- yaml::read_yaml(file.path(lake_directory,"configuration","FLAREr",run_config$configure_flare))
   config$run_config <- run_config
-  config_obs <- yaml::read_yaml(file.path(lake_directory,"configuration","observation_processing", config$run_config$configure_obs))
   config$file_path$qaqc_data_directory <- file.path(lake_directory, "targets")
   config$file_path$data_directory <- file.path(lake_directory, "data_raw")
   config$file_path$noaa_directory <- file.path(lake_directory, "drivers")
   config$file_path$configuration_directory <- file.path(lake_directory, "configuration")
   config$file_path$inflow_directory <- file.path(lake_directory, "drivers")
   config$file_path$analysis_directory <- file.path(lake_directory, "analysis")
-  config$file_path$run_config
   config$file_path$forecast_output_directory <- file.path(lake_directory, "forecasts", config$location$site_id)
   config$file_path$restart_directory <- file.path(lake_directory, "restart", config$location$site_id, config$run_config$sim_name)
-  config_obs$data_location <- config$file_path$data_directory
   config$file_path$execute_directory <- file.path(lake_directory, "flare_tempdir", config$location$site_id, run_config$sim_name)
   if(!dir.exists(config$file_path$qaqc_data_directory)){
     dir.create(config$file_path$qaqc_data_directory, recursive = TRUE)
@@ -142,11 +239,19 @@ set_configuration <- function(configure_run_file, lake_directory, clean_start = 
 
   run_config <- get_run_config(configure_run_file, lake_directory, config, clean_start = clean_start)
   config$run_config <- run_config
-  config$obs_config <- config_obs
 
   return(config)
 }
 
+#' Title
+#'
+#' @param config
+#' @param lake_directory
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_restart_file <- function(config, lake_directory){
   if(!is.na(config$run_config$restart_file)){
     restart_file <- basename(config$run_config$restart_file)
@@ -160,6 +265,19 @@ get_restart_file <- function(config, lake_directory){
   return(config)
 }
 
+#' Title
+#'
+#' @param config
+#' @param lake_directory
+#' @param configure_run_file
+#' @param saved_file
+#' @param new_horizon
+#' @param day_advance
+#'
+#' @return
+#' @export
+#'
+#' @examples
 update_run_config <- function(config, lake_directory, configure_run_file, saved_file, new_horizon, day_advance = 1){
   config$run_config$start_datetime <- config$run_config$forecast_start_datetime
   if(config$run_config$forecast_horizon == 0){
@@ -176,6 +294,16 @@ update_run_config <- function(config, lake_directory, configure_run_file, saved_
   }
 }
 
+#' Title
+#'
+#' @param saved_file
+#' @param eml_file_name
+#' @param config
+#'
+#' @return
+#' @export
+#'
+#' @examples
 put_forecast <- function(saved_file, eml_file_name, config){
   if(config$run_config$use_s3){
     success <- aws.s3::put_object(file = saved_file, object = file.path(config$location$site_id, basename(saved_file)), bucket = "forecasts")
@@ -189,6 +317,16 @@ put_forecast <- function(saved_file, eml_file_name, config){
   }
 }
 
+#' Title
+#'
+#' @param lake_directory
+#' @param bucket
+#' @param prefix
+#'
+#' @return
+#' @export
+#'
+#' @examples
 download_s3_objects <- function(lake_directory, bucket, prefix){
 
   files <- aws.s3::get_bucket(bucket = bucket, prefix = prefix)
@@ -202,6 +340,15 @@ download_s3_objects <- function(lake_directory, bucket, prefix){
   }
 }
 
+#' Title
+#'
+#' @param site
+#' @param sim_name
+#'
+#' @return
+#' @export
+#'
+#' @examples
 delete_restart <- function(site, sim_name){
   files <- aws.s3::get_bucket(bucket = "restart", prefix = file.path(site, sim_name))
   keys <- vapply(files, `[[`, "", "Key", USE.NAMES = FALSE)
@@ -213,6 +360,71 @@ delete_restart <- function(site, sim_name){
     }
   }
 }
+
+#' Title
+#'
+#' @param lake_directory
+#'
+#' @return
+#' @export
+#'
+#' @examples
+initialize_obs_processing <- function(lake_directory, observation_yml){
+  config_obs <- yaml::read_yaml(file.path(lake_directory,"configuration","observation_processing", observation_yml))
+  curr_dir <- file.path(lake_directory, "data_raw")
+  config_obs$file_path$data_directory <- curr_dir
+  if(!dir.exists(curr_dir)){
+    dir.create(curr_dir, recursive = TRUE)
+  }
+  curr_dir <- file.path(lake_directory, "targets")
+  config_obs$file_path$targets_directory <- curr_dir
+  if(!dir.exists(curr_dir)){
+    dir.create(curr_dir, recursive = TRUE)
+  }
+  return(config_obs)
+}
+
+#' Title
+#'
+#' @param lake_directory
+#' @param s3_mode
+#' @param forecast_site
+#' @param configuration_file
+#'
+#' @return
+#' @export
+#'
+#' @examples
+check_noaa_present <- function(lake_directory, configure_run_file){
+
+  config <- set_configuration(configure_run_file,lake_directory)
+
+  noaa_forecast_path <- get_driver_forecast_path(config,
+                                                 forecast_model = config$met$forecast_met_model)
+
+  if(config$run_config$forecast_horizon > 0 & !is.null(noaa_forecast_path)){
+    noaa_files = aws.s3::get_bucket(bucket = "drivers", prefix = noaa_forecast_path)
+    noaa_forecast_path <- file.path(lake_directory,"drivers", noaa_forecast_path)
+    keys <- vapply(noaa_files, `[[`, "", "Key", USE.NAMES = FALSE)
+    empty <- grepl("/$", keys)
+    forecast_files <- keys[!empty]
+    noaa_forecasts_ready <- FALSE
+  }else{
+    forecast_files <- NULL
+    noaa_forecasts_ready <- TRUE
+  }
+
+  if(length(forecast_files) == 31){
+    noaa_forecasts_ready <- TRUE
+  }else{
+    if(config$run_config$forecast_horizon > 0){
+      message(paste0("waiting for NOAA forecast: ", config$run_config$forecast_start_datetime))
+    }
+  }
+  return(noaa_forecasts_ready)
+
+}
+
 
 
 

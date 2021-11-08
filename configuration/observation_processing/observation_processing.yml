@@ -1,9 +1,8 @@
-data_location: /Users/quinn/workfiles/Research/SSC_forecasting/automation_test/FCRE-forecast-code/data_raw
 ##########################
 # Lake information
 ###########################
 
-lake_name_code: fcre
+site_id: fcre
 lake_name: Falling Creek Reservoir
 lake_latitude: 37.307   #Degrees North
 lake_longitude: 79.837  #Degrees West
@@ -73,9 +72,9 @@ insitu_obs_fname:
     - fcre-catwalk-data/Catwalk.csv
     - Catwalk_cleanedEDI.csv
 secchi_fname: Secchi_depth_2013-2020.csv
-ctd_fname: fcre-manual-data/CTD_final_2013_2019.csv
+ctd_fname: CTD_final_2013_2020.csv
 ch4_fname: fcre-manual-data/DATASET_for_EDI_LOL_MS_10May20.csv
-nutrients_fname: fcre-manual-data/chemistry.csv
+nutrients_fname: chemistry.csv
 variable_obsevation_depths: FALSE
 exo_sensor_2_ctd_chla: [1.8795, 0.6662]  #c(-2.0430, 2.5314) #c(1.8795, 0.6662)
 exo_sensor_2_ctd_do: [0, 1] #c(8.3670, 0.7152)

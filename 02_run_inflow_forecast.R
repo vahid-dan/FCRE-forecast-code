@@ -11,10 +11,7 @@ sapply(files.sources, source)
 configure_run_file <- "configure_run.yml"
 config <- set_configuration(configure_run_file,lake_directory)
 
-#Note: lake_directory need to be set prior to running this script
-
 get_targets(lake_directory, config)
-
 
 noaa_forecast_path <- get_driver_forecast_path(config,
                                              forecast_model = config$met$forecast_met_model)

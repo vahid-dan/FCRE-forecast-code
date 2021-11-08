@@ -93,9 +93,9 @@ in_situ_qaqc <- function(insitu_obs_fname,
 
   d_clean <- d_clean %>% tidyr::drop_na(value)
 
-  if(!is.na(config$secchi_fname)){
+  if(!is.na(secchi_fname)){
 
-    d_secchi <- extract_secchi(fname = file.path(config$data_location, config$secchi_fname),
+    d_secchi <- extract_secchi(fname = file.path(secchi_fname),
                                input_file_tz = "EST",
                                focal_depths = config$focal_depths)
 
