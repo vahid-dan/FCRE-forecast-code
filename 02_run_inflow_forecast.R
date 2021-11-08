@@ -9,17 +9,17 @@ files.sources <- list.files(file.path(lake_directory, "R"), full.names = TRUE)
 sapply(files.sources, source)
 
 configure_run_file <- "configure_run.yml"
-config <- set_configuration(configure_run_file,lake_directory)
+config <- FLAREr::set_configuration(configure_run_file,lake_directory)
 
-get_targets(lake_directory, config)
+FLAREr::get_targets(lake_directory, config)
 
-noaa_forecast_path <- get_driver_forecast_path(config,
+noaa_forecast_path <- FLAREr::get_driver_forecast_path(config,
                                              forecast_model = config$met$forecast_met_model)
 
 
 if(!is.null(noaa_forecast_path)){
 
-  get_driver_forecast(lake_directory, forecast_path = noaa_forecast_path)
+  FLAREr::get_driver_forecast(lake_directory, forecast_path = noaa_forecast_path)
 
   message("Forecasting inflow and outflows")
   # Forecast Inflows

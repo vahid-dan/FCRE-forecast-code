@@ -12,14 +12,14 @@ sapply(files.sources, source)
 
 configure_run_file <- "configure_run.yml"
 
-config <- set_configuration(configure_run_file,lake_directory)
+config <- FLAREr::set_configuration(configure_run_file,lake_directory)
 
-config <- get_restart_file(config, lake_directory)
+config <- FLAREr::get_restart_file(config, lake_directory)
 
-get_targets(lake_directory, config)
+FLAREr::get_targets(lake_directory, config)
 
 pdf_file <- FLAREr::plotting_general_2(file_name = config$run_config$restart_file,
-                                     target_file = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-insitu.csv")))
+                                       target_file = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-insitu.csv")))
 
 if(config$run_config$use_s3){
   success <- aws.s3::put_object(file = pdf_file, object = file.path(config$location$site_id, basename(pdf_file)), bucket = "analysis")
@@ -28,18 +28,15 @@ if(config$run_config$use_s3){
   }
 }
 
-if(config$run_con$forecast_horizon == 16){
-  png_file_name <- manager_plot(file_name = config$run_config$restart_file,
-                           target_file = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-insitu.csv")),
-                           focal_depths = c(1, 5, 8))
+png_file_name <- manager_plot(file_name = config$run_config$restart_file,
+                              target_file = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-insitu.csv")),
+                              focal_depths = c(1, 5, 8))
 
-  if(config$run_config$use_s3){
-    success <- aws.s3::put_object(file = png_file_name, object = file.path(config$location$site_id, basename(png_file_name)), bucket = "analysis")
-    if(success){
-      unlink(png_file_name)
-    }
+if(config$run_config$use_s3 & !is.na(png_file_name)){
+  success <- aws.s3::put_object(file = png_file_name, object = file.path(config$location$site_id, basename(png_file_name)), bucket = "analysis")
+  if(success){
+    unlink(png_file_name)
   }
-
 }
 
 if(config$run_config$use_s3){

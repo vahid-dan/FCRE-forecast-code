@@ -111,6 +111,11 @@ in_situ_qaqc <- function(insitu_obs_fname,
 
   d_clean$value <- round(d_clean$value, digits = 4)
 
+  if(!dir.exists(dirname(cleaned_insitu_file))){
+    dir.create(dirname(cleaned_insitu_file), recursive = TRUE)
+  }
+
+
   readr::write_csv(d_clean, cleaned_insitu_file)
 
   return(cleaned_insitu_file)

@@ -8,10 +8,8 @@ forecast_site <- "fcre"
 configure_run_file <- "configure_run.yml"
 update_run_config <- TRUE
 
-source(file.path(lake_directory,"R","workflow_functions.R"))
-
 message("Checking for NOAA forecasts")
-noaa_ready <- check_noaa_present(lake_directory,
+noaa_ready <- FLAREr::check_noaa_present(lake_directory,
                                  configure_run_file)
 
 if(noaa_ready){

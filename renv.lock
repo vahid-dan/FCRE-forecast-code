@@ -9,13 +9,6 @@
     ]
   },
   "Packages": {
-    "BH": {
-      "Package": "BH",
-      "Version": "1.75.0-0",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Hash": "e4c04affc2cac20c8fec18385cd14691"
-    },
     "DBI": {
       "Package": "DBI",
       "Version": "1.1.1",
@@ -39,15 +32,8 @@
       "RemoteRepo": "FLAREr",
       "RemoteUsername": "FLARE-forecast",
       "RemoteRef": "HEAD",
-      "RemoteSha": "69db4f63cc22dd3f2ff1d6ec818f69a3bc527121",
-      "Hash": "67dd50ba8157a4226fc7286f39af44d6"
-    },
-    "GEOmap": {
-      "Package": "GEOmap",
-      "Version": "2.4-4",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Hash": "375880cd99ee7b69409a34b9d6ce5bfe"
+      "RemoteSha": "c626e1324f1ad5f6964f1c14f792f44821f14c40",
+      "Hash": "178369b413c02b3537f1352036874737"
     },
     "GLM3r": {
       "Package": "GLM3r",
@@ -67,13 +53,6 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "0e59129db205112e3963904db67fd0dc"
-    },
-    "MBA": {
-      "Package": "MBA",
-      "Version": "0.0-9",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Hash": "d04f461e5002616b82560aea581ad7ff"
     },
     "Matrix": {
       "Package": "Matrix",
@@ -103,13 +82,6 @@
       "Repository": "RSPM",
       "Hash": "5cc50d9d40a284cb8b1c8604901acf89"
     },
-    "RPMG": {
-      "Package": "RPMG",
-      "Version": "2.2-3",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Hash": "c3071f09b6abbb56c9da0f3007790fbe"
-    },
     "Rcpp": {
       "Package": "Rcpp",
       "Version": "1.0.7",
@@ -124,18 +96,6 @@
       "Repository": "RSPM",
       "Hash": "76a46d0219364e5f6c8b04a148760acf"
     },
-    "Rnoaa4cast": {
-      "Package": "Rnoaa4cast",
-      "Version": "0.0.1.02.5",
-      "Source": "GitHub",
-      "RemoteType": "github",
-      "RemoteHost": "api.github.com",
-      "RemoteRepo": "Rnoaa4cast",
-      "RemoteUsername": "FLARE-forecast",
-      "RemoteRef": "HEAD",
-      "RemoteSha": "e56bac3b33d7f5fb18bb417d0c1926b3204435a9",
-      "Hash": "91555347b650e4ca913ee0a704b3d365"
-    },
     "TTR": {
       "Package": "TTR",
       "Version": "0.24.2",
@@ -149,13 +109,6 @@
       "Source": "Repository",
       "Repository": "RSPM",
       "Hash": "6fd3c4f293ec96b0bbb7b88b89fecf6d"
-    },
-    "XML": {
-      "Package": "XML",
-      "Version": "3.99-0.8",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Hash": "d493b952a9073c62f72392a673d7c548"
     },
     "askpass": {
       "Package": "askpass",
@@ -331,13 +284,6 @@
       "Repository": "RSPM",
       "Hash": "49b5c6e230bfec487b8917d5a0c77cca"
     },
-    "dotCall64": {
-      "Package": "dotCall64",
-      "Version": "1.0-1",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Hash": "d0ef6cd1546530da4d72179b52856e84"
-    },
     "dplyr": {
       "Package": "dplyr",
       "Version": "1.0.7",
@@ -393,13 +339,6 @@
       "Source": "Repository",
       "Repository": "RSPM",
       "Hash": "77bd60a6157420d4ffa93b27cf6a58b8"
-    },
-    "fields": {
-      "Package": "fields",
-      "Version": "13.3",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Hash": "fb9e1353a33d1a5e7b6648b33b838538"
     },
     "forcats": {
       "Package": "forcats",
@@ -477,13 +416,6 @@
       "Source": "Repository",
       "Repository": "RSPM",
       "Hash": "9a6564184dc4a81daea4f1d7ce357c6a"
-    },
-    "gridExtra": {
-      "Package": "gridExtra",
-      "Version": "2.3",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Hash": "7d7f283939f563670a697165b2cf5560"
     },
     "gridtext": {
       "Package": "gridtext",
@@ -653,13 +585,6 @@
       "Repository": "RSPM",
       "Hash": "41287f1ac7d28a92f0a286ed507928d3"
     },
-    "maps": {
-      "Package": "maps",
-      "Version": "3.4.0",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Hash": "b3d98a967ec17c80f795719529812fa0"
-    },
     "markdown": {
       "Package": "markdown",
       "Version": "1.1",
@@ -821,13 +746,6 @@
       "Repository": "RSPM",
       "Hash": "8c152566339fd5035115d8a41792bffb"
     },
-    "rNOMADS": {
-      "Package": "rNOMADS",
-      "Version": "2.5.0",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Hash": "491f2046b21f78b6a10a07173e70f775"
-    },
     "rappdirs": {
       "Package": "rappdirs",
       "Version": "0.3.3",
@@ -877,13 +795,6 @@
       "Repository": "RSPM",
       "Hash": "911d101becedc0fde495bd910984bdc8"
     },
-    "rgdal": {
-      "Package": "rgdal",
-      "Version": "1.5-27",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Hash": "ab3f3a61eb777b62c1bc0d341fd1f990"
-    },
     "rlang": {
       "Package": "rlang",
       "Version": "0.4.12",
@@ -932,27 +843,6 @@
       "Source": "Repository",
       "Repository": "RSPM",
       "Hash": "3838071b66e0c566d55cc26bd6e27bf4"
-    },
-    "sp": {
-      "Package": "sp",
-      "Version": "1.4-5",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Hash": "dfd843ee98246cf932823acf613b05dd"
-    },
-    "spam": {
-      "Package": "spam",
-      "Version": "2.7-0",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Hash": "1abde1bf414425ea288fd9e277d6e410"
-    },
-    "splancs": {
-      "Package": "splancs",
-      "Version": "2.01-42",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Hash": "a9801f8987696046fce34c33e99322b6"
     },
     "stinepack": {
       "Package": "stinepack",
@@ -1065,13 +955,6 @@
       "Source": "Repository",
       "Repository": "RSPM",
       "Hash": "ecf749a1b39ea72bd9b51b76292261f1"
-    },
-    "viridis": {
-      "Package": "viridis",
-      "Version": "0.6.2",
-      "Source": "Repository",
-      "Repository": "RSPM",
-      "Hash": "ee96aee95a7a563e5496f8991e9fde4b"
     },
     "viridisLite": {
       "Package": "viridisLite",

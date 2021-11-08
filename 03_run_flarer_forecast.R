@@ -19,24 +19,30 @@ sapply(files.sources, source)
 
 configure_run_file <- "configure_run.yml"
 
-config <- set_configuration(configure_run_file,lake_directory)
+config <- FLAREr::set_configuration(configure_run_file,lake_directory)
 
-config <- get_restart_file(config, lake_directory)
+config <- FLAREr::get_restart_file(config, lake_directory)
 
-get_targets(lake_directory, config)
+FLAREr::get_targets(lake_directory, config)
 
-noaa_forecast_path <- get_driver_forecast_path(config,
+noaa_forecast_path <- FLAREr::get_driver_forecast_path(config,
                                                forecast_model = config$met$forecast_met_model)
 
-inflow_forecast_path <- get_driver_forecast_path(config,
+inflow_forecast_path <- FLAREr::get_driver_forecast_path(config,
                                                forecast_model = config$inflow$forecast_inflow_model)
 
 if(!is.null(noaa_forecast_path)){
-  get_driver_forecast(lake_directory, forecast_path = noaa_forecast_path)
+  FLAREr::get_driver_forecast(lake_directory, forecast_path = noaa_forecast_path)
+  forecast_dir <- file.path(config$file_path$noaa_directory, noaa_forecast_path)
+}else{
+  forecast_dir <- NULL
 }
 
 if(!is.null(inflow_forecast_path)){
-  get_driver_forecast(lake_directory, forecast_path = inflow_forecast_path)
+  FLAREr::get_driver_forecast(lake_directory, forecast_path = inflow_forecast_path)
+  inflow_file_dir <- file.path(config$file_path$noaa_directory,inflow_forecast_path)
+}else{
+  inflow_file_dir <- NULL
 }
 
 pars_config <- readr::read_csv(file.path(config$file_path$configuration_directory, "FLAREr", config$model_settings$par_config_file), col_types = readr::cols())
@@ -48,12 +54,12 @@ states_config <- readr::read_csv(file.path(config$file_path$configuration_direct
 
 met_out <- FLAREr::generate_glm_met_files(obs_met_file = file.path(config$file_path$qaqc_data_directory, paste0("observed-met_",config$location$site_id,".nc")),
                                           out_dir = config$file_path$execute_directory,
-                                          forecast_dir = file.path(config$file_path$noaa_directory, noaa_forecast_path),
+                                          forecast_dir = forecast_dir,
                                           config = config)
 
 if(config$model_settings$model_name == "glm"){
 
-  inflow_outflow_files <- FLAREr::create_glm_inflow_outflow_files(inflow_file_dir = file.path(config$file_path$noaa_directory,inflow_forecast_path),
+  inflow_outflow_files <- FLAREr::create_glm_inflow_outflow_files(inflow_file_dir = inflow_file_dir,
                                                                   inflow_obs = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-inflow.csv")),
                                                                   working_directory = config$file_path$execute_directory,
                                                                   config = config,
@@ -134,13 +140,13 @@ eml_file_name <- FLAREr::create_flare_metadata(file_name = saved_file,
 #Clean up temp files and large objects in memory
 #unlink(config$file_path$execute_directory, recursive = TRUE)
 
-put_forecast(saved_file, eml_file_name, config)
+FLAREr::put_forecast(saved_file, eml_file_name, config)
 
 rm(da_forecast_output)
 gc()
 
-update_run_config(config, lake_directory, configure_run_file, saved_file, new_horizon = 16, day_advance = 1)
+FLAREr::update_run_config(config, lake_directory, configure_run_file, saved_file, new_horizon = 16, day_advance = 1)
 
-message(paste0("successfully generated flare forecats for: ", config$run_config$restart_file))
+message(paste0("successfully generated flare forecats for: ", basename(saved_file)))
 
 
