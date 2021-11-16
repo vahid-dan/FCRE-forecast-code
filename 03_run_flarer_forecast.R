@@ -57,7 +57,6 @@ met_out <- FLAREr::generate_glm_met_files(obs_met_file = file.path(config$file_p
                                           forecast_dir = forecast_dir,
                                           config = config)
 
-if(config$model_settings$model_name == "glm"){
 
   inflow_outflow_files <- FLAREr::create_glm_inflow_outflow_files(inflow_file_dir = inflow_file_dir,
                                                                   inflow_obs = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-inflow.csv")),
@@ -65,31 +64,21 @@ if(config$model_settings$model_name == "glm"){
                                                                   config = config,
                                                                   state_names = states_config$state_names)
 
+  inflow_outflow_files <- create_glm_inflow_outflow_files(inflow_file_dir = inflow_file_dir,
+                                                                  inflow_obs = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-inflow.csv")),
+                                                                  working_directory = config$file_path$execute_directory,
+                                                                  config = config,
+                                                                  state_names = states_config$state_names)
+
   management <- NULL
 
-}else if(config$model_settings$model_name == "glm_aed"){
+if(config$model_settings$model_name == "glm_aed"){
 
-  #file.copy(file.path(config_obs$data_location, "manual-data/FCR_weir_inflow_2013_2019_20200828_allfractions_2poolsDOC.csv"),
-  #          file.path(config$file_path$execute_directory, "FCR_weir_inflow_2013_2019_20200624_allfractions_2poolsDOC.csv"))
+  https_file <- "https://raw.githubusercontent.com/cayelan/FCR-GLM-AED-Forecasting/master/FCR_2013_2019GLMHistoricalRun_GLMv3beta/inputs/FCR_SSS_inflow_2013_2021_20211102_allfractions_2DOCpools.csv"
+  download.file(https_file,
+                file.path(config$file_path$execute_directory, basename(https_file)))
 
-  #file.copy(file.path(config_obs$data_location, "manual-data/FCR_wetland_inflow_2013_2019_20200828_allfractions_2DOCpools.csv"),
-  #          file.path(config$file_path$execute_directory, "FCR_wetland_inflow_2013_2019_20200713_allfractions_2DOCpools.csv"))
-
-  #file.copy(file.path(config_obs$data_location, "manual-data/FCR_SSS_inflow_2013_2019_20200701_allfractions_2DOCpools.csv"),
-  #          file.path(config$file_path$execute_directory, "FCR_SSS_inflow_2013_2019_20200701_allfractions_2DOCpools.csv"))
-
-  #file.copy(file.path(config_obs$data_location, "manual-data/FCR_spillway_outflow_SUMMED_WeirWetland_2013_2019_20200615.csv"),
-  #          file.path(config$file_path$execute_directory, "FCR_spillway_outflow_SUMMED_WeirWetland_2013_2019_20200615.csv"))
-
-  #file1 <- file.path(config$file_path$execute_directory, "FCR_weir_inflow_2013_2019_20200624_allfractions_2poolsDOC.csv")
-  #file2 <- file.path(config$file_path$execute_directory, "FCR_wetland_inflow_2013_2019_20200713_allfractions_2DOCpools.csv")
-  #inflow_file_names <- tibble(file1 = file1,
-  #                            file2 = file2,
-  #                            file3 = "sss_inflow.csv")
-  #outflow_file_names <- tibble(file_1 = file.path(config$file_path$execute_directory, "FCR_spillway_outflow_SUMMED_WeirWetland_2013_2019_20200615.csv"),
-  #                             file_2 = "sss_outflow.csv")
-
-  #management <- FLAREr::generate_oxygen_management(config = config)
+  inflow_outflow_files$inflow_file_name <- cbind(inflow_outflow_files$inflow_file_name, rep(file.path(config$file_path$execute_directory,basename(https_file)), length(inflow_outflow_files$inflow_file_name)))
 }
 
 #Create observation matrix

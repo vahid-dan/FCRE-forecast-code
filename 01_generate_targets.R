@@ -1,4 +1,4 @@
-renv::restore()
+#renv::restore()
 library(tidyverse)
 library(lubridate)
 
@@ -8,6 +8,7 @@ message("Beginning generate targets")
 
 lake_directory <- here::here()
 
+
 #' Source the R files in the repository
 
 files.sources <- list.files(file.path(lake_directory, "R"), full.names = TRUE)
@@ -16,7 +17,7 @@ sapply(files.sources, source)
 #' Generate the `config_obs` object and create directories if necessary
 
 config_obs <- FLAREr::initialize_obs_processing(lake_directory, observation_yml = "observation_processing.yml")
-use_s3 <- TRUE
+use_s3 <- FALSE
 
 #' Clone or pull from data repositories
 
@@ -63,6 +64,14 @@ FLAREr::get_edi_file(edi_https = "https://pasta.lternet.edu/package/data/eml/edi
              file = config_obs$inflow_raw_file1[2],
              lake_directory)
 
+FLAREr::get_edi_file(edi_https = "https://pasta.lternet.edu/package/data/eml/edi/542/1/791ec9ca0f1cb9361fa6a03fae8dfc95",
+                     file = "silica_master_df.csv",
+                     lake_directory)
+
+FLAREr::get_edi_file(edi_https = "https://pasta.lternet.edu/package/data/eml/edi/551/5/38d72673295864956cccd6bbba99a1a3",
+                     file = "Dissolved_CO2_CH4_Virginia_Reservoirs.csv",
+                     lake_directory)
+
 #' Clean up observed meterology
 
 cleaned_met_file <- met_qaqc(realtime_file = file.path(config_obs$file_path$data_directory, config_obs$met_raw_obs_fname[1]),
@@ -76,6 +85,8 @@ cleaned_met_file <- met_qaqc(realtime_file = file.path(config_obs$file_path$data
 cleaned_inflow_file <- inflow_qaqc(realtime_file = file.path(config_obs$file_path$data_directory, config_obs$inflow_raw_file1[1]),
               qaqc_file = file.path(config_obs$file_path$data_directory, config_obs$inflow_raw_file1[2]),
               nutrients_file = file.path(config_obs$file_path$data_directory, config_obs$nutrients_fname),
+              silica_file = file.path(config_obs$file_path$data_directory, "silica_master_df.csv"),
+              co2_ch4 = file.path(config_obs$file_path$data_directory, "Dissolved_CO2_CH4_Virginia_Reservoirs.csv"),
               cleaned_inflow_file = file.path(config_obs$file_path$targets_directory, config_obs$site_id, paste0(config_obs$site_id,"-targets-inflow.csv")),
               input_file_tz = 'EST')
 

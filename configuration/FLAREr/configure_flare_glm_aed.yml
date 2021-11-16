@@ -1,22 +1,22 @@
 file_path:
-   qaqc_data_directory: /Users/quinn/workfiles/Research/SSC_forecasting/run_flare_package/flarer_aed/data_processed
-   noaa_directory: /Users/quinn/workfiles/Research/SSC_forecasting/SCC_data/
-   inflow_directory: /Users/quinn/workfiles/Research/SSC_forecasting/SCC_data/
-   configuration_directory: /Users/quinn/workfiles/Research/SSC_forecasting/run_flare_package/flarer_aed/configuration
-   execute_directory: /Users/quinn/workfiles/Research/SSC_forecasting/run_flare_package/flarer_aed/flare_tempdir
-   forecast_output_directory: /Users/quinn/workfiles/Research/SSC_forecasting/run_flare_package/flarer_aed/forecast_output
-   run_config: /Users/quinn/workfiles/Research/SSC_forecasting/run_flare_package/flarer_aed/configuration/flarer/configure_run.yml
+   qaqc_data_directory: .na
+   noaa_directory: .na
+   inflow_directory: .na
+   configuration_directory: .na
+   execute_directory: .na
+   forecast_output_directory: .na
+   run_config: .na
 location:
    site_id: fcre
    name: Falling Creek Reservoir
    latitude: 37.307   #Degrees North
-   longitude: 79.837  #Degrees West
+   longitude: -79.837  #Degrees West
 metadata:
    generate_eml: TRUE
    forecast_project_id: test
    abstract: "This is where a longer description of the forest can be added"
    forecast_title: FLARE
-   intellectualRights: insert license
+   intellectualRights: MIT
    model_description:
       forecast_model_id: https://github.com/rqthomas/flare/commit/d1ddcb07b9d28863890597503fc4aa4a4496de56
       name: General Lake Model
@@ -37,7 +37,7 @@ da_setup:
     assimilate_first_step: FALSE
     use_obs_constraint: TRUE
 model_settings:
-   ncore: 6
+   ncore: 1
    model_name: glm_aed #other is "null"
    base_GLM_nml: glm3.nml
    base_AED_nml: aed2.nml
@@ -66,11 +66,11 @@ default_init:
    white_ice_thickness: 0.0
    blue_ice_thickness: 0.0
 inflow:
-   use_forecasted_inflow: FALSE
-   forecast_inflow_model: FLOWS-NOAAGEFS-AR1
+   use_forecasted_inflow: TRUE
+   forecast_inflow_model: inflow/FLOWS-NOAAGEFS-AR1-AED
 met:
-   use_forecasted_met: FALSE
-   forecast_met_model: NOAAGEFS_1hr-debias
+   use_forecasted_met: TRUE
+   forecast_met_model: noaa/NOAAGEFS_1hr
 uncertainty:
    observation: TRUE
    process: TRUE
