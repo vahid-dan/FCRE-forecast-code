@@ -120,7 +120,7 @@ if(!is.null(noaa_forecast_path)){
 
 }else{
 
-  message(paste0("no forecast days in configuration file: ", file.path(config$met$forecast_met_model,config$location$site_id,lubridate::as_date(config$run_config$forecast_start_datetime))))
+  message("An inflow forecasts was not needed because the forecast horizon was 0 in run configuration file")
 
 }
 
