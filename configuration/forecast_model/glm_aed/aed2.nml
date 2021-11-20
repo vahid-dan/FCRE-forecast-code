@@ -56,7 +56,7 @@
 &aed_noncohesive
    !-- Select SS groups and their light attenuation
     num_ss       = 0! turn this to 1 if you have phs_frp_ads on
-    ss_initial   = 1,1
+    ss_initial   = 0,0
     Ke_ss        = 0.06,0.063
    !-- Configure particle settling
     settling     = 1
@@ -157,7 +157,7 @@
    ionic = 0.1
    co2_piston_model = 1
    !-- CH4 --
-   simCH4ebb = .false.
+   ebb_model = 0
    ch4_initial = 5
    Rch4ox = 0.1
    Kch4ox =  0.2
@@ -420,9 +420,9 @@
      X_cpom_n     = 0.005
      X_cpom_p     = 0.001
     !-- Light related parameters
-     KeDOM         = 0.06247136
-     KePOM         = 0.28
-     KeDOMR        = 0.175
+     KeDOM         = 0.006247136
+     KePOM         = 0.028
+     KeDOMR        = 0.1
      KeCPOM        = 0.00096
      simphotolysis = .false.
     !photo_fmin

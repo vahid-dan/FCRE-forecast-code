@@ -46,14 +46,14 @@
    timefmt = 2
    start = '2013-05-15 12:00'
    stop = '2018-12-31 12:00'
-   dt = 3600
+   dt = 1800
    num_days = 1
    timezone = -5
 /
 &output
    out_dir = "./"
    out_fn = "output"
-   nsave = 24
+   nsave = 48
 /
 &init_profiles
    num_depths = 28
