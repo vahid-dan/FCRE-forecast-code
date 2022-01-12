@@ -1,9 +1,11 @@
-renv::restore()
+#renv::restore()
 
 library(tidyverse)
 library(lubridate)
 
 lake_directory <- here::here()
+Sys.setenv("AWS_DEFAULT_REGION" = "s3",
+           "AWS_S3_ENDPOINT" = "flare-forecast.org")
 
 files.sources <- list.files(file.path(lake_directory, "R"), full.names = TRUE)
 sapply(files.sources, source)
@@ -42,79 +44,9 @@ if(!is.null(noaa_forecast_path)){
                                                   forecast_location = config$file_path$forecast_output_directory,
                                                   config = config,
                                                   use_s3 = config$run_config$use_s3,
-                                                  bucket = "drivers")
+                                                  bucket = "drivers",
+                                                  model_name = config$model_settings$model_name)
 
-  #NEED TO COPY TO BUCKET
-
-  if(config$model_settings$model_name == "glm_aed"){
-
-    run_dir <- str_replace_all(dirname(list.files(temp_flow_forecast[[1]], full.names = TRUE)[1]), "INFLOW-FLOWS-NOAAGEFS-AR1","INFLOW-FLOWS-NOAAGEFS-AR1-AED")
-
-    if(!dir.exists(run_dir)){
-      dir.create(run_dir, recursive = TRUE)
-    }
-
-    historical_chemistry_weir <- read_csv("/Users/quinn/Downloads/FCRE-forecast-code/targets/FCR_weir_inflow_2013_2019_20200624_allfractions_2poolsDOC.csv")
-
-    for(i in 1:length(inflow_files)){
-      inflow_files <- list.files(temp_flow_forecast[[1]], full.names = TRUE)
-      inflow_forecast <- read_csv(inflow_files[i])
-
-      historical_chemistry_weir_mean <- historical_chemistry_weir %>%
-        mutate(doy = lubridate::yday(time)) %>%
-        select(-c("FLOW", "TEMP", "SALT", "time")) %>%
-        group_by(doy) %>%
-        summarise(across(everything(), mean))
-
-      file_name <- str_replace_all(list.files(temp_flow_forecast[[1]], full.names = TRUE)[i], "INFLOW-FLOWS-NOAAGEFS-AR1","INFLOW-FLOWS-NOAAGEFS-AR1-AED")
-
-      inflow_forecast_aed <- inflow_forecast %>%
-        mutate(doy = lubridate::yday(time)) %>%
-        left_join(historical_chemistry_weir_mean, by = "doy") %>%
-        select(-doy) %>%
-        write_csv(file = file_name)
-
-      #NEED TO COPY TO BUCKET
-    }
-  }else if(config$model_settings$model_name == "glm_oxy"){
-
-    #NEED TO GET WORKING WITH S3
-
-    run_dir <- str_replace_all(dirname(list.files(temp_flow_forecast, full.names = TRUE)[1]), "INFLOW-FLOWS-NOAAGEFS-AR1","INFLOW-FLOWS-NOAAGEFS-AR1-AED")
-
-    if(!dir.exists(run_dir)){
-      dir.create(run_dir, recursive = TRUE)
-    }
-
-    historical_chemistry_weir <- read_csv(file.path(config$file_path$qaqc_data_directory, "FCR_weir_inflow_2013_2019_20200624_allfractions_2poolsDOC.csv"))
-
-    for(i in 1:length(inflow_files)){
-      inflow_files <- list.files(temp_flow_forecast, full.names = TRUE)
-      inflow_forecast <- read_csv(inflow_files[i])
-
-      historical_chemistry_weir_mean <- historical_chemistry_weir %>%
-        mutate(doy = lubridate::yday(time)) %>%
-        select(-c("FLOW", "TEMP", "SALT", "time")) %>%
-        select("OXY_oxy") %>%
-        group_by(doy) %>%
-        summarise(across(everything(), mean))
-
-      file_name <- str_replace_all(list.files(temp_flow_forecast, full.names = TRUE)[i], "INFLOW-FLOWS-NOAAGEFS-AR1","INFLOW-FLOWS-NOAAGEFS-AR1-AEDOXY")
-
-      inflow_forecast_aed <- inflow_forecast %>%
-        mutate(doy = lubridate::yday(time)) %>%
-        left_join(historical_chemistry_weir_mean, by = "doy") %>%
-        select(-doy) %>%
-        write_csv(file = file_name)
-
-      #NEED TO COPY TO BUCKET
-    }
-
-    unlink(noaa_forecast_path, recursive = TRUE)
-    if(use_s3){
-      unlink(dirname((temp_flow_forecast[[1]])[1]), recursive = TRUE)
-    }
-  }
 
   message(paste0("successfully generated inflow forecats for: ", file.path(config$met$forecast_met_model,config$location$site_id,lubridate::as_date(config$run_config$forecast_start_datetime))))
 

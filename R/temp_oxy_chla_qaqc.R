@@ -231,7 +231,6 @@ temp_oxy_chla_qaqc <- function(realtime_file,
     d1 <- catdata
 
     d2 <- read.csv(qaqc_file, na.strings = 'NA', stringsAsFactors = FALSE)
-
     TIMESTAMP_in <- as_datetime(d1$DateTime,tz = input_file_tz)
     d1$TIMESTAMP <- with_tz(TIMESTAMP_in,tz = "UTC")
 
@@ -263,7 +262,7 @@ temp_oxy_chla_qaqc <- function(realtime_file,
                      wtr_9 = d2$ThermistorTemp_C_9, wtr_1_exo = d2$EXOTemp_C_1,
                      wtr_5_do = d2$RDOTemp_C_5, wtr_9_do = d2$RDOTemp_C_9,
                      Chla_1 = d2$EXOChla_ugL_1, doobs_1 = d2$EXODO_mgL_1,
-                     doobs_5 = d2$RDO_mgL_5, doobs_9 = d2$RDO_mgL_9,
+                     doobs_5 = d2$RDO_mgL_5_adjusted, doobs_9 = d2$RDO_mgL_9_adjusted,
                      fDOM_1 = d2$EXOfDOM_QSU_1, bgapc_1 = d2$EXOBGAPC_ugL_1,
                      depth_1.6 = d2$EXO_depth)
 
@@ -566,7 +565,3 @@ temp_oxy_chla_qaqc <- function(realtime_file,
   return(d)
 }
 
-# example usage
-# qaqc("https://raw.githubusercontent.com/CareyLabVT/SCCData/mia-data/Catwalk.csv",
-#      "https://raw.githubusercontent.com/CareyLabVT/SCCData/mia-data/CAT_MaintenanceLog.txt",
-#      "Catwalk.csv")
