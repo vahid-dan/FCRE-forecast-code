@@ -37,7 +37,7 @@ da_setup:
   assimilate_first_step: no
   use_obs_constraint: yes
 model_settings:
-  ncore: 6
+  ncore: 4
   model_name: glm_aed
   base_GLM_nml: glm3.nml
   base_AED_nml: aed2.nml

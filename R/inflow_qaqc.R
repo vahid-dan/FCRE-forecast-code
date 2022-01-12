@@ -220,7 +220,7 @@ inflow_qaqc <- function(realtime_file,
              OGM_pon = (1/6)*(TN_ugL-(NIT_amm+NIT_nit)), #detemined by subtraction
              OGM_dop = 0.3*(TP_ugL-PHS_frp)*0.10, #Wetzel page 241, 70% of total organic P = particulate organic; 30% = dissolved organic P
              OGM_dopr = 0.3*(TP_ugL-PHS_frp)*0.90,#to keep mass balance with DOC & DON, DOPr is 90% of total DOP
-             OGM_pop = 10*TP_ugL, # #In lieu of having the adsorbed P pool activated in the model, need to have higher complexed P
+             OGM_pop = TP_ugL-(OGM_dop+OGM_dopr+PHS_frp), # #In lieu of having the adsorbed P pool activated in the model, need to have higher complexed P
              CAR_dic = DIC_mgL*1000*(1/52.515),
              OXY_oxy = rMR::Eq.Ox.conc(TEMP, elevation.m = 506, #creating OXY_oxy column using RMR package, assuming that oxygen is at 100% saturation in this very well-mixed stream
                                        bar.press = NULL, bar.units = NULL,

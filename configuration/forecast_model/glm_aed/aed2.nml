@@ -40,7 +40,7 @@
 /
 &aed_sed_const2d
    n_zones  = 2
-   Fsed_oxy = -15.5794781,-0.8305219!-15.00072087,-2.789371342!-28.64793,-2.789371342
+   Fsed_oxy =  -40.5794781,-30.00 !-15.5794781,-0.8305219!-15.00072087,-2.789371342!-28.64793,-2.789371342
    Fsed_ch4 = 15,232.6331575
    Fsed_amm = 2.848790019,1.659739687
    Fsed_nit = -0.13,-0.01
@@ -420,16 +420,16 @@
      X_cpom_n     = 0.005
      X_cpom_p     = 0.001
     !-- Light related parameters
-     KeDOM         = 0.006247136
-     KePOM         = 0.028
+     KeDOM         = 0.001
+     KePOM         = 0.01
      KeDOMR        = 0.1
      KeCPOM        = 0.00096
      simphotolysis = .false.
     !photo_fmin
      photo_c       = 0.75
     !-- Particle settling parameters
-     settling     =  3
-     w_pom        = -0.06
+     settling     =  1
+     w_pom        = -0.01
      d_pom        =  1e-5
      rho_pom      = 1.2e3
      w_cpom       = -0.01

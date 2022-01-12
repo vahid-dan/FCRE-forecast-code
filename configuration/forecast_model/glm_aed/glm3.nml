@@ -11,7 +11,7 @@
    wq_nml_file = 'aed2.nml'
    ode_method = 1
    split_factor = 1
-   bioshade_feedback = .true.
+   bioshade_feedback = .false.
    repair_state = .true.
 /
 &light
@@ -20,7 +20,7 @@
    light_extc = 1, 0.5, 2, 4
    energy_frac = 0.51, 0.45, 0.035, 0.005
    Benthic_Imin = 10
-   Kw = 0.15
+   Kw = 0.87
 /
 &mixing
    coef_mix_conv = 0.2
