@@ -163,7 +163,7 @@ if(starting_index == 1){
   config$run_config$forecast_horizon <- 0
   config$run_config$restart_file <- NA
   run_config <- config$run_config
-  yaml::write_yaml(run_config, file = file.path(config$file_path$configuration_directory, "FLAREr", configure_run_file))
+  yaml::write_yaml(run_config, file = file.path(config$file_path$configuration_directory, configure_run_file))
 }
 
 #for(i in 1:1){
