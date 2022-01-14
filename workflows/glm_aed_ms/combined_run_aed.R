@@ -17,7 +17,7 @@ config_set_name <- "glm_aed_ms"
 
 config_files <- paste0("configure_flare_glm_aed.yml")
 
-num_forecasts <- 52
+num_forecasts <- 52 * 3 - 3
 #num_forecasts <- 1#19 * 7 + 1
 days_between_forecasts <- 7
 forecast_horizon <- 16 #32
@@ -168,6 +168,15 @@ if(starting_index == 1){
 
 #for(i in 1:1){
 for(i in starting_index:length(forecast_start_dates)){
+
+  message("Checking for NOAA forecasts")
+  noaa_ready <- FLAREr::check_noaa_present(lake_directory,
+                                           configure_run_file,
+                                           config_set_name = config_set_name)
+
+  if(!noaa_ready){
+      FLAREr::update_run_config(config, lake_directory, configure_run_file, saved_file = NA, new_horizon = forecast_horizon, day_advance = days_between_forecasts, new_start_datetime = FALSE)
+  }else{
 
   config <- FLAREr::set_configuration(configure_run_file, lake_directory, config_set_name = config_set_name)
   noaa_forecast_path <- FLAREr::get_driver_forecast_path(config, forecast_model = config$met$forecast_met_model)
@@ -341,6 +350,7 @@ for(i in starting_index:length(forecast_start_dates)){
     FLAREr::put_forecast(saved_file, eml_file_name, config)
 
     FLAREr::update_run_config(config, lake_directory, configure_run_file, saved_file, new_horizon = forecast_horizon, day_advance = days_between_forecasts)
+  }
 
   }
 }
