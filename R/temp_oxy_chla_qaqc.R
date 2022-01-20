@@ -12,7 +12,7 @@ temp_oxy_chla_qaqc <- function(realtime_file,
                          "RDOsat_percent_9", "RDOTemp_C_9", "EXO_Date", "EXO_Time", "EXOTemp_C_1", "EXOCond_uScm_1",
                          "EXOSpCond_uScm_1", "EXOTDS_mgL_1", "EXODOsat_percent_1", "EXODO_mgL_1", "EXOChla_RFU_1",
                          "EXOChla_ugL_1", "EXOBGAPC_RFU_1", "EXOBGAPC_ugL_1", "EXOfDOM_RFU_1", "EXOfDOM_QSU_1",
-                         "EXO_pressure", "EXO_depth", "EXO_battery", "EXO_cablepower", "EXO_wiper")
+                         "EXO_pressure", "EXO_depth", "EXO_battery", "EXO_cablepower", "EXO_wiper", "Lvl_psi", "wtr_pt_9")
 
   # after maintenance, DO values will continue to be replaced by NA until DO_mgL returns within this threshold (in mg/L)
   # of the pre-maintenance value
@@ -262,7 +262,7 @@ temp_oxy_chla_qaqc <- function(realtime_file,
                      wtr_9 = d2$ThermistorTemp_C_9, wtr_1_exo = d2$EXOTemp_C_1,
                      wtr_5_do = d2$RDOTemp_C_5, wtr_9_do = d2$RDOTemp_C_9,
                      Chla_1 = d2$EXOChla_ugL_1, doobs_1 = d2$EXODO_mgL_1,
-                     doobs_5 = d2$RDO_mgL_5_adjusted, doobs_9 = d2$RDO_mgL_9_adjusted,
+                     doobs_5 = d2$RDO_mgL_5, doobs_9 = d2$RDO_mgL_9,
                      fDOM_1 = d2$EXOfDOM_QSU_1, bgapc_1 = d2$EXOBGAPC_ugL_1,
                      depth_1.6 = d2$EXO_depth)
 

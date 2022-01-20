@@ -13,6 +13,7 @@ files.sources <- list.files(file.path(lake_directory, "R"), full.names = TRUE)
 sapply(files.sources, source)
 
 sim_names <- "ms_glmead_flare"
+config_set_name <- "glm_aed_ms"
 
 config_files <- paste0("configure_flare_glm_aed.yml")
 
@@ -45,10 +46,10 @@ sites <- "fcre"
 message(paste0("Running site: ", sites[j]))
 
 if(starting_index == 1){
-  run_config <- yaml::read_yaml(file.path(lake_directory, "configuration", "FLAREr", configure_run_file))
+  run_config <- yaml::read_yaml(file.path(lake_directory, "configuration", config_set_name, configure_run_file))
   run_config$configure_flare <- config_files[j]
   run_config$sim_name <- sim_names
-  yaml::write_yaml(run_config, file = file.path(lake_directory, "configuration", "FLAREr", configure_run_file))
+  yaml::write_yaml(run_config, file = file.path(lake_directory, "configuration", config_set_name, configure_run_file))
   if(file.exists(file.path(lake_directory, "restart", sites[j], sim_names, configure_run_file))){
     unlink(file.path(lake_directory, "restart", sites[j], sim_names, configure_run_file))
   }
@@ -56,8 +57,8 @@ if(starting_index == 1){
 
 ##'
 # Set up configurations for the data processing
-config_obs <- FLAREr::initialize_obs_processing(lake_directory, observation_yml = "observation_processing.yml")
-config <- FLAREr::set_configuration(configure_run_file,lake_directory)
+config_obs <- FLAREr::initialize_obs_processing(lake_directory, observation_yml = "observation_processing.yml", config_set_name = config_set_name)
+config <- FLAREr::set_configuration(configure_run_file,lake_directory, config_set_name = config_set_name)
 
 use_s3 <- FALSE
 
@@ -168,7 +169,7 @@ if(starting_index == 1){
 #for(i in 1:1){
 for(i in starting_index:length(forecast_start_dates)){
 
-  config <- FLAREr::set_configuration(configure_run_file, lake_directory)
+  config <- FLAREr::set_configuration(configure_run_file, lake_directory, config_set_name = config_set_name)
   noaa_forecast_path <- FLAREr::get_driver_forecast_path(config, forecast_model = config$met$forecast_met_model)
   if (config$run_config$forecast_horizon > 0 & !is.null(noaa_forecast_path)) {
     noaa_files <- aws.s3::get_bucket(bucket = "drivers",
@@ -204,7 +205,7 @@ for(i in starting_index:length(forecast_start_dates)){
 
   if(noaa_forecasts_ready){
 
-    config <- FLAREr::set_configuration(configure_run_file,lake_directory)
+    config <- FLAREr::set_configuration(configure_run_file,lake_directory, config_set_name = config_set_name)
     config <- FLAREr::get_restart_file(config, lake_directory)
 
     message(paste0("     Running forecast that starts on: ", config$run_config$start_datetime))
@@ -253,9 +254,9 @@ for(i in starting_index:length(forecast_start_dates)){
     #Need to remove the 00 ensemble member because it only goes 16-days in the future
 
     #pars_config <- NULL #readr::read_csv(file.path(config$file_path$configuration_directory, "FLAREr", config$model_settings$par_config_file), col_types = readr::cols())
-    pars_config <- readr::read_csv(file.path(config$file_path$configuration_directory, "FLAREr", config$model_settings$par_config_file), col_types = readr::cols())
-    obs_config <- readr::read_csv(file.path(config$file_path$configuration_directory, "FLAREr", config$model_settings$obs_config_file), col_types = readr::cols())
-    states_config <- readr::read_csv(file.path(config$file_path$configuration_directory, "FLAREr", config$model_settings$states_config_file), col_types = readr::cols())
+    pars_config <- readr::read_csv(file.path(config$file_path$configuration_directory, config$model_settings$par_config_file), col_types = readr::cols())
+    obs_config <- readr::read_csv(file.path(config$file_path$configuration_directory, config$model_settings$obs_config_file), col_types = readr::cols())
+    states_config <- readr::read_csv(file.path(config$file_path$configuration_directory, config$model_settings$states_config_file), col_types = readr::cols())
 
 
     #Download and process observations (already done)
