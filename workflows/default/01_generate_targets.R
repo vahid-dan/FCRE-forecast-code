@@ -19,7 +19,7 @@ sapply(files.sources, source)
 #' Generate the `config_obs` object and create directories if necessary
 
 config_obs <- FLAREr::initialize_obs_processing(lake_directory, observation_yml = "observation_processing.yml", config_set_name)
-use_s3 <- FALSE
+use_s3 <- TRUE
 
 #' Clone or pull from data repositories
 
