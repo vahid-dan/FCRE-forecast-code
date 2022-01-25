@@ -336,8 +336,10 @@ for(j in 1:length(sites)){
       write_csv(clim_forecast, file = saved_file)
 
       if (config$run_config$use_s3) {
-        success <- aws.s3::put_object(file = saved_file, object = file.path(config$location$site_id,
-                                                                            basename(saved_file)), bucket = "forecasts")
+        success <- aws.s3::put_object(file = saved_file, object =         file.path(config$location$site_id,
+                                      basename(saved_file)), bucket = "forecasts",
+                                      region = Sys.getenv("AWS_DEFAULT_REGION"),
+                                      use_https = as.logical(Sys.getenv("USE_HTTPS")))
         if (success) {
           unlink(saved_file)
         }
@@ -388,7 +390,9 @@ for(j in 1:length(sites)){
 
       if (config$run_config$use_s3) {
         success <- aws.s3::put_object(file = saved_file, object = file.path(config$location$site_id,
-                                                                            basename(saved_file)), bucket = "forecasts")
+                                      basename(saved_file)), bucket = "forecasts",
+                                      region = Sys.getenv("AWS_DEFAULT_REGION"),
+                                      use_https = as.logical(Sys.getenv("USE_HTTPS")))
         if (success) {
           unlink(saved_file)
         }
@@ -396,6 +400,3 @@ for(j in 1:length(sites)){
     }
   }
 }
-
-
-
