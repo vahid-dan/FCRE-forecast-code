@@ -19,8 +19,6 @@ forecast_site <- "fcre"
 configure_run_file <- "configure_run.yml"
 update_run_config <- TRUE
 
-Sys.setenv("AWS_DEFAULT_REGION" = "s3",
-           "AWS_S3_ENDPOINT" = "flare-forecast.org")
 message("Checking for NOAA forecasts")
 noaa_ready <- FLAREr::check_noaa_present(lake_directory,
                                          configure_run_file,
