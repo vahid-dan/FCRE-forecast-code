@@ -5,26 +5,24 @@ library(lubridate)
 args <- commandArgs(trailingOnly=TRUE)
 # test if there is at least one argument: if not, return an error
 if (length(args)!=3) {
-  stop("missing the 3required arguments: sim_name, config_set_name, workflow_scripts")
+  stop("missing the 3 required arguments: sim_name, config_set_name, workflow_scripts")
   config_set_name <- "default"
   workflow_scripts <- 0
 } else{
-  sim_name <- args[1]
-  config_set_name <- args[2]
-  workflow_scripts <- args[3]
+  config_set_name <- args[1]
+  workflow_scripts <- args[2]
+  configure_run_file <- args[3]
 }
 
 
 lake_directory <- here::here()
 setwd(lake_directory)
 forecast_site <- "fcre"
-configure_run_file <- "configure_run.yml"
 update_run_config <- TRUE
 
 FLAREr::set_configuration(configure_run_file = configure_run_file,
                           lake_directory = lake_directory,
-                          config_set_name = config_set_name,
-                          sim_name = sim_name)
+                          config_set_name = config_set_name)
 
 message("Checking for NOAA forecasts")
 
