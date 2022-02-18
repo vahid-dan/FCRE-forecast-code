@@ -4,16 +4,23 @@ library(lubridate)
 
 args <- commandArgs(trailingOnly=TRUE)
 # test if there is at least one argument: if not, return an error
-if (length(args)!=3) {
-  stop("missing the 3 required arguments: sim_name, config_set_name, workflow_scripts")
+if (length(args)==0) {
   config_set_name <- "default"
   workflow_scripts <- 0
+  configure_run_file <- "configure_run.yml"
+} else if(length(args)==1){
+  config_set_name <- args[1]
+  workflow_scripts <- 0
+  configure_run_file <- "configure_run.yml"
+}else if(length(args)==2){
+  config_set_name <- args[1]
+  workflow_scripts <- args[2]
+  configure_run_file <- "configure_run.yml"
 } else{
   config_set_name <- args[1]
   workflow_scripts <- args[2]
   configure_run_file <- args[3]
 }
-
 
 lake_directory <- here::here()
 setwd(lake_directory)
