@@ -8,10 +8,6 @@ if(file.exists("~/.aws")){
                 "Consider renaming these so that automated upload will work"))
 }
 
-Sys.setenv("AWS_DEFAULT_REGION" = "s3",
-           "AWS_S3_ENDPOINT" = "flare-forecast.org")
-
-
 lake_directory <- here::here()
 update_run_config <- TRUE
 files.sources <- list.files(file.path(lake_directory, "R"), full.names = TRUE)
@@ -132,5 +128,3 @@ gc()
 FLAREr::update_run_config(config, lake_directory, configure_run_file, saved_file, new_horizon = 16, day_advance = 1)
 
 message(paste0("successfully generated flare forecats for: ", basename(saved_file)))
-
-

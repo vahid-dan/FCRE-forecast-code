@@ -4,8 +4,6 @@ library(tidyverse)
 library(lubridate)
 
 lake_directory <- here::here()
-Sys.setenv("AWS_DEFAULT_REGION" = "s3",
-           "AWS_S3_ENDPOINT" = "flare-forecast.org")
 
 files.sources <- list.files(file.path(lake_directory, "R"), full.names = TRUE)
 sapply(files.sources, source)
@@ -55,5 +53,3 @@ if(!is.null(noaa_forecast_path)){
   message("An inflow forecasts was not needed because the forecast horizon was 0 in run configuration file")
 
 }
-
-

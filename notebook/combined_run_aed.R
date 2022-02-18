@@ -173,7 +173,9 @@ for(i in starting_index:length(forecast_start_dates)){
   noaa_forecast_path <- FLAREr::get_driver_forecast_path(config, forecast_model = config$met$forecast_met_model)
   if (config$run_config$forecast_horizon > 0 & !is.null(noaa_forecast_path)) {
     noaa_files <- aws.s3::get_bucket(bucket = "drivers",
-                                     prefix = noaa_forecast_path)
+                                     prefix = noaa_forecast_path,
+                                     region = Sys.getenv("AWS_DEFAULT_REGION"),
+                                     use_https = as.logical(Sys.getenv("USE_HTTPS")))
     noaa_forecast_path <- file.path(lake_directory, "drivers",
                                     noaa_forecast_path)
     keys <- vapply(noaa_files, `[[`, "", "Key", USE.NAMES = FALSE)
@@ -344,6 +346,3 @@ for(i in starting_index:length(forecast_start_dates)){
 
   }
 }
-
-
-
