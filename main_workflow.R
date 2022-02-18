@@ -24,8 +24,6 @@ FLAREr::set_configuration(configure_run_file = configure_run_file,
                           lake_directory = lake_directory,
                           config_set_name = config_set_name)
 
-Sys.setenv("AWS_DEFAULT_REGION" = "s3",
-           "AWS_S3_ENDPOINT" = "flare-forecast.org")
 message("Checking for NOAA forecasts")
 
 noaa_ready <- FLAREr::check_noaa_present(lake_directory,
