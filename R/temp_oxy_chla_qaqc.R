@@ -559,8 +559,6 @@ temp_oxy_chla_qaqc <- function(realtime_file,
 
   d <- d %>% mutate(depth = as.numeric(depth))
 
-
-
   # write to output file
   return(d)
 }
