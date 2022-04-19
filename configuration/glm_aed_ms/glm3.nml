@@ -11,7 +11,7 @@
    wq_nml_file = 'aed2.nml'
    ode_method = 1
    split_factor = 1
-   bioshade_feedback = .false.
+   bioshade_feedback = .true.
    repair_state = .true.
 /
 &light
@@ -20,7 +20,7 @@
    light_extc = 1, 0.5, 2, 4
    energy_frac = 0.51, 0.45, 0.035, 0.005
    Benthic_Imin = 10
-   Kw = 0.87
+   Kw = 0.15
 /
 &mixing
    coef_mix_conv = 0.2
@@ -46,14 +46,14 @@
    timefmt = 2
    start = '2013-05-15 12:00'
    stop = '2018-12-31 12:00'
-   dt = 1800
+   dt = 3600
    num_days = 1
    timezone = -5
 /
 &output
    out_dir = "./"
    out_fn = "output"
-   nsave = 48
+   nsave = 24
 /
 &init_profiles
    num_depths = 28
@@ -120,6 +120,7 @@
    snow_albedo_factor = 1
    snow_rho_max = 500
    snow_rho_min = 100
+   avg_surf_temp_thres = 0.5
 /
 &sediment
    benthic_mode = 2
@@ -127,7 +128,7 @@
    n_zones = 2
    zone_heights = 5, 11
    sed_heat_Ksoil = 1.8, 1.8
-   sed_temp_depth = 0.2, 0.2
+   sed_temp_depth = 0.5, 0.5
    sed_temp_mean = 11.39072901, 14.85279613
    sed_temp_amplitude = 3.140616132, 7.134809304
    sed_temp_peak_doy = 278.4380074, 276.9746504
