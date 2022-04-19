@@ -153,8 +153,8 @@ forecast_inflows_outflows <- function(inflow_obs,
       dplyr::select(time, FLOW, TEMP, SALT, AirTemp, Rain) %>%
       dplyr::mutate_at(dplyr::vars(c("FLOW", "TEMP", "SALT")), list(~round(., 4))) %>%
       dplyr::mutate(type = "inflow",
-                    inflow_num = 1) %>%
-      slice(-1)
+                    inflow_num = 1)
+      #slice(-1)
 
     if(model_name == "glm_aed"){
 
@@ -219,10 +219,14 @@ forecast_inflows_outflows <- function(inflow_obs,
     if(use_s3){
       aws.s3::put_object(file = local_inflow_file_name,
                          object = file.path(run_dir, paste0(identifier_inflow,"_", ens, ".csv")),
-                         bucket = bucket)
+                         bucket = bucket,
+                         region = Sys.getenv("AWS_DEFAULT_REGION"),
+                         use_https = as.logical(Sys.getenv("USE_HTTPS")))
       aws.s3::put_object(file = local_outflow_file_name,
                          object = file.path(run_dir, paste0(identifier_outflow,"_", ens, ".csv")),
-                         bucket = bucket)
+                         bucket = bucket,
+                         region = Sys.getenv("AWS_DEFAULT_REGION"),
+                         use_https = as.logical(Sys.getenv("USE_HTTPS")))
     }
 
 

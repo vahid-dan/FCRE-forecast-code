@@ -1,9 +1,0 @@
-restart_file: .na
-start_datetime: 2020-07-01 00:00:00
-end_datetime: .na
-forecast_start_datetime: 2020-09-01 00:00:00
-forecast_horizon: 16
-sim_name: test_run_4
-configure_flare: configure_flare_glm_aed.yml
-configure_obs: observation_processing.yml
-use_s3: FALSE
