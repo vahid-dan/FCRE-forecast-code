@@ -33,9 +33,9 @@ if(!is.null(noaa_forecast_path)){
   if(length(forecast_files) == 0){
     stop(paste0("missing forecast files at: ", noaa_forecast_path))
   }
-  temp_flow_forecast <- forecast_inflows_outflows(inflow_obs = file.path(config$file_path$qaqc_data_directory, "fcre-targets-inflow.csv"),
+  temp_flow_forecast <- forecast_inflows_outflows(inflow_obs = file.path(config$file_path$qaqc_data_directory, paste0(config_obs$site_id, "-targets-inflow.csv")),
                                                   forecast_files = forecast_files,
-                                                  obs_met_file = file.path(config$file_path$qaqc_data_directory,"observed-met_fcre.nc"),
+                                                  obs_met_file = file.path(config$file_path$qaqc_data_directory, paste0("observed-met_", config_obs$site_id, ".nc")),
                                                   output_dir = config$file_path$inflow_directory,
                                                   inflow_model = config$inflow$forecast_inflow_model,
                                                   inflow_process_uncertainty = FALSE,
