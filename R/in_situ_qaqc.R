@@ -52,16 +52,17 @@ in_situ_qaqc <- function(insitu_obs_fname,
   }
 
 
-  first_day <- lubridate::as_datetime(paste0(lubridate::as_date(min(d$timestamp)), " ", config$averaging_period_starting_hour))
-
-  last_day <- lubridate::as_datetime(paste0(lubridate::as_date(max(d$timestamp)), " ", config$averaging_period_starting_hour))
-
+  first_day <- lubridate::as_datetime(paste0(lubridate::as_date(min(d$timestamp)) - lubridate::days(1), " ", config$averaging_period_starting_hour))
+  last_day <- lubridate::as_datetime(paste0(lubridate::as_date(max(d$timestamp)) + lubridate::days(1), "",config$averaging_period_starting_hour ))
+    
   full_time_local <- seq(first_day, last_day, by = "1 day")
 
   d_clean <- NULL
 
 
   for(i in 1:length(config$target_variable)){
+    
+
     print(paste0("Extracting ",config$target_variable[i]))
     #depth_breaks <- sort(c(bins1, bins2))
     time_breaks <- seq(first_day, last_day, by = config$averaging_period[i])
