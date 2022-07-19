@@ -2,35 +2,29 @@ library(tidyverse)
 library(lubridate)
 set.seed(100)
 
-#remotes::install_github("FLARE-forecast/GLM3r")
 Sys.setenv("AWS_DEFAULT_REGION" = "s3",
            "AWS_S3_ENDPOINT" = "flare-forecast.org")
 
 lake_directory <- here::here()
 
-
-starting_index <- 1
+starting_index <- 2
 
 files.sources <- list.files(file.path(lake_directory, "R"), full.names = TRUE)
 sapply(files.sources, source)
 
-sim_names <- "ms_glmead_oxy"
-config_set_name <- "glm_aed_oxy"
+sim_names <- "ms_glmead_temp"
+config_set_name <- "glm_aed_temp"
 
 config_files <- paste0("configure_flare_glm_aed.yml")
 
-#num_forecasts <- 52 * 3 - 3
-num_forecasts <- 2 #52 * 3 - 3
+num_forecasts <- 52 * 3 - 3
 #num_forecasts <- 1#19 * 7 + 1
 days_between_forecasts <- 7
 forecast_horizon <- 16 #32
 starting_date <- as_date("2018-07-20")
 #second_date <- as_date("2020-12-01") - days(days_between_forecasts)
 #starting_date <- as_date("2018-07-20")
-second_date <- as_date("2018-08-20") - days(days_between_forecasts)
-#second_date <- as_date("2019-01-01") - days(days_between_forecasts)
-
-#second_date <- as_date("2018-08-01") - days(days_between_forecasts)
+second_date <- as_date("2019-01-01") - days(days_between_forecasts)
 
 start_dates <- rep(NA, num_forecasts)
 start_dates[1:2] <- c(starting_date, second_date)
@@ -190,7 +184,7 @@ for(i in starting_index:length(forecast_start_dates)){
     config <- FLAREr::set_configuration(configure_run_file, lake_directory, config_set_name = config_set_name)
 
     num_dates_skipped <- 1
-    while(!lubridate::as_date(config$run_config$forecast_start_datetime) %in% lubridate::as_date(available_dates) & (i <= length(forecast_start_dates) & i > 1)){
+    while(!lubridate::as_date(config$run_config$forecast_start_datetime) %in% lubridate::as_date(available_dates) & i <= length(forecast_start_dates)){
       print("here")
       FLAREr::update_run_config(config, lake_directory, configure_run_file, saved_file = NA, new_horizon = forecast_horizon, day_advance = num_dates_skipped * days_between_forecasts, new_start_datetime = FALSE)
       config <- FLAREr::set_configuration(configure_run_file, lake_directory, config_set_name = config_set_name)
@@ -284,6 +278,7 @@ for(i in starting_index:length(forecast_start_dates)){
                                                   pars_config,
                                                   obs,
                                                   config,
+                                                  restart_file = config$run_config$restart_file,
                                                   historical_met_error = met_out$historical_met_error)
       #Run EnKF
       da_forecast_output <- FLAREr::run_da_forecast(states_init = init$states,
@@ -309,19 +304,6 @@ for(i in starting_index:length(forecast_start_dates)){
       saved_file <- FLAREr::write_forecast_netcdf(da_forecast_output = da_forecast_output,
                                                   forecast_output_directory = config$file_path$forecast_output_directory,
                                                   use_short_filename = TRUE)
-
-      forecast_file <- FLAREr::write_forecast_csv(da_forecast_output = da_forecast_output,
-                                                  forecast_output_directory = config$file_path$forecast_output_directory,
-                                                  use_short_filename = TRUE)
-
-      forecast_file <- FLAREr::write_forecast_csv(da_forecast_output = da_forecast_output,
-                                                  forecast_output_directory = config$file_path$forecast_output_directory,
-                                                  use_short_filename = TRUE)
-
-      dir.create(file.path(lake_directory, "scores", config$location$site_id, config$run_config$sim_name), recursive = TRUE, showWarnings = FALSE)
-      FLAREr::generate_forecast_score(targets_file = file.path(config$file_path$qaqc_data_directory,paste0(config$location$site_id, "-targets-insitu.csv")),
-                                      forecast_file = forecast_file,
-                                      output_directory = file.path(lake_directory, "scores", config$location$site_id, config$run_config$sim_name))
 
       #Create EML Metadata
       eml_file_name <- FLAREr::create_flare_metadata(file_name = saved_file,

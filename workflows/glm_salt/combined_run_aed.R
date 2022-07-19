@@ -317,7 +317,6 @@ for(i in starting_index:length(forecast_start_dates)){
                                               pars_config,
                                               obs,
                                               config,
-                                              restart_file = config$run_config$restart_file,
                                               historical_met_error = met_out$historical_met_error)
   #Run EnKF
   da_forecast_output <- FLAREr::run_da_forecast(states_init = init$states,
@@ -351,25 +350,9 @@ for(i in starting_index:length(forecast_start_dates)){
                                               forecast_output_directory = config$file_path$forecast_output_directory,
                                               use_short_filename = TRUE)
 
-    target <- read_csv(file.path(config$file_path$qaqc_data_directory,paste0(config$location$site_id, "-targets-insitu.csv"))) |>
-      rename(z = depth) |>
-      mutate(x = NA,
-             y = NA,
-             target_id = "fcre")
-
-    forecast_file %>%
-      read4cast::read_forecast(grouping_variables = c("time", "depth"),
-                               target_variables = "temperature") %>%
-      dplyr::mutate(filename = forecast_file) %>%
-      #score4cast::select_forecasts() %>%
-      score4cast::pivot_forecast() %>%
-      score4cast::crps_logs_score(target) %>%
-      mutate(horizon = time-start_time) |>
-      mutate(horizon = as.numeric(lubridate::as.duration(horizon),
-                                  units = "seconds"),
-             horizon = horizon / 86400) |>
-      #score4cast::include_horizon() %>%
-      readr::write_csv(file.path(config$file_path$forecast_output_directory,paste0("score-",da_forecast_output$save_file_name_short,".csv.gz")))
+  FLAREr::generate_forecast_score(targets_file = file.path(config$file_path$qaqc_data_directory,paste0(config$location$site_id, "-targets-insitu.csv")),
+                                  forecast_file = forecast_file,
+                                  output_directory = config$file_path$forecast_output_directory)
 
   #Create EML Metadata
   eml_file_name <- FLAREr::create_flare_metadata(file_name = saved_file,

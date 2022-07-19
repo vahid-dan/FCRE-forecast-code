@@ -2,11 +2,11 @@
   pd%p_name               =       'cyano',      'green',     'diatom'
   pd%p_initial            =            1,             1,            1
   pd%p0                   =          0.03,         0.03,         0.03
-  pd%w_p                  =          -0.13,            -0.13,       -0.15
-  pd%Xcc                  =           80,           30,          60
+  pd%w_p                  =          0.01,            0,       -0.015
+  pd%Xcc                  =           160,           60,          60
   pd%R_growth             =           1.0,          2.0,          3.0
   pd%fT_Method            =             1,            1,            1
-  pd%theta_growth         =           1.08,          1.08,          1.05
+  pd%theta_growth         =           1.08,          1.08,          1.08
   pd%T_std                =            20,           18,           8
   pd%T_opt                =            28,           25,           18
   pd%T_max                =            35,           30,           25
@@ -29,7 +29,7 @@
   pd%simINDynamics        =             0,            0,            0
   pd%N_o                  =             0,            0,            0
   pd%K_N                  =             2,           2,            1
-  pd%X_ncon               =         0.12,        0.02,        0.12
+  pd%X_ncon               =         0.12,        0.12,        0.12
   pd%X_nmin               =          0.02,         0.02,         0.02
   pd%X_nmax               =          0.12,         0.12,         0.12
   pd%R_nuptake            =          0.02,         0.02,         0.02

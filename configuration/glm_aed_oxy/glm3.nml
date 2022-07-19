@@ -11,7 +11,7 @@
    wq_nml_file = 'aed2.nml'
    ode_method = 1
    split_factor = 1
-   bioshade_feedback = .false.
+   bioshade_feedback = .true.
    repair_state = .true.
 /
 &light
@@ -20,7 +20,7 @@
    light_extc = 1, 0.5, 2, 4
    energy_frac = 0.51, 0.45, 0.035, 0.005
    Benthic_Imin = 10
-   Kw = 0.87
+   Kw = 0.5
 /
 &mixing
    coef_mix_conv = 0.2
@@ -77,16 +77,16 @@
    atm_stab = 0
    catchrain = .false.
    rad_mode = 1
-   albedo_mode = 1
+   albedo_mode = 4
    cloud_mode = 4
    meteo_fl = '/Users/quinn/Dropbox/Research/SSC_forecasting/glm_aed_forecasts/model_output_historical/FCR_GLM_NLDAS_010113_123119_GMTadjusted.csv'
    subdaily = .true.
    wind_factor = 1
-   sw_factor = 1.0
+   sw_factor = 1
    lw_factor = 0.8887583
    at_factor = 1
    rh_factor = 1
-   rain_factor = 1.0
+   rain_factor = 1
    cd = 0.0013
    ce = 0.0013
    ch = 0.0013
@@ -118,8 +118,10 @@
 /
 &snowice
    snow_albedo_factor = 0.8
-   snow_rho_max = 500
-   snow_rho_min = 100
+   snow_rho_max = 300
+   snow_rho_min = 50
+   min_ice_thickness = 0.001
+   dt_iceon_avg = 0.01
    avg_surf_temp_thres = 0.5
 /
 &sediment
@@ -130,6 +132,6 @@
    sed_heat_Ksoil = 1.2, 1.2, 1.2, 1.2
    sed_temp_depth = 0.5, 0.5, 0.5, 0.5
    sed_temp_mean = 12, 12, 12, 20 ! 12.46962553, 15.75549561, 21.89313606
-   sed_temp_amplitude = 0, 0, 0, 0, !2.767260656, 3.993449873, 5.232029619
+   sed_temp_amplitude = 0, 0, 0, 0 !3, 3, 3, 5
    sed_temp_peak_doy = 278, 270, 266, 266  !277.6839306, 264.6064025, 266.8919938
 /

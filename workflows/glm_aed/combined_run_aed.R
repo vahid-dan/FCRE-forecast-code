@@ -14,8 +14,8 @@ starting_index <- 1
 files.sources <- list.files(file.path(lake_directory, "R"), full.names = TRUE)
 sapply(files.sources, source)
 
-sim_names <- "ms_glmead_oxy"
-config_set_name <- "glm_aed_oxy"
+sim_names <- "ms_glmead3.3"
+config_set_name <- "glm_aed"
 
 config_files <- paste0("configure_flare_glm_aed.yml")
 
@@ -314,7 +314,7 @@ for(i in starting_index:length(forecast_start_dates)){
                                                   forecast_output_directory = config$file_path$forecast_output_directory,
                                                   use_short_filename = TRUE)
 
-      forecast_file <- FLAREr::write_forecast_csv(da_forecast_output = da_forecast_output,
+      forecast_file <- write_forecast_csv(da_forecast_output = da_forecast_output,
                                                   forecast_output_directory = config$file_path$forecast_output_directory,
                                                   use_short_filename = TRUE)
 
