@@ -27,7 +27,7 @@ forecast_horizon <- 16 #32
 starting_date <- as_date("2018-07-20")
 #second_date <- as_date("2020-12-01") - days(days_between_forecasts)
 #starting_date <- as_date("2018-07-20")
-second_date <- as_date("2018-08-20") - days(days_between_forecasts)
+second_date <- as_date("2018-09-01") - days(days_between_forecasts)
 #second_date <- as_date("2019-01-01") - days(days_between_forecasts)
 
 #second_date <- as_date("2018-08-01") - days(days_between_forecasts)
@@ -242,8 +242,8 @@ for(i in starting_index:length(forecast_start_dates)){
 
       #Need to remove the 00 ensemble member because it only goes 16-days in the future
 
-      #pars_config <- NULL #readr::read_csv(file.path(config$file_path$configuration_directory, "FLAREr", config$model_settings$par_config_file), col_types = readr::cols())
-      pars_config <- readr::read_csv(file.path(config$file_path$configuration_directory, config$model_settings$par_config_file), col_types = readr::cols())
+      pars_config <- NULL #readr::read_csv(file.path(config$file_path$configuration_directory, "FLAREr", config$model_settings$par_config_file), col_types = readr::cols())
+      #pars_config <- readr::read_csv(file.path(config$file_path$configuration_directory, config$model_settings$par_config_file), col_types = readr::cols())
       obs_config <- readr::read_csv(file.path(config$file_path$configuration_directory, config$model_settings$obs_config_file), col_types = readr::cols())
       states_config <- readr::read_csv(file.path(config$file_path$configuration_directory, config$model_settings$states_config_file), col_types = readr::cols())
 

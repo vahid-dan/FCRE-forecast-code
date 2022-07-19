@@ -18,7 +18,8 @@ s <- arrow::schema(
     start_time = arrow::timestamp("s",timezone = "UTC"),
     horizon= arrow::int64())
 
-df <- arrow::open_dataset("/Users/quinn/workfiles/Research/SSC_forecasting/ccc_aed/FCRE-forecast-code/scores", format = "csv", schema = s, skip = 1)
+df <- arrow::open_dataset("/Users/quinn/workfiles/Research/SSC_forecasting/ccc_aed/FCRE-forecast-code/scores",
+                          format = "csv", schema = s, skip = 1)
 
 d <- df |> collect()
 
