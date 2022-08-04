@@ -20,7 +20,7 @@ config_set_name <- "glm_aed_oxy"
 config_files <- paste0("configure_flare_glm_aed.yml")
 
 #num_forecasts <- 52 * 3 - 3
-num_forecasts <- 2 #52 * 3 - 3
+num_forecasts <- 52 #52 * 3 - 3
 #num_forecasts <- 1#19 * 7 + 1
 days_between_forecasts <- 7
 forecast_horizon <- 16 #32
@@ -180,11 +180,14 @@ if(starting_index == 1){
 #for(i in 1:1){
 for(i in starting_index:length(forecast_start_dates)){
 
-  https_file <- "https://raw.githubusercontent.com/cayelan/FCR-GLM-AED-Forecasting/master/FCR_2013_2019GLMHistoricalRun_GLMv3beta/inputs/FCR_SSS_inflow_2013_2021_20211102_allfractions_2DOCpools.csv"
-  if(!file.exists(file.path(config$file_path$execute_directory, basename(https_file)))){
-  download.file(https_file,
-                file.path(config$file_path$execute_directory, basename(https_file)))
-  }
+  #https_file <- "https://raw.githubusercontent.com/cayelan/FCR-GLM-AED-Forecasting/master/FCR_2013_2019GLMHistoricalRun_GLMv3beta/inputs/FCR_SSS_inflow_2013_2021_20211102_allfractions_2DOCpools.csv"
+  #if(!file.exists(file.path(config$file_path$execute_directory, basename(https_file)))){
+  #download.file(https_file,
+  #              file.path(config$file_path$execute_directory, basename(https_file)))
+  #}
+
+  file.copy(file.path(config$file_path$data_directory,"FCR_SSS_inflow_2013_2021_20220413_allfractions_2DOCpools.csv"),
+            file.path(config$file_path$execute_directory,"FCR_SSS_inflow_2013_2021_20220413_allfractions_2DOCpools.csv"))
 
 
     config <- FLAREr::set_configuration(configure_run_file, lake_directory, config_set_name = config_set_name)
@@ -242,11 +245,20 @@ for(i in starting_index:length(forecast_start_dates)){
 
       #Need to remove the 00 ensemble member because it only goes 16-days in the future
 
-      pars_config <- NULL #readr::read_csv(file.path(config$file_path$configuration_directory, "FLAREr", config$model_settings$par_config_file), col_types = readr::cols())
-      #pars_config <- readr::read_csv(file.path(config$file_path$configuration_directory, config$model_settings$par_config_file), col_types = readr::cols())
+      #pars_config <- NULL #readr::read_csv(file.path(config$file_path$configuration_directory, "FLAREr", config$model_settings$par_config_file), col_types = readr::cols())
+      pars_config <- readr::read_csv(file.path(config$file_path$configuration_directory, config$model_settings$par_config_file), col_types = readr::cols())
       obs_config <- readr::read_csv(file.path(config$file_path$configuration_directory, config$model_settings$obs_config_file), col_types = readr::cols())
       states_config <- readr::read_csv(file.path(config$file_path$configuration_directory, config$model_settings$states_config_file), col_types = readr::cols())
 
+      phyto_Xcc <- read_csv(file.path(config$file_path$configuration_directory, "aed_phyto_pars.csv")) |>
+        slice(4) |>
+        select(-`'p_name'`) |>
+        unlist()
+
+      states_config <- states_config |>
+        mutate(states_to_obs_mapping_1 = ifelse(state_names == "PHY_cyano", 12.0/phyto_Xcc[1], states_to_obs_mapping_1),
+               states_to_obs_mapping_1 = ifelse(state_names == "PHY_green", 12.0/phyto_Xcc[2], states_to_obs_mapping_1),
+               states_to_obs_mapping_1 = ifelse(state_names == "PHY_diatom", 12.0/phyto_Xcc[3], states_to_obs_mapping_1))
 
       #Download and process observations (already done)
 
@@ -265,7 +277,7 @@ for(i in starting_index:length(forecast_start_dates)){
 
       if(config$model_settings$model_name == "glm_aed"){
 
-        inflow_outflow_files$inflow_file_name <- cbind(inflow_outflow_files$inflow_file_name, rep(file.path(config$file_path$execute_directory,basename(https_file)), length(inflow_outflow_files$inflow_file_name)))
+        inflow_outflow_files$inflow_file_name <- cbind(inflow_outflow_files$inflow_file_name, rep(file.path(config$file_path$execute_directory,"FCR_SSS_inflow_2013_2021_20220413_allfractions_2DOCpools.csv"), length(inflow_outflow_files$inflow_file_name)))
       }
 
       #Create observation matrix
@@ -300,7 +312,7 @@ for(i in starting_index:length(forecast_start_dates)){
                                                     pars_config = pars_config,
                                                     states_config = states_config,
                                                     obs_config = obs_config,
-                                                    management,
+                                                    management = NULL,
                                                     da_method = config$da_setup$da_method,
                                                     par_fit_method = config$da_setup$par_fit_method)
 
@@ -314,9 +326,6 @@ for(i in starting_index:length(forecast_start_dates)){
                                                   forecast_output_directory = config$file_path$forecast_output_directory,
                                                   use_short_filename = TRUE)
 
-      forecast_file <- FLAREr::write_forecast_csv(da_forecast_output = da_forecast_output,
-                                                  forecast_output_directory = config$file_path$forecast_output_directory,
-                                                  use_short_filename = TRUE)
 
       dir.create(file.path(lake_directory, "scores", config$location$site_id, config$run_config$sim_name), recursive = TRUE, showWarnings = FALSE)
       FLAREr::generate_forecast_score(targets_file = file.path(config$file_path$qaqc_data_directory,paste0(config$location$site_id, "-targets-insitu.csv")),

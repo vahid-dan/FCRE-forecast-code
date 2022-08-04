@@ -143,10 +143,10 @@ met_qaqc <- function(realtime_file,
            hour = lubridate::hour(time),
            month = lubridate::month(time),
            minute = lubridate::minute(time)) %>%
-           #AirTemp = ifelse(minute <= 10, AirTemp, NA),
-           #RelHum = ifelse(minute <= 10, RelHum, NA),
-           #WindSpeed = ifelse(minute <= 10, WindSpeed, NA),
-           #pressure = ifelse(minute <= 10, pressure, NA)) %>%
+    #AirTemp = ifelse(minute <= 10, AirTemp, NA),
+    #RelHum = ifelse(minute <= 10, RelHum, NA),
+    #WindSpeed = ifelse(minute <= 10, WindSpeed, NA),
+    #pressure = ifelse(minute <= 10, pressure, NA)) %>%
     group_by(day, year, hour, month) %>%
     summarize(ShortWave = mean(ShortWave, na.rm = TRUE),
               LongWave = mean(LongWave, na.rm = TRUE),
@@ -205,8 +205,8 @@ met_qaqc <- function(realtime_file,
   d$air_pressure <- d$air_pressure * 1000
 
   d$specific_humidity <-  rh2qair(rh = d$relative_humidity,
-                                                  T = d$air_temperature,
-                                                  press = d$air_pressure)
+                                  T = d$air_temperature,
+                                  press = d$air_pressure)
 
   d <- d %>%
     select(time, air_temperature, air_pressure, relative_humidity, surface_downwelling_longwave_flux_in_air, surface_downwelling_shortwave_flux_in_air, precipitation_flux, specific_humidity, wind_speed)
@@ -284,7 +284,10 @@ met_qaqc <- function(realtime_file,
              precipitation_flux = ifelse(is.na(precipitation_flux), filled_precip, precipitation_flux),
              specific_humidity = ifelse(is.na(specific_humidity), filled_specific_humidity, specific_humidity),
              wind_speed = ifelse(is.na(wind_speed), filled_wind_speed, wind_speed),
-             air_pressure = ifelse(is.na(air_pressure), filled_air_press, air_pressure))
+             air_pressure = ifelse(is.na(air_pressure), filled_air_press, air_pressure)) |>
+      mutate(surface_downwelling_shortwave_flux_in_air = ifelse(is.nan(surface_downwelling_shortwave_flux_in_air), 0, surface_downwelling_shortwave_flux_in_air))
+
+
   }
 
   lat <- 37.27
