@@ -345,12 +345,15 @@ for(i in starting_index:length(forecast_start_dates)){
     FLAREr::put_score(saved_file = score_file, config)
   }
 
+  FLAREr::put_forecast_csv(saved_file = forecast_file, config)
+
   #Create EML Metadata
   #eml_file_name <- FLAREr::create_flare_metadata(file_name = saved_file,
   #                                               da_forecast_output = da_forecast_output)
 
   #rm(da_forecast_output)
   #gc()
+
   message("Generating plot")
   FLAREr::plotting_general_2(file_name = saved_file,
                              target_file = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-insitu.csv")),
