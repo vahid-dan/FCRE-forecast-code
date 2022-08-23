@@ -220,12 +220,14 @@ forecast_inflows_outflows <- function(inflow_obs,
       aws.s3::put_object(file = local_inflow_file_name,
                          object = file.path(run_dir, paste0(identifier_inflow,"_", ens, ".csv")),
                          bucket = bucket,
-                         region = Sys.getenv("AWS_DEFAULT_REGION"),
+                         region = stringr::str_split_fixed(config$s3$drivers$endpoint, pattern = "\\.", n = 2)[1],
+                         base_url = stringr::str_split_fixed(config$s3$drivers$endpoint, pattern = "\\.", n = 2)[2],
                          use_https = as.logical(Sys.getenv("USE_HTTPS")))
       aws.s3::put_object(file = local_outflow_file_name,
                          object = file.path(run_dir, paste0(identifier_outflow,"_", ens, ".csv")),
                          bucket = bucket,
-                         region = Sys.getenv("AWS_DEFAULT_REGION"),
+                         region = stringr::str_split_fixed(config$s3$drivers$endpoint, pattern = "\\.", n = 2)[1],
+                         base_url = stringr::str_split_fixed(config$s3$drivers$endpoint, pattern = "\\.", n = 2)[2],
                          use_https = as.logical(Sys.getenv("USE_HTTPS")))
     }
 

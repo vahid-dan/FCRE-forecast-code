@@ -6,6 +6,22 @@ file_path:
   execute_directory: .na
   forecast_output_directory: .na
   run_config: .na
+s3:
+  drivers:
+    endpoint: s3.flare-forecast.org
+    bucket: drivers
+  targets:
+    endpoint: s3.flare-forecast.org
+    bucket: targets
+  forecasts:
+    endpoint: s3.flare-forecast.org
+    bucket: forecasts
+  warm_start:
+    endpoint: s3.flare-forecast.org
+    bucket: restart
+  scores:
+    endpoint: s3.flare-forecast.org
+    bucket: scores
 location:
   site_id: fcre
   name: Falling Creek Reservoir

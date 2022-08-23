@@ -7,6 +7,7 @@ analysis/*
 automation/*.log
 restart/*
 targets/*
+scores/*
 
 
 # History files
