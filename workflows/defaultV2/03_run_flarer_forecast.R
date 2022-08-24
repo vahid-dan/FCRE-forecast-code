@@ -118,7 +118,7 @@ FLAREr::put_forecast_csv(saved_file = forecast_file, config)
 
 #Create EML Metadata
 #eml_file_name <- FLAREr::create_flare_metadata(file_name = saved_file,
-                                               da_forecast_output = da_forecast_output)
+#                                               da_forecast_output = da_forecast_output)
 
 #Clean up temp files and large objects in memory
 #unlink(config$file_path$execute_directory, recursive = TRUE)
