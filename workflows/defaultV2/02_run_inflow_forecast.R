@@ -19,7 +19,7 @@ noaa_forecast_path <- FLAREr::get_driver_forecast_path(config,
 
 if(!is.null(noaa_forecast_path)){
 
-  FLAREr::get_driver_forecast(lake_directory, forecast_path = noaa_forecast_path)
+  FLAREr::get_driver_forecast(lake_directory, forecast_path = noaa_forecast_path, config)
 
   message("Forecasting inflow and outflows")
   # Forecast Inflows

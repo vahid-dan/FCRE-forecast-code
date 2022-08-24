@@ -37,6 +37,7 @@ png_file_name <- manager_plot(file_name = config$run_config$restart_file,
 if(config$run_config$use_s3 & !is.na(png_file_name)){
   success <- aws.s3::put_object(file = png_file_name,
                                 object = file.path(config$location$site_id, basename(png_file_name)),
+                                bucket = "analysis",
                                 region = "s3",
                                 base_url = "flare-forecast.org",
                                 use_https = as.logical(Sys.getenv("USE_HTTPS")))
