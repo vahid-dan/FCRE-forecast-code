@@ -162,6 +162,13 @@ cleaned_insitu_file <- in_situ_qaqc(insitu_obs_fname = file.path(config_obs$file
                                     lake_name_code = config_obs$site_id,
                                     config = config_obs)
 
+FLAREr::put_targets(site_id = config_obs$site_id,
+                    cleaned_insitu_file,
+                    cleaned_met_file,
+                    cleaned_inflow_file,
+                    use_s3 = config$run_config$use_s3,
+                    config)
+
 ##` Download NOAA forecasts`
 
 message("    Downloading NOAA data")
