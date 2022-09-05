@@ -69,7 +69,7 @@ specified_inflow1: fcre-manual-data/FCR_weir_inflow_2013_2019_20200624_allfracti
 specified_outflow1: fcre-manual-data/FCR_spillway_outflow_SUMMED_WeirWetland_2013_2019_20200615.csv
 
 insitu_obs_fname:
-    - fcre-catwalk-data/Catwalk.csv
+    - fcre-catwalk-data/fcre-waterquality.csv
     - Catwalk_cleanedEDI.csv
 secchi_fname: Secchi_depth_2013-2020.csv
 ctd_fname: CTD_final_2013_2020.csv

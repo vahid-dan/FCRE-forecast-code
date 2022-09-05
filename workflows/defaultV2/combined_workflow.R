@@ -7,10 +7,6 @@ configure_run_file <<- "configure_run.yml"
 update_run_config <<- TRUE
 config_set_name <<- "defaultV2"
 
-Sys.setenv("AWS_SECRET_ACCESS_KEY" = "eeZw3a65bFn",
-           "USE_HTTPS" = "TRUE")
-
-
 message("Checking for NOAA forecasts")
 noaa_ready <- FLAREr::check_noaa_present(lake_directory,
                                          configure_run_file,
