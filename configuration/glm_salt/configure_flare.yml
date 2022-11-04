@@ -5,6 +5,32 @@ file_path:
    configuration_directory: .na
    execute_directory: .na
    forecast_output_directory: .na
+s3:
+  drivers:
+    endpoint: s3.flare-forecast.org
+    bucket: drivers
+    #bucket: drivers/noaa/gefs-v12/stage2/parquet
+  inflow_drivers:
+    endpoint: s3.flare-forecast.org
+    bucket: drivers/testing/inflow/parquet
+  analysis:
+    endpoint: s3.flare-forecast.org
+    bucket: analysis/testing
+  targets:
+    endpoint: s3.flare-forecast.org
+    bucket: targets/testing
+  forecasts:
+    endpoint: s3.flare-forecast.org
+    bucket: forecasts/testing
+  forecasts_parquet:
+    endpoint: s3.flare-forecast.org
+    bucket: forecasts/testing/parquet
+  warm_start:
+    endpoint: s3.flare-forecast.org
+    bucket: restart/testing
+  scores:
+    endpoint: s3.flare-forecast.org
+    bucket: scores/testing/parquet
 location:
    site_id: fcre
    name: Falling Creek Reservoir
@@ -29,14 +55,14 @@ metadata:
       id: INSERT ORCID
 da_setup:
     da_method: enkf
-    par_fit_method: perturb
-    ensemble_size:  100
+    par_fit_method: perturb_const
+    ensemble_size:  30
     localization_distance: .na #distance in meters were covariances in the model error are used
     no_negative_states: TRUE
     assimilate_first_step: FALSE
     use_obs_constraint: TRUE
 model_settings:
-   ncore: 2
+   ncore: 4
    model_name: glm
    base_GLM_nml: glm3.nml
    modeled_depths: [0.10, 0.33, 0.67,
@@ -77,4 +103,4 @@ uncertainty:
    met_downscale: TRUE
    inflow_process: TRUE
 output_settings:
-   diagnostics_names:  [extc_coef]
+   diagnostics_names:  [extc]

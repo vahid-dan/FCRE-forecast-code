@@ -12,19 +12,19 @@ s3:
     bucket: drivers
   targets:
     endpoint: s3.flare-forecast.org
-    bucket: targets
+    bucket: targets/fcre_aed
   forecasts:
     endpoint: s3.flare-forecast.org
-    bucket: forecasts
+    bucket: forecasts/fcre_aed
   forecasts_csv:
     endpoint: s3.flare-forecast.org
-    bucket: forecasts-csv
+    bucket: test-csv/fcre_aed
   warm_start:
     endpoint: s3.flare-forecast.org
-    bucket: restart
+    bucket: restart/fcre_aed
   scores:
     endpoint: s3.flare-forecast.org
-    bucket: scores
+    bucket: scores/fcre_aed
 location:
   site_id: fcre
   name: Falling Creek Reservoir

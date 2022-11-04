@@ -29,13 +29,14 @@
 #     setwd(diana_location)
 #     system(paste0("git pull"))
 #####
-inflow_qaqc <- function(realtime_file,
+inflow_qaqc_csv <- function(realtime_file,
                         qaqc_file,
                         nutrients_file,
                         silica_file,
                         co2_ch4,
                         cleaned_inflow_file,
-                        input_file_tz){
+                        input_file_tz,
+                        site_id){
 
   ##Step 2: Read in historical flow data, clean, and aggregate to daily mean##
 
@@ -280,7 +281,12 @@ inflow_qaqc <- function(realtime_file,
 
   dir.create(dirname(cleaned_inflow_file), recursive = TRUE, showWarnings = FALSE)
 
-  readr::write_csv(inflow_clean, cleaned_inflow_file)
+  inflow_clean |>
+    tidyr::pivot_longer(-time, names_to = "variable", values_to = "observation") |>
+    dplyr::rename(datetime = time) |>
+    dplyr::mutate(site_id = site_id) |>
+    dplyr::select(datetime, site_id, variable, observation) |>
+    readr::write_csv(cleaned_inflow_file)
 
   return(cleaned_inflow_file)
 

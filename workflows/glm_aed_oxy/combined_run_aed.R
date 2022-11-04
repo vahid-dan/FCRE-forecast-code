@@ -2,6 +2,8 @@ library(tidyverse)
 library(lubridate)
 set.seed(100)
 
+options(future.globals.maxSize= 891289600)
+
 #remotes::install_github("FLARE-forecast/GLM3r")
 Sys.setenv("AWS_SECRET_ACCESS_KEY" = "eeZw3a65bFn",
            "USE_HTTPS" = "TRUE")
@@ -20,15 +22,15 @@ config_set_name <- "glm_aed_oxy"
 
 config_files <- paste0("configure_flare_glm_aed.yml")
 
-#num_forecasts <- 52 * 3 - 3
-num_forecasts <- 1 #52 * 3 - 3
+num_forecasts <- 52 * 2
+#num_forecasts <- 1 #52 * 3 - 3
 #num_forecasts <- 1#19 * 7 + 1
 days_between_forecasts <- 7
 forecast_horizon <- 16 #32
-starting_date <- as_date("2018-07-20")
-#second_date <- as_date("2020-12-01") - days(days_between_forecasts)
+starting_date <- as_date("2020-09-25")
+second_date <- as_date("2020-12-01") - days(days_between_forecasts)
 #starting_date <- as_date("2018-07-20")
-second_date <- as_date("2018-07-23") #- days(days_between_forecasts)
+#second_date <- as_date("2018-07-23") #- days(days_between_forecasts)
 #second_date <- as_date("2018-09-01") - days(days_between_forecasts)
 #second_date <- as_date("2019-01-01") - days(days_between_forecasts)
 
@@ -73,10 +75,6 @@ if(starting_index == 1){
   }
 }
 
-
-
-
-
 #' Clone or pull from data repositories
 
 FLAREr::get_git_repo(lake_directory,
@@ -97,11 +95,11 @@ FLAREr::get_git_repo(lake_directory,
 
 #' Download files from EDI
 
-FLAREr::get_edi_file(edi_https = "https://pasta.lternet.edu/package/data/eml/edi/389/5/3d1866fecfb8e17dc902c76436239431",
+FLAREr::get_edi_file(edi_https = "https://pasta.lternet.edu/package/data/eml/edi/389/6/a5524c686e2154ec0fd0459d46a7d1eb",
                      file = config_obs$met_raw_obs_fname[2],
                      lake_directory)
 
-FLAREr::get_edi_file(edi_https = "https://pasta.lternet.edu/package/data/eml/edi/271/5/c1b1f16b8e3edbbff15444824b65fe8f",
+FLAREr::get_edi_file(edi_https = "https://pasta.lternet.edu/package/data/eml/edi/271/6/23a191c1870a5b18cbc17f2779f719cf",
                      file = config_obs$insitu_obs_fname[2],
                      lake_directory)
 
@@ -247,6 +245,7 @@ for(i in starting_index:length(forecast_start_dates)){
   config$future_inflow_temp_error <- 0.943
 
   forecast_files <- list.files(file.path(lake_directory, "drivers", noaa_forecast_path), full.names = TRUE)
+  if(length(forecast_files) > 0){
   temp_flow_forecast <- forecast_inflows_outflows(inflow_obs = file.path(config$file_path$qaqc_data_directory, "fcre-targets-inflow.csv"),
                                                   forecast_files = forecast_files,
                                                   obs_met_file = file.path(config$file_path$qaqc_data_directory,"observed-met_fcre.nc"),
@@ -258,6 +257,7 @@ for(i in starting_index:length(forecast_start_dates)){
                                                   use_s3 = config$run_config$use_s3,
                                                   bucket = "drivers",
                                                   model_name = config$model_settings$model_name)
+  }
 
   #Need to remove the 00 ensemble member because it only goes 16-days in the future
 
@@ -338,9 +338,12 @@ for(i in starting_index:length(forecast_start_dates)){
                                               forecast_output_directory = config$file_path$forecast_output_directory,
                                               use_short_filename = TRUE)
   message("writing csv file")
-  forecast_file <- FLAREr::write_forecast_csv(da_forecast_output = da_forecast_output,
-                                              forecast_output_directory = config$file_path$forecast_output_directory,
-                                              use_short_filename = TRUE)
+  #forecast_file <- FLAREr::write_forecast_csv(da_forecast_output = da_forecast_output,
+  #                                            forecast_output_directory = config$file_path$forecast_output_directory,
+  #                                            use_short_filename = TRUE)
+  #forecast_file <- FLAREr::write_forecast_parquet(da_forecast_output = da_forecast_output,
+  #                                            forecast_output_directory = config$file_path$forecast_output_directory,
+  #                                            use_short_filename = TRUE)
 
 
   message("writing score file")
