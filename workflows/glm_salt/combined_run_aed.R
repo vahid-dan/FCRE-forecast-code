@@ -377,7 +377,7 @@ for(i in starting_index:length(forecast_start_dates)){
                              ncore = 2,
                              obs_csv = FALSE)
 
-  FLAREr::put_forecast(saved_file, eml_file_name, config)
+  FLAREr::put_forecast(saved_file, eml_file_name = NULL, config)
 
   new_time <- as.character(lubridate::as_datetime(config$run_config$forecast_start_datetime) +
                              lubridate::days(days_between_forecasts))

@@ -26,7 +26,7 @@ forecast_inflows_outflows_arrow <- function(inflow_obs,
         stop("inflow forecast function needs bucket and endpoint if use_s3=TRUE")
       }
       vars <- FLAREr:::arrow_env_vars()
-      forecast_dir <- arrow::s3_bucket(bucket = file.path(met_bucket, forecast_hour,forecast_date),
+      forecast_dir <- arrow::s3_bucket(bucket = file.path(met_bucket, "stage2/parquet", forecast_hour,forecast_date),
                                        endpoint_override =  met_endpoint)
       FLAREr:::unset_arrow_vars(vars)
     }else{
