@@ -77,35 +77,36 @@ FLAREr::get_edi_file(edi_https = "https://pasta.lternet.edu/package/data/eml/edi
 
 #' Clean up observed meterology
 
-cleaned_met_file <- met_qaqc(realtime_file = file.path(config_obs$file_path$data_directory, config_obs$met_raw_obs_fname[1]),
-                             qaqc_file = file.path(config_obs$file_path$data_directory, config_obs$met_raw_obs_fname[2]),
-                             cleaned_met_file = file.path(config_obs$file_path$targets_directory, config_obs$site_id,paste0("observed-met_",config_obs$site_id,".nc")),
-                             input_file_tz = "EST",
-                             nldas = NULL)
+cleaned_met_file <- met_qaqc_csv(realtime_file = file.path(config_obs$file_path$data_directory, config_obs$met_raw_obs_fname[1]),
+                                 qaqc_file = file.path(config_obs$file_path$data_directory, config_obs$met_raw_obs_fname[2]),
+                                 cleaned_met_file = file.path(config_obs$file_path$targets_directory, config_obs$site_id,paste0("observed-met_",config_obs$site_id,".csv")),
+                                 input_file_tz = "EST",
+                                 nldas = NULL,
+                                 site_id = config_obs$site_id)
 
 #' Clean up observed inflow
 
-cleaned_inflow_file <- inflow_qaqc(realtime_file = file.path(config_obs$file_path$data_directory, config_obs$inflow_raw_file1[1]),
-                                   qaqc_file = file.path(config_obs$file_path$data_directory, config_obs$inflow_raw_file1[2]),
-                                   nutrients_file = file.path(config_obs$file_path$data_directory, config_obs$nutrients_fname),
-                                   silica_file = file.path(config_obs$file_path$data_directory,  config_obs$silica_fname),
-                                   co2_ch4 = file.path(config_obs$file_path$data_directory, config_obs$ch4_fname),
-                                   cleaned_inflow_file = file.path(config_obs$file_path$targets_directory, config_obs$site_id, paste0(config_obs$site_id,"-targets-inflow.csv")),
-                                   input_file_tz = 'EST')
+cleaned_inflow_file <- inflow_qaqc_csv(realtime_file = file.path(config_obs$file_path$data_directory, config_obs$inflow_raw_file1[1]),
+                                       qaqc_file = file.path(config_obs$file_path$data_directory, config_obs$inflow_raw_file1[2]),
+                                       nutrients_file = file.path(config_obs$file_path$data_directory, config_obs$nutrients_fname),
+                                       silica_file = file.path(config_obs$file_path$data_directory,  config_obs$silica_fname),
+                                       co2_ch4 = file.path(config_obs$file_path$data_directory, config_obs$ch4_fname),
+                                       cleaned_inflow_file = file.path(config_obs$file_path$targets_directory, config_obs$site_id, paste0(config_obs$site_id,"-targets-inflow.csv")),
+                                       input_file_tz = 'EST',
+                                       site_id = config_obs$site_id)
 
 #' Clean up observed insitu measurements
 
-cleaned_insitu_file <- in_situ_qaqc(insitu_obs_fname = file.path(config_obs$file_path$data_directory,config_obs$insitu_obs_fname),
-                                    data_location = config_obs$file_path$data_directory,
-                                    maintenance_file = file.path(config_obs$file_path$data_directory,config_obs$maintenance_file),
-                                    ctd_fname = file.path(config_obs$file_path$data_directory, config_obs$ctd_fname),
-                                    nutrients_fname =  file.path(config_obs$file_path$data_directory, config_obs$nutrients_fname),
-                                    secchi_fname = file.path(config_obs$file_path$data_directory, config_obs$secchi_fname),
-                                    ch4_fname = file.path(config_obs$file_path$data_directory, config_obs$ch4_fname),
-                                    cleaned_insitu_file = file.path(config_obs$file_path$targets_directory, config_obs$site_id, paste0(config_obs$site_id,"-targets-insitu.csv")),
-                                    lake_name_code = config_obs$site_id,
-                                    config = config_obs)
-
+cleaned_insitu_file <- in_situ_qaqc_csv(insitu_obs_fname = file.path(config_obs$file_path$data_directory,config_obs$insitu_obs_fname),
+                                        data_location = config_obs$file_path$data_directory,
+                                        maintenance_file = file.path(config_obs$file_path$data_directory,config_obs$maintenance_file),
+                                        ctd_fname = file.path(config_obs$file_path$data_directory, config_obs$ctd_fname),
+                                        nutrients_fname =  file.path(config_obs$file_path$data_directory, config_obs$nutrients_fname),
+                                        secchi_fname = file.path(config_obs$file_path$data_directory, config_obs$secchi_fname),
+                                        ch4_fname = file.path(config_obs$file_path$data_directory, config_obs$ch4_fname),
+                                        cleaned_insitu_file = file.path(config_obs$file_path$targets_directory, config_obs$site_id, paste0(config_obs$site_id,"-targets-insitu.csv")),
+                                        lake_name_code = config_obs$site_id,
+                                        config = config_obs)
 #' Move targets to s3 bucket
 
 message("Successfully generated targets")

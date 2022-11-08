@@ -8,25 +8,25 @@ file_path:
 s3:
   drivers:
     endpoint: s3.flare-forecast.org
-    bucket: drivers
-  analysis:
+    bucket: drivers/noaa/gefs-v12
+  inflow_drivers:
     endpoint: s3.flare-forecast.org
-    bucket: analysis
+    bucket: drivers/inflow/fcre_v2/parquet
   targets:
     endpoint: s3.flare-forecast.org
-    bucket: targets
+    bucket: targets/fcre_v2
   forecasts:
     endpoint: s3.flare-forecast.org
     bucket: forecasts
-  forecasts_csv:
+  forecasts_parquet:
     endpoint: s3.flare-forecast.org
-    bucket: forecasts-csv
+    bucket: forecasts/parquet
   warm_start:
     endpoint: s3.flare-forecast.org
-    bucket: restart
+    bucket: restart/fcre_V2
   scores:
     endpoint: s3.flare-forecast.org
-    bucket: scores
+    bucket: scores/parquet
 location:
    site_id: fcre
    name: Falling Creek Reservoir
@@ -51,14 +51,14 @@ metadata:
       id: INSERT ORCID
 da_setup:
     da_method: enkf
-    par_fit_method: inflate
-    ensemble_size:  200
+    par_fit_method: perturb_const
+    ensemble_size:  256
     localization_distance: .na #distance in meters were covariances in the model error are used
     no_negative_states: TRUE
     assimilate_first_step: FALSE
     use_obs_constraint: TRUE
 model_settings:
-   ncore: 2
+   ncore: 4
    model_name: glm
    base_GLM_nml: glm3.nml
    modeled_depths:
@@ -114,11 +114,9 @@ default_init:
    blue_ice_thickness: 0.0
 inflow:
    use_forecasted_inflow: TRUE
-   forecast_inflow_model: inflow/FLOWS-NOAAGEFS-AR1
+   forecast_inflow_model: FLOWS-NOAAGEFS-AR1
 met:
    use_forecasted_met: TRUE
-   forecast_met_model: noaa/NOAAGEFS_1hr
-   historical_met: observed
 uncertainty:
    observation: TRUE
    process: TRUE

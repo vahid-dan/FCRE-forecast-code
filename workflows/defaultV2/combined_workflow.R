@@ -1,3 +1,4 @@
+readRenviron("~/.Renviron") # MUST come first
 library(tidyverse)
 library(lubridate)
 lake_directory <- here::here()
@@ -8,7 +9,7 @@ update_run_config <<- TRUE
 config_set_name <<- "defaultV2"
 
 message("Checking for NOAA forecasts")
-noaa_ready <- FLAREr::check_noaa_present(lake_directory,
+noaa_ready <- FLAREr::check_noaa_present_arrow(lake_directory,
                                          configure_run_file,
                                          config_set_name = config_set_name)
 
@@ -25,7 +26,7 @@ if(!is.null(config$run_config$forecast_fails)){
   if(config$run_config$forecast_fails > 0){
     config$run_config$forecast_fails <- 0
     FLAREr::update_run_config(config, lake_directory, configure_run_file, saved_file = NA, new_horizon = NA, day_advance = 1, new_start_datetime = FALSE)
-    noaa_ready <- FLAREr::check_noaa_present(lake_directory,
+    noaa_ready <- FLAREr::check_noaa_present_arrow(lake_directory,
                                              configure_run_file,
                                              config_set_name = config_set_name)
   }

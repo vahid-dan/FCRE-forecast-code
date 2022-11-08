@@ -15,20 +15,22 @@ config <- FLAREr::get_restart_file(config, lake_directory)
 
 FLAREr::get_targets(lake_directory, config)
 
-pdf_file <- FLAREr::plotting_general_2(file_name = config$run_config$restart_file,
-                                       target_file = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-insitu.csv")))
+pdf_file <-   FLAREr::plotting_general_2(file_name = saved_file,
+                                         target_file = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-insitu.csv")),
+                                         ncore = 2,
+                                         obs_csv = FALSE)
 
-if(config$run_config$use_s3){
-  success <- aws.s3::put_object(file = pdf_file,
-                                object = file.path(config$location$site_id, basename(pdf_file)),
-                                bucket = "analysis",
-                                region = "s3",
-                                base_url = "flare-forecast.org",
-                                use_https = as.logical(Sys.getenv("USE_HTTPS")))
-  if(success){
-    unlink(pdf_file)
-  }
-}
+#if(config$run_config$use_s3){
+#  success <- aws.s3::put_object(file = pdf_file,
+#                                object = file.path(config$location$site_id, basename(pdf_file)),
+#                                bucket = "analysis",
+#                                region = "s3",
+#                                base_url = "flare-forecast.org",
+#                                use_https = as.logical(Sys.getenv("USE_HTTPS")))
+#  if(success){
+#    unlink(pdf_file)
+#  }
+#}
 
 png_file_name <- manager_plot(file_name = config$run_config$restart_file,
                               target_file = file.path(config$file_path$qaqc_data_directory, paste0(config$location$site_id, "-targets-insitu.csv")),

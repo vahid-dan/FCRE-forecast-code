@@ -1,32 +1,41 @@
 
 forecast_inflows_outflows_arrow <- function(inflow_obs,
-                                            inflow_forecast_path,
                                             obs_met_file,
-                                            output_dir,
                                             inflow_model,
                                             inflow_process_uncertainty,
-                                            forecast_location,
-                                            config,
-                                            use_s3 = FALSE,
+                                            inflow_model_coeff,
+                                            site_id,
+                                            use_s3_met = TRUE,
+                                            use_s3_inflow = FALSE,
                                             met_bucket = NULL,
                                             met_endpoint = NULL,
                                             met_local_directory = NULL,
                                             inflow_bucket = NULL,
                                             inflow_endpoint = NULL,
                                             inflow_local_directory = NULL,
-                                            model_name = "glm",
-                                            forecast_date,
-                                            forecast_hour = 0){
+                                            forecast_start_datetime,
+                                            forecast_horizon = 0){
+
+  lake_name_code <- site_id
+
+  forecast_date <- lubridate::as_date(forecast_start_datetime)
+  forecast_hour <- lubridate::hour(forecast_start_datetime)
+
+  if (forecast_horizon > 0) {
+    inflow_forecast_path <- file.path(inflow_model, lake_name_code, forecast_hour, forecast_date)
+  }else {
+    inflow_forecast_path <- NULL
+  }
 
 
   if(!is.null(forecast_date)){
 
-    if(use_s3){
+    if(use_s3_met){
       if(is.null(met_bucket) | is.null(met_endpoint)){
         stop("inflow forecast function needs bucket and endpoint if use_s3=TRUE")
       }
       vars <- FLAREr:::arrow_env_vars()
-      forecast_dir <- arrow::s3_bucket(bucket = file.path(met_bucket, "stage2/parquet", forecast_hour,forecast_date),
+      forecast_dir <- arrow::s3_bucket(bucket = file.path(met_bucket, "stage2/parquet", lubridate::hour(forecast_start_datetime), forecast_date),
                                        endpoint_override =  met_endpoint)
       FLAREr:::unset_arrow_vars(vars)
     }else{
@@ -38,12 +47,10 @@ forecast_inflows_outflows_arrow <- function(inflow_obs,
     inflow <- readr::read_csv(inflow_obs, show_col_types = FALSE) |>
       tidyr::pivot_wider(names_from = variable, values_from = observation)
 
-    lake_name_code <- config$location$site_id
-
     curr_all_days <- NULL
 
     noaa_met <- arrow::open_dataset(forecast_dir) |>
-      dplyr::filter(site_id == config$location$site_id,
+      dplyr::filter(site_id == lake_name_code,
                     variable %in% c("air_temperature", "precipitation_flux")) |>
       dplyr::select(datetime, parameter,variable,prediction) |>
       dplyr::collect() |>
@@ -61,10 +68,7 @@ forecast_inflows_outflows_arrow <- function(inflow_obs,
     run_cycle <- lubridate::hour(noaa_met$datetime[1])
     if(run_cycle < 10){run_cycle <- paste0("0",run_cycle)}
 
-    run_dir_full <- file.path(output_dir, inflow_model, lake_name_code, run_date, run_cycle)
     run_dir <- file.path(inflow_model, lake_name_code, run_date, run_cycle)
-
-    dir.create(run_dir_full, recursive = TRUE, showWarnings = FALSE)
 
     obs_met <- met %>%
       dplyr::filter(datetime >= noaa_met$datetime[1] - lubridate::days(1) & datetime < noaa_met$datetime[1])
@@ -78,9 +82,9 @@ forecast_inflows_outflows_arrow <- function(inflow_obs,
       previous_run_dir <- file.path(inflow_model, lake_name_code, previous_run_date, run_cycle)
 
 
-      if(use_s3){
+      if(use_s3_inflow){
         FLAREr:::arrow_env_vars()
-        inflow_s3_previous <- arrow::s3_bucket(bucket = file.path(config$s3$drivers$bucket,"inflow/parquet",previous_run_dir), endpoint_override = config$s3$drivers$endpoint, anonymous = TRUE)
+        inflow_s3_previous <- arrow::s3_bucket(bucket = file.path(inflow_bucket, previous_run_dir), endpoint_override = inflow_endpoint, anonymous = TRUE)
         on.exit(FLAREr:::unset_arrow_vars(vars))
       }else{
         inflow_s3_previous <- arrow::SubTreeFileSystem$create(file.path(output_dir,previous_run_dir))
@@ -131,20 +135,20 @@ forecast_inflows_outflows_arrow <- function(inflow_obs,
       df$TEMP[1] <- init_temp[ens]
 
       if(inflow_process_uncertainty == TRUE){
-        inflow_error <- rnorm(nrow(df), 0, config$future_inflow_flow_error)
-        temp_error <- rnorm(nrow(df), 0, config$future_inflow_temp_error)
+        inflow_error <- rnorm(nrow(df), 0, inflow_model_coeff$future_inflow_flow_error)
+        temp_error <- rnorm(nrow(df), 0, inflow_model_coeff$future_inflow_temp_error)
       }else{
         inflow_error <- rep(0.0, nrow(df))
         temp_error <- rep(0.0, nrow(df))
       }
 
       for(i in 2:nrow(df)){
-        df$FLOW[i] = config$future_inflow_flow_coeff[1] +
-          config$future_inflow_flow_coeff[2] * df$FLOW[i - 1] +
-          config$future_inflow_flow_coeff[3] * df$Rain_lag1[i] + inflow_error[i]
-        df$TEMP[i] = config$future_inflow_temp_coeff[1] +
-          config$future_inflow_temp_coeff[2] * df$TEMP[i-1] +
-          config$future_inflow_temp_coeff[3] * df$AirTemp_lag1[i] + temp_error[i]
+        df$FLOW[i] = inflow_model_coeff$future_inflow_flow_coeff[1] +
+          inflow_model_coeff$future_inflow_flow_coeff[2] * df$FLOW[i - 1] +
+          inflow_model_coeff$future_inflow_flow_coeff[3] * df$Rain_lag1[i] + inflow_error[i]
+        df$TEMP[i] = inflow_model_coeff$future_inflow_temp_coeff[1] +
+          inflow_model_coeff$future_inflow_temp_coeff[2] * df$TEMP[i-1] +
+          inflow_model_coeff$future_inflow_temp_coeff[3] * df$AirTemp_lag1[i] + temp_error[i]
       }
 
       df <- df %>%
@@ -193,7 +197,7 @@ forecast_inflows_outflows_arrow <- function(inflow_obs,
       df <- df |>
         tidyr::pivot_longer(-c("datetime","ensemble"), names_to = "variable", values_to = "prediction") |>
         dplyr::mutate(model_id = paste0("inflow-",basename(inflow_model)),
-                      site_id = config$location$site_id,
+                      site_id = lake_name_code,
                       family = "ensemble",
                       flow_type = "inflow",
                       flow_number = 1,
@@ -204,7 +208,7 @@ forecast_inflows_outflows_arrow <- function(inflow_obs,
       df_output <- df_output |>
         tidyr::pivot_longer(-c("datetime","ensemble"), names_to = "variable", values_to = "prediction") |>
         dplyr::mutate(model_id = paste0("outflow-",basename(inflow_model)),
-                      site_id = config$location$site_id,
+                      site_id = lake_name_code,
                       family = "ensemble",
                       flow_type = "outflow",
                       flow_number = 1,
@@ -217,12 +221,7 @@ forecast_inflows_outflows_arrow <- function(inflow_obs,
     },
     noaa_met, obs_met, init_flow, init_temp)
 
-    #identifier_inflow <- paste0(basename(inflow_model),"_", lake_name_code, "_", format(run_date, "%Y-%m-%d"),"_",
-    #                            format(end_date, "%Y-%m-%d"))
-
-    #local_inflow_file_name <- file.path(run_dir_full, paste0(identifier_inflow,".csv"))
-
-    if(use_s3){
+    if(use_s3_inflow){
       FLAREr:::arrow_env_vars()
       inflow_s3 <- arrow::s3_bucket(bucket = file.path(inflow_bucket, inflow_forecast_path), endpoint_override = inflow_endpoint)
       on.exit(FLAREr:::unset_arrow_vars(vars))
@@ -230,14 +229,15 @@ forecast_inflows_outflows_arrow <- function(inflow_obs,
       inflow_s3 <- arrow::SubTreeFileSystem$create(file.path(inflow_local_directory, inflow_forecast_path))
     }
 
-    inflow_s3$CreateDir(run_dir)
-    arrow::write_dataset(d, path = inflow_s3$path(run_dir))
+    arrow::write_dataset(d, path = inflow_s3)
+
+    inflow_local_files <- list.files(file.path(inflow_local_directory, inflow_forecast_path), full.names = TRUE, recursive = TRUE)
 
   }else{
     message("nothing to forecast")
-    run_dir_full <- NULL
-    run_dir <- NULL
+    inflow_local_files <- NULL
+
   }
 
-  return(list(run_dir_full, run_dir))
+  return(list(inflow_local_files))
 }

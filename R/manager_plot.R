@@ -40,7 +40,6 @@ manager_plot <- function(file_name,
 
   temp <- state_list[["temp"]]
 
-
   forecast_start <- min(which(forecast == 1))
   forecast_end <- length(forecast)
   prob_zero <- rep(NA,length(seq(forecast_start,forecast_end,1)))
@@ -60,7 +59,7 @@ manager_plot <- function(file_name,
       points(full_time_local[forecast_start:forecast_end],prob_zero,type='o',ylim=c(0,100), xlab = 'date',ylab = 'Probablity of turnover')
       axis(1, at=full_time_local - lubridate::hours(lubridate::hour(full_time_local[1])),las=2, cex.axis=0.7, tck=-0.01,labels=FALSE)
       abline(v = full_time_local[forecast_index])
-      text(full_time_local[4],80,'future')
+      text(full_time_local[6],80,'future')
 
     }
 
@@ -77,8 +76,9 @@ manager_plot <- function(file_name,
       "blue2", 8.0,
       "blue4", 9.0)
 
-    full_time_local_plotting <-seq(full_time_local[1] - lubridate::days(5), max(full_time_local), by = "1 day")
-    forecast_index <- which(full_time_local_plotting == full_time_local[which.max(forecast == 0)])
+    full_time_local_plotting <-seq(full_time_local[forecast_start] - lubridate::days(5), max(full_time_local), by = "1 day")
+
+    forecast_index <- which(full_time_local_plotting == full_time_local[forecast_start]) - 1
 
     plot(full_time_local_plotting,rep(-99,length(full_time_local_plotting)),ylim=c(-5,35),xlim = c(full_time_local_plotting[1] - lubridate::days(2), max(full_time_local_plotting)), xlab = 'date',ylab = expression(~degree~C))
     title(paste0('Water temperature forecast'),cex.main=0.9)
@@ -94,7 +94,7 @@ manager_plot <- function(file_name,
           temp_means <- rep(NA, length(full_time_local))
           temp_upper <- rep(NA, length(full_time_local))
           temp_lower <- rep(NA, length(full_time_local))
-          for(k in 2:length(temp_means)){
+          for(k in (forecast_start - 1):forecast_end){
             temp_means[k] <- mean(temp[k,i,])
             temp_lower[k] <- quantile(temp[k,i,], 0.1)
             temp_upper[k] <- quantile(temp[k,i,], 0.9)
@@ -107,9 +107,9 @@ manager_plot <- function(file_name,
       }
     }
 
-    abline(v = full_time_local[which.max(forecast == 0)])
+    abline(v = full_time_local[forecast_start-1])
     text(full_time_local_plotting[forecast_index-2],30,'past')
-    text(full_time_local[4],30.1,'future')
+    text(full_time_local[forecast_start+4],30.1,'future')
 
     legend("left",c("0.0m","1m", "2m", "3m", "4m", "5m", "6m", "7m","8m", "9m"),
            text.col=c("firebrick4", "firebrick1", "DarkOrange1", "gold", "greenyellow", "medium sea green", "sea green",

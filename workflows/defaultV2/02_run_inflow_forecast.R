@@ -13,40 +13,35 @@ config <- FLAREr::set_configuration(configure_run_file,lake_directory, config_se
 
 FLAREr::get_targets(lake_directory, config)
 
-noaa_forecast_path <- FLAREr::get_driver_forecast_path(config,
-                                             forecast_model = config$met$forecast_met_model)
 
+message("Forecasting inflow and outflows")
+# Forecast Inflows
 
-if(!is.null(noaa_forecast_path)){
+if(config$run_config$forecast_horizon > 0){
 
-  FLAREr::get_driver_forecast(lake_directory, forecast_path = noaa_forecast_path, config)
+  inflow_model_coeff <- NULL
+  inflow_model_coeff$future_inflow_flow_coeff <- c(0.0010803, 0.9478724, 0.3478991)
+  inflow_model_coeff$future_inflow_flow_error <- 0.00965
+  inflow_model_coeff$future_inflow_temp_coeff <- c(0.20291, 0.94214, 0.04278)
+  inflow_model_coeff$future_inflow_temp_error <- 0.943
 
-  message("Forecasting inflow and outflows")
-  # Forecast Inflows
+  temp_flow_forecast <- forecast_inflows_outflows_arrow(inflow_obs = file.path(config$file_path$qaqc_data_directory, "fcre-targets-inflow.csv"),
+                                                        obs_met_file = file.path(config$file_path$qaqc_data_directory,"observed-met_fcre.csv"),
+                                                        inflow_model = config$inflow$forecast_inflow_model,
+                                                        inflow_process_uncertainty = FALSE,
+                                                        inflow_model_coeff = inflow_model_coeff,
+                                                        site_id = config$location$site_id,
+                                                        use_s3_met = TRUE,
+                                                        use_s3_inflow = config$run_config$use_s3,
+                                                        met_bucket = config$s3$drivers$bucket,
+                                                        met_endpoint = config$s3$drivers$endpoint,
+                                                        inflow_bucket = config$s3$inflow_drivers$bucket,
+                                                        inflow_endpoint = config$s3$inflow_drivers$endpoint,
+                                                        inflow_local_directory = file.path(lake_directory, "drivers/inflow"),
+                                                        forecast_start_datetime = config$run_config$forecast_start_datetime,
+                                                        forecast_horizon = config$run_config$forecast_horizon)
 
-  config$future_inflow_flow_coeff <- c(0.0010803, 0.9478724, 0.3478991)
-  config$future_inflow_flow_error <- 0.00965
-  config$future_inflow_temp_coeff <- c(0.20291, 0.94214, 0.04278)
-  config$future_inflow_temp_error <- 0.943
-
-  forecast_files <- list.files(file.path(lake_directory, "drivers", noaa_forecast_path), full.names = TRUE)
-  if(length(forecast_files) == 0){
-    stop(paste0("missing forecast files at: ", noaa_forecast_path))
-  }
-  temp_flow_forecast <- forecast_inflows_outflows(inflow_obs = file.path(config$file_path$qaqc_data_directory, "fcre-targets-inflow.csv"),
-                                                  forecast_files = forecast_files,
-                                                  obs_met_file = file.path(config$file_path$qaqc_data_directory,"observed-met_fcre.nc"),
-                                                  output_dir = config$file_path$inflow_directory,
-                                                  inflow_model = config$inflow$forecast_inflow_model,
-                                                  inflow_process_uncertainty = FALSE,
-                                                  forecast_location = config$file_path$forecast_output_directory,
-                                                  config = config,
-                                                  use_s3 = config$run_config$use_s3,
-                                                  bucket = "drivers",
-                                                  model_name = config$model_settings$model_name)
-
-
-  message(paste0("successfully generated inflow forecats for: ", file.path(config$met$forecast_met_model,config$location$site_id,lubridate::as_date(config$run_config$forecast_start_datetime))))
+message(paste0("successfully generated inflow forecats for: ", file.path(config$met$forecast_met_model,config$location$site_id,lubridate::as_date(config$run_config$forecast_start_datetime))))
 
 }else{
 
