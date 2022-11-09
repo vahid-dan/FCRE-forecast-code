@@ -75,7 +75,7 @@ FLAREr::get_edi_file(edi_https = "https://pasta.lternet.edu/package/data/eml/edi
                      file = "Dissolved_CO2_CH4_Virginia_Reservoirs.csv",
                      lake_directory)
 
-#' Clean up observed meterology
+message("Clean up observed meterology")
 
 cleaned_met_file <- met_qaqc_csv(realtime_file = file.path(config_obs$file_path$data_directory, config_obs$met_raw_obs_fname[1]),
                                  qaqc_file = file.path(config_obs$file_path$data_directory, config_obs$met_raw_obs_fname[2]),
@@ -84,7 +84,7 @@ cleaned_met_file <- met_qaqc_csv(realtime_file = file.path(config_obs$file_path$
                                  nldas = NULL,
                                  site_id = config_obs$site_id)
 
-#' Clean up observed inflow
+message("Clean up observed inflow")
 
 cleaned_inflow_file <- inflow_qaqc_csv(realtime_file = file.path(config_obs$file_path$data_directory, config_obs$inflow_raw_file1[1]),
                                        qaqc_file = file.path(config_obs$file_path$data_directory, config_obs$inflow_raw_file1[2]),
@@ -95,7 +95,7 @@ cleaned_inflow_file <- inflow_qaqc_csv(realtime_file = file.path(config_obs$file
                                        input_file_tz = 'EST',
                                        site_id = config_obs$site_id)
 
-#' Clean up observed insitu measurements
+message("Clean up observed insitu measurements")
 
 cleaned_insitu_file <- in_situ_qaqc_csv(insitu_obs_fname = file.path(config_obs$file_path$data_directory,config_obs$insitu_obs_fname),
                                         data_location = config_obs$file_path$data_directory,

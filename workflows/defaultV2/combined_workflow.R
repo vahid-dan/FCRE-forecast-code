@@ -1,4 +1,4 @@
-#readRenviron("~/.Renviron") # MUST come first
+readRenviron("~/.Renviron") # MUST come first
 library(tidyverse)
 library(lubridate)
 lake_directory <- here::here()

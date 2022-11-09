@@ -1,9 +1,9 @@
 met_qaqc_csv <- function(realtime_file,
-                     qaqc_file,
-                     cleaned_met_file,
-                     input_file_tz,
-                     nldas = NULL,
-                     site_id){
+                         qaqc_file,
+                         cleaned_met_file,
+                         input_file_tz,
+                         nldas = NULL,
+                         site_id){
 
   if(!is.na(qaqc_file)){
     d1 <- readr::read_csv(realtime_file,
@@ -90,7 +90,7 @@ met_qaqc_csv <- function(realtime_file,
                                format= "%Y-%m-%d %H:%M",
                                tz = input_file_tz)
 
-    d1$TIMESTAMP <- with_tz(TIMESTAMP_in,tz = "UTC")
+    d1$TIMESTAMP <- lubridate::with_tz(TIMESTAMP_in,tz = "UTC")
 
     d <- data.frame(time = d1$TIMESTAMP, ShortWave = d1$SR01Up_Avg, LongWave = d1$IR01UpCo_Avg, AirTemp = d1$AirTC_Avg, RelHum = d1$RH, WindSpeed = d1$WS_ms_Avg, Rain = d1$Rain_mm_Tot, pressure = d1$BP_kPa_Avg)
   }
@@ -136,37 +136,37 @@ met_qaqc_csv <- function(realtime_file,
                   AirTemp = ifelse(AirTemp < minTempC, NA, AirTemp),
                   LongWave = ifelse(LongWave < 0, NA, LongWave),
                   WindSpeed = ifelse(WindSpeed < 0, 0, WindSpeed)) %>%
-    filter(is.na(time) == FALSE)
+    dplyr::filter(is.na(time) == FALSE)
 
   d <- d %>%
-    mutate(day = lubridate::day(time),
-           year = lubridate::year(time),
-           hour = lubridate::hour(time),
-           month = lubridate::month(time),
-           minute = lubridate::minute(time)) %>%
+    dplyr::mutate(day = lubridate::day(time),
+                  year = lubridate::year(time),
+                  hour = lubridate::hour(time),
+                  month = lubridate::month(time),
+                  minute = lubridate::minute(time)) %>%
     #AirTemp = ifelse(minute <= 10, AirTemp, NA),
     #RelHum = ifelse(minute <= 10, RelHum, NA),
     #WindSpeed = ifelse(minute <= 10, WindSpeed, NA),
     #pressure = ifelse(minute <= 10, pressure, NA)) %>%
-    group_by(day, year, hour, month) %>%
-    summarize(ShortWave = mean(ShortWave, na.rm = TRUE),
-              LongWave = mean(LongWave, na.rm = TRUE),
-              AirTemp = mean(AirTemp, na.rm = TRUE),
-              RelHum = mean(RelHum, na.rm = TRUE),
-              WindSpeed = mean(WindSpeed, na.rm = TRUE),
-              pressure = mean(pressure, na.rm = TRUE),
-              Rain = sum(Rain), .groups = "drop") %>%
-    mutate(day = as.numeric(day),
-           hour = as.numeric(hour)) %>%
-    mutate(day = ifelse(as.numeric(day) < 10, paste0("0",day),day),
-           hour = ifelse(as.numeric(hour) < 10, paste0("0",hour),hour)) %>%
-    mutate(time = lubridate::as_datetime(paste0(year,"-",month,"-",day," ",hour,":00:00"),tz = "UTC")) %>%
+    dplyr::group_by(day, year, hour, month) %>%
+    dplyr::summarize(ShortWave = mean(ShortWave, na.rm = TRUE),
+                     LongWave = mean(LongWave, na.rm = TRUE),
+                     AirTemp = mean(AirTemp, na.rm = TRUE),
+                     RelHum = mean(RelHum, na.rm = TRUE),
+                     WindSpeed = mean(WindSpeed, na.rm = TRUE),
+                     pressure = mean(pressure, na.rm = TRUE),
+                     Rain = sum(Rain), .groups = "drop") %>%
+    dplyr::mutate(day = as.numeric(day),
+                  hour = as.numeric(hour)) %>%
+    dplyr::mutate(day = ifelse(as.numeric(day) < 10, paste0("0",day),day),
+                  hour = ifelse(as.numeric(hour) < 10, paste0("0",hour),hour)) %>%
+    dplyr::mutate(time = lubridate::as_datetime(paste0(year,"-",month,"-",day," ",hour,":00:00"),tz = "UTC")) %>%
     dplyr::select(time,ShortWave,LongWave,AirTemp,RelHum,WindSpeed,Rain,pressure) %>%
-    arrange(time)
+    dplyr::arrange(time)
 
   d <- d  %>%
-    mutate(hr = lubridate::hour(time),
-           doy = lubridate::yday(time) + hr/24.)
+    dplyr::mutate(hr = lubridate::hour(time),
+                  doy = lubridate::yday(time) + hr/24.)
 
   dt <- median(diff(d$doy)) * 86400 # average number of seconds in time interval
   d$hr <- (d$doy - floor(d$doy)) * 24 # hour of day for each element of doy
@@ -177,28 +177,28 @@ met_qaqc_csv <- function(realtime_file,
   d$rpot <- 1366 * d$cosz
 
   d |>
-    select(time, ShortWave, rpot) |>
-    pivot_longer(cols = -time, names_to = "variable", values_to = "value") |>
-    mutate(hour = hour(time)) |>
-    ggplot(aes(x = time, y = value, color = variable)) +
-    geom_point() +
-    facet_grid(~hour)
+    dplyr::select(time, ShortWave, rpot) |>
+    tidyr::pivot_longer(cols = -time, names_to = "variable", values_to = "value") |>
+    dplyr::mutate(hour = hour(time)) |>
+    ggplot2::ggplot(aes(x = time, y = value, color = variable)) +
+    ggplot2::geom_point() +
+    ggplot2::facet_grid(~hour)
 
   d <- d %>%
-    mutate(ShortWave = ifelse(ShortWave > rpot, NA, ShortWave))
+    dplyr::mutate(ShortWave = ifelse(ShortWave > rpot, NA, ShortWave))
 
   d <- d %>%
-    rename(surface_downwelling_shortwave_flux_in_air = ShortWave,
-           surface_downwelling_longwave_flux_in_air = LongWave,
-           air_temperature = AirTemp,
-           relative_humidity = RelHum,
-           wind_speed = WindSpeed,
-           precipitation_flux = Rain,
-           air_pressure = pressure)
+    dplyr::rename(surface_downwelling_shortwave_flux_in_air = ShortWave,
+                  surface_downwelling_longwave_flux_in_air = LongWave,
+                  air_temperature = AirTemp,
+                  relative_humidity = RelHum,
+                  wind_speed = WindSpeed,
+                  precipitation_flux = Rain,
+                  air_pressure = pressure)
 
   d <- d %>%
-    mutate(air_temperature = air_temperature + 273.15,
-           relative_humidity = relative_humidity / 100)
+    dplyr::mutate(air_temperature = air_temperature + 273.15,
+                  relative_humidity = relative_humidity / 100)
 
   #Note that mm hr-1 is the same as kg m2 hr-1. Converting to kg m2 s-1
   d$precipitation_flux <- d$precipitation_flux / (60 * 60)
@@ -210,7 +210,7 @@ met_qaqc_csv <- function(realtime_file,
                                   press = d$air_pressure)
 
   d <- d %>%
-    select(time, air_temperature, air_pressure, relative_humidity, surface_downwelling_longwave_flux_in_air, surface_downwelling_shortwave_flux_in_air, precipitation_flux, specific_humidity, wind_speed)
+    dplyr::select(time, air_temperature, air_pressure, relative_humidity, surface_downwelling_longwave_flux_in_air, surface_downwelling_shortwave_flux_in_air, precipitation_flux, specific_humidity, wind_speed)
 
   cf_var_names1 <- c("air_temperature", "air_pressure", "relative_humidity", "surface_downwelling_longwave_flux_in_air",
                      "surface_downwelling_shortwave_flux_in_air", "precipitation_flux","specific_humidity","wind_speed")
@@ -228,64 +228,64 @@ met_qaqc_csv <- function(realtime_file,
     d_nldas <- readr::read_csv(nldas, col_type = readr::cols())
 
     d_nldas <- d_nldas %>%
-      rename(air_temperature = AirTemp,
-             surface_downwelling_shortwave_flux_in_air = ShortWave,
-             surface_downwelling_longwave_flux_in_air = LongWave,
-             relative_humidity = RelHum,
-             wind_speed = WindSpeed,
-             precipitation_flux = Rain) %>%
-      mutate(air_pressure = NA,
-             specific_humidity = NA,
-             air_temperature = air_temperature + 273.15,
-             relative_humidity = relative_humidity/ 100,
-             precipitation_flux = precipitation_flux * 1000 / (60 * 60 * 24)) %>%
-      select(all_of(names(d)))
+      dplyr::rename(air_temperature = AirTemp,
+                    surface_downwelling_shortwave_flux_in_air = ShortWave,
+                    surface_downwelling_longwave_flux_in_air = LongWave,
+                    relative_humidity = RelHum,
+                    wind_speed = WindSpeed,
+                    precipitation_flux = Rain) %>%
+      dplyr::mutate(air_pressure = NA,
+                    specific_humidity = NA,
+                    air_temperature = air_temperature + 273.15,
+                    relative_humidity = relative_humidity/ 100,
+                    precipitation_flux = precipitation_flux * 1000 / (60 * 60 * 24)) %>%
+      dplyr::select(all_of(names(d)))
 
     d_nldas$time <- lubridate::with_tz(d_nldas$time, tzone = "UTC")
 
     d_nldas <- d_nldas %>%
-      filter(time >= min(d$time), time <= max(d$time))
+      dplyr::filter(time >= min(d$time), time <= max(d$time))
 
     d_nldas_gaps <- d_nldas %>%
-      filter(!(time %in% d$time))
+      dplyr::filter(!(time %in% d$time))
 
     d_full <- rbind(d, d_nldas_gaps) %>%
-      arrange(time)
+      dplyr::arrange(time)
 
   }else{
 
     doy_mean <- d %>%
-      mutate(doy = yday(time),
-             hour = hour(time)) %>%
-      group_by(doy, hour) %>%
-      summarize(filled_shortwave = mean(surface_downwelling_shortwave_flux_in_air, na.rm = TRUE),
-                filled_longwave = mean(surface_downwelling_longwave_flux_in_air, na.rm = TRUE),
-                filled_temp = mean(air_temperature, na.rm = TRUE),
-                filled_relative_humidity = mean(relative_humidity, na.rm = TRUE),
-                filled_precip = mean(precipitation_flux, na.rm = TRUE),
-                filled_specific_humidity = mean(specific_humidity, na.rm = TRUE),
-                filled_wind_speed = mean(wind_speed, na.rm = TRUE),
-                filled_air_press = mean(air_pressure, na.rm = TRUE),
-                .groups = "drop")
+      dplyr::mutate(doy = yday(time),
+                    hour = hour(time)) %>%
+      dplyr::group_by(doy, hour) %>%
+      dplyr::summarize(filled_shortwave = mean(surface_downwelling_shortwave_flux_in_air, na.rm = TRUE),
+                       filled_longwave = mean(surface_downwelling_longwave_flux_in_air, na.rm = TRUE),
+                       filled_temp = mean(air_temperature, na.rm = TRUE),
+                       filled_relative_humidity = mean(relative_humidity, na.rm = TRUE),
+                       filled_precip = mean(precipitation_flux, na.rm = TRUE),
+                       filled_specific_humidity = mean(specific_humidity, na.rm = TRUE),
+                       filled_wind_speed = mean(wind_speed, na.rm = TRUE),
+                       filled_air_press = mean(air_pressure, na.rm = TRUE),
+                       .groups = "drop")
 
     t <- seq(min(d$time), max(d$time), by = "1 hour")
     cont_time <- tibble(time = t)
 
     d_full <- dplyr::left_join(cont_time, d, by = "time") %>%
-      mutate(doy = yday(time),
-             hour = hour(time)) %>%
-      left_join(doy_mean, by = c("doy","hour"))
+      dplyr::mutate(doy = yday(time),
+                    hour = hour(time)) %>%
+      dplyr::left_join(doy_mean, by = c("doy","hour"))
 
     d_full <- d_full %>%
-      mutate(surface_downwelling_shortwave_flux_in_air = ifelse(is.na(surface_downwelling_shortwave_flux_in_air), filled_shortwave, surface_downwelling_shortwave_flux_in_air),
-             surface_downwelling_longwave_flux_in_air= ifelse(is.na(surface_downwelling_longwave_flux_in_air), filled_longwave, surface_downwelling_longwave_flux_in_air),
-             air_temperature = ifelse(is.na(air_temperature), filled_temp, air_temperature),
-             relative_humidity = ifelse(is.na(relative_humidity), filled_relative_humidity, relative_humidity),
-             precipitation_flux = ifelse(is.na(precipitation_flux), filled_precip, precipitation_flux),
-             specific_humidity = ifelse(is.na(specific_humidity), filled_specific_humidity, specific_humidity),
-             wind_speed = ifelse(is.na(wind_speed), filled_wind_speed, wind_speed),
-             air_pressure = ifelse(is.na(air_pressure), filled_air_press, air_pressure)) |>
-      mutate(surface_downwelling_shortwave_flux_in_air = ifelse(is.nan(surface_downwelling_shortwave_flux_in_air), 0, surface_downwelling_shortwave_flux_in_air))
+      dplyr::mutate(surface_downwelling_shortwave_flux_in_air = ifelse(is.na(surface_downwelling_shortwave_flux_in_air), filled_shortwave, surface_downwelling_shortwave_flux_in_air),
+                    surface_downwelling_longwave_flux_in_air= ifelse(is.na(surface_downwelling_longwave_flux_in_air), filled_longwave, surface_downwelling_longwave_flux_in_air),
+                    air_temperature = ifelse(is.na(air_temperature), filled_temp, air_temperature),
+                    relative_humidity = ifelse(is.na(relative_humidity), filled_relative_humidity, relative_humidity),
+                    precipitation_flux = ifelse(is.na(precipitation_flux), filled_precip, precipitation_flux),
+                    specific_humidity = ifelse(is.na(specific_humidity), filled_specific_humidity, specific_humidity),
+                    wind_speed = ifelse(is.na(wind_speed), filled_wind_speed, wind_speed),
+                    air_pressure = ifelse(is.na(air_pressure), filled_air_press, air_pressure)) |>
+      dplyr::mutate(surface_downwelling_shortwave_flux_in_air = ifelse(is.nan(surface_downwelling_shortwave_flux_in_air), 0, surface_downwelling_shortwave_flux_in_air))
 
 
   }
