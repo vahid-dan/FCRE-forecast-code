@@ -74,7 +74,7 @@ forecast_inflows_outflows_arrow <- function(inflow_obs,
       dplyr::filter(datetime >= noaa_met$datetime[1] - lubridate::days(1) & datetime < noaa_met$datetime[1])
 
     init_flow_temp <- inflow %>%
-      filter(datetime == lubridate::as_date(noaa_met$datetime[1]) - lubridate::days(1))
+      dplyr::filter(datetime == lubridate::as_date(noaa_met$datetime[1]) - lubridate::days(1))
 
     if(length(init_flow_temp$FLOW) == 0){
       previous_run_date <- run_date - lubridate::days(1)

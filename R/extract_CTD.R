@@ -3,7 +3,7 @@ extract_CTD <- function(fname,
                         focal_depths,
                         config){
 
-  d_ctd <- read_csv(fname,
+  d_ctd <- readr::read_csv(fname,
                 col_types = list(
                   Reservoir = readr::col_character(),
                   Site = readr::col_character(),
@@ -29,24 +29,24 @@ extract_CTD <- function(fname,
                   Flag_ORP = readr::col_integer(),
                   Flag_PAR = readr::col_integer(),
                   Flag_DescRate = readr::col_integer())) %>%
-    mutate(Date = force_tz(Date, tzone = input_file_tz)) %>%
-    filter(Reservoir == "FCR" & Site == "50") %>%
-    select(Date, Depth_m, Temp_C, DO_mgL, Chla_ugL) %>%
-    rename("time" = Date,
+    dplyr::mutate(Date = lubridate::force_tz(Date, tzone = input_file_tz)) %>%
+    dplyr::filter(Reservoir == "FCR" & Site == "50") %>%
+    dplyr::select(Date, Depth_m, Temp_C, DO_mgL, Chla_ugL) %>%
+    dplyr::rename("time" = Date,
            "depth" = Depth_m,
            "temperature" = Temp_C,
            "oxygen" = DO_mgL,
            "chla" = Chla_ugL) %>%
-    mutate(oxygen = oxygen * 1000/32,
+    dplyr::mutate(oxygen = oxygen * 1000/32,
            chla = config$ctd_2_exo_sensor_chla[1] + config$ctd_2_exo_sensor_chla[2] * chla,
            oxygen = config$ctd_2_exo_sensor_do[1] + config$ctd_2_exo_sensor_do[2] * oxygen) %>%
-    pivot_longer(cols = c("temperature", "oxygen", "chla"), names_to = "variable", values_to = "observed") %>%
-    mutate(method = "ctd") %>%
-    select(time , depth, observed, variable, method) %>%
-    mutate(time = lubridate::as_datetime(time, tz = "UTC"))
+    tidyr::pivot_longer(cols = c("temperature", "oxygen", "chla"), names_to = "variable", values_to = "observed") %>%
+    dplyr::mutate(method = "ctd") %>%
+    dplyr::select(time , depth, observed, variable, method) %>%
+    dplyr::mutate(time = lubridate::as_datetime(time, tz = "UTC"))
 
   if(!is.na(focal_depths)){
-    d_ctd <- d_ctd %>% filter(depth %in% focal_depths)
+    d_ctd <- d_ctd %>% dplyr::filter(depth %in% focal_depths)
   }
 
   return(d_ctd)

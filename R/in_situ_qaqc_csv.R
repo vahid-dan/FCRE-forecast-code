@@ -51,7 +51,7 @@ in_situ_qaqc_csv <- function(insitu_obs_fname,
     }
   }
 
-  cuts <- tibble(cuts = as.integer(factor(config$depths_bins_top)),
+  cuts <- tibble::tibble(cuts = as.integer(factor(config$depths_bins_top)),
                  depth = config$depths_bins_top)
 
   methods <- NULL
@@ -60,15 +60,15 @@ in_situ_qaqc_csv <- function(insitu_obs_fname,
   }
 
   d_clean <- d |>
-    mutate(method = paste(variable, method, sep = "_")) |>
-    mutate(cuts = cut(depth, breaks = config$depths_bins_top, include.lowest = TRUE, right = FALSE, labels = FALSE)) |>
-    mutate(time = lubridate::as_date(time) + lubridate::hours(hour(time))) |>
-    filter(lubridate::hour(time) == 0) |>
-    filter(method %in% methods) |>
-    group_by(cuts, variable, time) |>
-    summarize(observed = mean(observed, na.rm = TRUE), .groups = "drop") |>
-    left_join(cuts) |>
-    select(time, depth, observed, variable) |>
+    dplyr::mutate(method = paste(variable, method, sep = "_")) |>
+    dplyr::mutate(cuts = cut(depth, breaks = config$depths_bins_top, include.lowest = TRUE, right = FALSE, labels = FALSE)) |>
+    dplyr::mutate(time = lubridate::as_date(time) + lubridate::hours(hour(time))) |>
+    dplyr::filter(lubridate::hour(time) == 0) |>
+    dplyr::filter(method %in% methods) |>
+    dplyr::group_by(cuts, variable, time) |>
+    dplyr::summarize(observed = mean(observed, na.rm = TRUE), .groups = "drop") |>
+    dplyr::left_join(cuts) |>
+    dplyr::select(time, depth, observed, variable) |>
     tidyr::drop_na(observed)
 
   if(!is.na(secchi_fname)){
@@ -78,7 +78,7 @@ in_situ_qaqc_csv <- function(insitu_obs_fname,
                                focal_depths = config$focal_depths)
 
     d_secchi <- d_secchi |>
-      mutate(time = as_datetime(lubridate::as_date(time)))
+      mutate(time = lubridate::as_datetime(lubridate::as_date(time)))
 
 
     d_clean <- rbind(d_clean,d_secchi)

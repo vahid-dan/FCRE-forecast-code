@@ -61,51 +61,51 @@ inflow_qaqc_csv <- function(realtime_file,
     dplyr::filter(!is.na(time)) %>%
     dplyr::arrange(time)
 
-  inflow_temp_flow <- tibble(time = seq(first(flow$time), last(flow$time), by = "1 day")) %>%
-    left_join(flow, by = "time") %>%
-    mutate(TEMP = ifelse(is.na(VT_Temp_C), WVWA_Temp_C, VT_Temp_C),
+  inflow_temp_flow <- tibble::tibble(time = seq(first(flow$time), last(flow$time), by = "1 day")) %>%
+    dplyr::left_join(flow, by = "time") %>%
+    dplyr::mutate(TEMP = ifelse(is.na(VT_Temp_C), WVWA_Temp_C, VT_Temp_C),
            FLOW = ifelse(time > as_date("2019-06-07"), VT_Flow_cms, WVWA_Flow_cms),
            SALT = 0) %>%
-    mutate(TEMP = imputeTS::na_interpolation(TEMP),
+    dplyr::mutate(TEMP = imputeTS::na_interpolation(TEMP),
            FLOW = imputeTS::na_interpolation(FLOW)) %>%
-    select(time, FLOW, TEMP, SALT)
+    dplyr::select(time, FLOW, TEMP, SALT)
 
   ##Step 3: Read in diana data, convert flow from PSI to CSM, calculations to
   #account for building new weir in June 2019 (FCR Specific), and
   #aggregate to daily mean.##
 
   if(!is.na(realtime_file)){
-    inflow_realtime <- read_csv(realtime_file, skip=4, col_names = F, show_col_types = FALSE)
+    inflow_realtime <- readr::read_csv(realtime_file, skip=4, col_names = F, show_col_types = FALSE)
     inflow_realtime_headers <- read.csv(realtime_file, skip=1, header = F, nrows= 1, as.is=T)
     colnames(inflow_realtime) <- inflow_realtime_headers
     inflow_realtime <- inflow_realtime %>%
-      select(TIMESTAMP, Lvl_psi, wtr_weir) %>%
-      rename("psi_corr" = Lvl_psi,
+      dplyr::select(TIMESTAMP, Lvl_psi, wtr_weir) %>%
+      dplyr::rename("psi_corr" = Lvl_psi,
              "time" = TIMESTAMP,
              "TEMP" = wtr_weir) %>%
-      mutate(time = force_tz(time, tzone = input_file_tz),
-             time = with_tz(time, tzone = "UTC")) %>%
-      filter(time > last(inflow_temp_flow$time)) %>%
-      mutate(head = ((65.822 * psi_corr) - 4.3804) / 100,
+      dplyr::mutate(time = lubridate::force_tz(time, tzone = input_file_tz),
+             time = lubridate::with_tz(time, tzone = "UTC")) %>%
+      dplyr::filter(time > dplyr::last(inflow_temp_flow$time)) %>%
+      dplyr::mutate(head = ((65.822 * psi_corr) - 4.3804) / 100,
              head = ifelse(head < 0, 0, 1),
              FLOW = 2.391 * (head^2.5)) %>%
-      mutate(date = as_date(time)) %>%
-      group_by(date) %>%
-      summarize(FLOW = mean(FLOW, na.rm = TRUE),
+      dplyr::mutate(date = as_date(time)) %>%
+      dplyr::group_by(date) %>%
+      dplyr::summarize(FLOW = mean(FLOW, na.rm = TRUE),
                 TEMP = mean(TEMP, na.rm = TRUE), .groups = "drop") %>%
-      mutate(time = date) %>%
-      select(time, FLOW, TEMP) %>%
-      mutate(FLOW = 0.003122 + 0.662914*FLOW, #Convert Diana to WVWA
+      dplyr::mutate(time = date) %>%
+      dplyr::select(time, FLOW, TEMP) %>%
+      dplyr::mutate(FLOW = 0.003122 + 0.662914*FLOW, #Convert Diana to WVWA
              SALT = 0.0)
 
-    inflow_combined <- full_join(inflow_temp_flow, inflow_realtime, by = "time") %>%
-      mutate(FLOW = ifelse(is.na(FLOW.x), FLOW.y, FLOW.x),
+    inflow_combined <- dplyr::full_join(inflow_temp_flow, inflow_realtime, by = "time") %>%
+      dplyr::mutate(FLOW = ifelse(is.na(FLOW.x), FLOW.y, FLOW.x),
              TEMP = ifelse(is.na(TEMP.x), TEMP.y, TEMP.x),
              SALT = ifelse(is.na(SALT.x), SALT.y, SALT.x)) %>%
-      select(time, FLOW, TEMP, SALT)
+      dplyr::select(time, FLOW, TEMP, SALT)
   }else{
     inflow_combined <- inflow_temp_flow
-    select(time, FLOW, TEMP, SALT)
+    dplyr::select(time, FLOW, TEMP, SALT)
   }
 
   #### BRING IN THE NUTRIENTS
@@ -127,13 +127,13 @@ inflow_qaqc_csv <- function(realtime_file,
     silica <- readr::read_csv(silica_file, show_col_types = FALSE) %>%
       dplyr::filter(Reservoir == "FCR") %>%
       dplyr::filter(Site == 100) %>% #100 = weir inflow site
-      select(DateTime, DRSI_mgL) %>%
+      dplyr::select(DateTime, DRSI_mgL) %>%
       dplyr::rename(time = DateTime) %>%
       dplyr::mutate(time = lubridate::force_tz(time, tzone = input_file_tz),
                     time = lubridate::with_tz(time, tzone = "UTC"),
                     time = lubridate::as_date(time))
 
-    all_data <- left_join(inflow_combined, FCRchem, by = "time")
+    all_data <- dplyr::left_join(inflow_combined, FCRchem, by = "time")
 
     ghg <- readr::read_csv(co2_ch4, show_col_types = FALSE) %>%
       dplyr::filter(Reservoir == "FCR") %>%
@@ -161,13 +161,13 @@ inflow_qaqc_csv <- function(realtime_file,
     datelist<-seq(start_date,end_date, "1 day") #changed from May 15, 2013 because of NA in flow
     datelist<-tibble::tibble(time = datelist)
 
-    ghg1 <- left_join(datelist, ghg, by="time")
+    ghg1 <- dplyr::left_join(datelist, ghg, by="time")
     #need to interpolate missing data, but first need to fill first & last values
     ghg1$CAR_ch4[1]<-ghg$CAR_ch4[which.min(abs(ghg$time - start_date))]
     ghg1$CAR_ch4[length(ghg1$CAR_ch4)]<-ghg$CAR_ch4[which.min(abs(ghg$time - end_date))]
     ghg1$CAR_ch4 <- zoo::na.fill(zoo::na.approx(ghg1$CAR_ch4), "extend")
 
-    alldata<-left_join(all_data, ghg1, by="time") %>%
+    alldata<-dplyr::left_join(all_data, ghg1, by="time") %>%
       dplyr::group_by(time) %>%
       dplyr::summarise_all(mean, na.rm=TRUE)
     #merge chem with CH4 data, truncating to start and end date period of CH4 (not chem)
@@ -207,8 +207,8 @@ inflow_qaqc_csv <- function(realtime_file,
 
     #need to convert mass observed data into mmol/m3 units for two pools of organic carbon
     weir_inflow <- alldata %>%
-      select(-c(Depth_m, Rep)) %>%
-      mutate(NIT_amm = NH4_ugL*1000*0.001*(1/18.04),
+      dplyr::select(-c(Depth_m, Rep)) %>%
+      dplyr::mutate(NIT_amm = NH4_ugL*1000*0.001*(1/18.04),
              NIT_nit = NO3NO2_ugL*1000*0.001*(1/62.00), #as all NO2 is converted to NO3
              PHS_frp = SRP_ugL*1000*0.001*(1/94.9714),
              OGM_doc = DOC_mgL*1000*(1/12.01)* 0.10,  #assuming 10% of total DOC is in labile DOC pool (Wetzel page 753)
@@ -234,7 +234,7 @@ inflow_qaqc_csv <- function(realtime_file,
              SIL_rsi = median(silica$DRSI_mgL),
              SIL_rsi = SIL_rsi*1000*(1/60.08),
              SALT = 0) %>%
-      mutate_if(is.numeric, round, 4) #round to 4 digits
+      dplyr::mutate_if(is.numeric, round, 4) #round to 4 digits
 
     #Long-term median pH of FCR is 6.5, at which point CO2/HCO3 is about 50-50
 
