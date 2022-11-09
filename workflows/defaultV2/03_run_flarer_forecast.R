@@ -104,17 +104,19 @@ da_forecast_output <- FLAREr::run_da_forecast(states_init = init$states,
                                               obs_secchi = NULL,
                                               obs_depth = NULL)
 
-
+message("Writing netcdf")
 saved_file <- FLAREr::write_forecast_netcdf(da_forecast_output = da_forecast_output,
                                             forecast_output_directory = config$file_path$forecast_output_directory,
                                             use_short_filename = TRUE)
 
+message("Writing arrow forecast")
 forecast_df <- FLAREr::write_forecast_arrow(da_forecast_output = da_forecast_output,
                                             use_s3 = config$run_config$use_s3,
                                             bucket = config$s3$forecasts_parquet$bucket,
                                             endpoint = config$s3$forecasts_parquet$endpoint,
                                             local_directory = file.path(lake_directory, "forecasts/parquet"))
 
+message("Writing arrow score")
 FLAREr::generate_forecast_score_arrow(targets_file = file.path(config$file_path$qaqc_data_directory,paste0(config$location$site_id, "-targets-insitu.csv")),
                                       forecast_df = forecast_df,
                                       use_s3 = config$run_config$use_s3,
@@ -129,11 +131,11 @@ FLAREr::generate_forecast_score_arrow(targets_file = file.path(config$file_path$
 
 #Clean up temp files and large objects in memory
 #unlink(config$file_path$execute_directory, recursive = TRUE)
-
+message("Putting forecast")
 FLAREr::put_forecast(saved_file, eml_file_name = NULL, config)
 
-rm(da_forecast_output)
-gc()
+#rm(da_forecast_output)
+#gc()
 
 FLAREr::update_run_config(config, lake_directory, configure_run_file, saved_file, new_horizon = 16, day_advance = 1)
 
