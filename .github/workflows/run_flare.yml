@@ -20,6 +20,4 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run:  | 
-          /usr/local/bin/r $GITHUB_WORKSPACE/workflows/defaultV2/combined_workflow.R 
-          #cd $GITHUB_WORKSPACE/workflows/defaultV2
-          #R -e 'source("combined_workflow.R")' || true
+          /usr/local/bin/r $GITHUB_WORKSPACE/workflows/defaultV2/combined_workflow.R
