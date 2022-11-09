@@ -23,7 +23,7 @@ s3:
     bucket: forecasts/parquet
   warm_start:
     endpoint: s3.flare-forecast.org
-    bucket: restart/fcre_V2
+    bucket: restart/fcre_v2
   scores:
     endpoint: s3.flare-forecast.org
     bucket: scores/parquet
