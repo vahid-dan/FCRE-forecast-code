@@ -57,8 +57,8 @@ if(noaa_ready){
 
   setwd(lake_directory)
 
-  message("Generating plots")
-  source(file.path("workflows", config_set_name, "04_visualize.R"))
+  #message("Generating plots")
+  #source(file.path("workflows", config_set_name, "04_visualize.R"))
 
   config <- FLAREr::set_configuration(configure_run_file, lake_directory, config_set_name = config_set_name)
   config$run_config$forecast_fails <- 0
