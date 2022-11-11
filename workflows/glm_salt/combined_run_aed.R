@@ -17,7 +17,7 @@ sapply(files.sources, source)
 sim_names <- "salt_oxy"
 config_set_name <- "glm_salt"
 configure_run_file <- "configure_run.yml"
-use_s3 <- TRUE
+use_s3 <- FALE
 
 
 num_forecasts <- 1 #52 * 3 - 3

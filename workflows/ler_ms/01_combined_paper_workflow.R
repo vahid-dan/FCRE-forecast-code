@@ -19,8 +19,9 @@ sapply(files.sources, source)
 
 models <- c("GLM", "GOTM","Simstrat")
 #models <- c("GOTM","Simstrat")
-models <- c("GLM")
+#models <- c("GLM")
 config_files <- c("configure_flare_GLM.yml","configure_flare.yml","configure_flare.yml")
+#config_files <- c("configure_flare.yml","configure_flare.yml")
 configure_run_file <- "configure_run.yml"
 config_set_name <- "ler_ms"
 
@@ -107,7 +108,7 @@ config <- FLAREr::set_configuration(configure_run_file = configure_run_file, lak
 
 FLAREr::put_targets(site_id = config_obs$site_id,
                     cleaned_insitu_file,
-                    cleaned_met_file,
+                    cleaned_met_file = NA,
                     cleaned_inflow_file = NA,
                     use_s3 = config$run_config$use_s3,
                     config)
@@ -290,7 +291,7 @@ for(i in starting_index:nrow(sims)){
                                                        forecast_output_directory = config$file_path$forecast_output_directory,
                                                        use_short_filename = TRUE)
 
-    forecast_df <- FLARErLER::write_forecast_ler_arrow(da_forecast_output = da_forecast_output,
+    forecast_df <- FLARErLER::write_forecast_arrow_ler(da_forecast_output = da_forecast_output,
                                                 use_s3 = use_s3,
                                                 bucket = config$s3$forecasts_parquet$bucket,
                                                 endpoint = config$s3$forecasts_parquet$endpoint,

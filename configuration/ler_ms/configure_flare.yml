@@ -8,25 +8,25 @@ file_path:
 s3:
   drivers:
     endpoint: s3.flare-forecast.org
-    bucket: drivers
+    bucket: drivers/noaa/gefs-v12
   analysis:
     endpoint: s3.flare-forecast.org
-    bucket: analysis/ler_ms
+    bucket: analysis/ler_ms2
   targets:
     endpoint: s3.flare-forecast.org
-    bucket: targets/ler_ms
+    bucket: targets/ler_ms2
   forecasts:
     endpoint: s3.flare-forecast.org
-    bucket: forecasts/ler_ms
-  forecasts_csv:
+    bucket: forecasts/ler_ms2
+  forecasts_parquet:
     endpoint: s3.flare-forecast.org
-    bucket: test-csv/ler_ms
+    bucket: forecasts/ler_ms2/parquet
   warm_start:
     endpoint: s3.flare-forecast.org
-    bucket: restart/ler_ms
+    bucket: restart/ler_ms2
   scores:
     endpoint: s3.flare-forecast.org
-    bucket: scores/ler_ms
+    bucket: scores/ler_ms2/parquet
 location:
    site_id: fcre
    name: Falling Creek Reservoir
