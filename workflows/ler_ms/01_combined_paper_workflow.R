@@ -9,7 +9,7 @@ Sys.setenv('AWS_DEFAULT_REGION' = 's3',
            'USE_HTTPS' = TRUE,
            'TZ' = 'UTC')
 
-use_s3 <- FALSE
+use_s3 <- TRUE
 lake_directory <- here::here()
 starting_index <- 1
 #Pick up on 25
@@ -138,7 +138,7 @@ for(i in starting_index:nrow(sims)){
   message(paste0("     Running model: ", sims$model[i]))
 
   model <- sims$model[i]
-  sim_names <- paste0(model,"_2")
+  sim_names <- paste0(model)
 
   config <- FLAREr::set_configuration(configure_run_file,lake_directory, config_set_name = config_set_name, sim_name = sim_names)
 
