@@ -95,10 +95,10 @@ FLAREr::get_edi_file(edi_https = "https://pasta.lternet.edu/package/data/eml/edi
 cleaned_insitu_file <- in_situ_qaqc_csv(insitu_obs_fname = file.path(config_obs$file_path$data_directory,config_obs$insitu_obs_fname),
                                         data_location = config_obs$file_path$data_directory,
                                         maintenance_file = file.path(config_obs$file_path$data_directory,config_obs$maintenance_file),
-                                        ctd_fname = file.path(config_obs$file_path$data_directory, config_obs$ctd_fname),
-                                        nutrients_fname =  file.path(config_obs$file_path$data_directory, config_obs$nutrients_fname),
-                                        secchi_fname = file.path(config_obs$file_path$data_directory, config_obs$secchi_fname),
-                                        ch4_fname = file.path(config_obs$file_path$data_directory, config_obs$ch4_fname),
+                                        ctd_fname = NA,
+                                        nutrients_fname =  NA,
+                                        secchi_fname = NA,
+                                        ch4_fname = NA,
                                         cleaned_insitu_file = file.path(config_obs$file_path$targets_directory, config_obs$site_id, paste0(config_obs$site_id,"-targets-insitu.csv")),
                                         lake_name_code = config_obs$site_id,
                                         config = config_obs)
@@ -332,5 +332,7 @@ for(i in starting_index:nrow(sims)){
 
   rm(da_forecast_output)
   gc()
+
+  RCurl::getURL("https://hc-ping.com/4a9c9101-ab12-4f53-9736-24f9b1cffd63")
 
 }
