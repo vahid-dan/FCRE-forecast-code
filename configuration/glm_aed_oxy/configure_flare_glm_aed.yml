@@ -9,22 +9,28 @@ file_path:
 s3:
   drivers:
     endpoint: s3.flare-forecast.org
-    bucket: drivers
+    bucket: drivers/noaa/gefs-v12
+  inflow_drivers:
+    endpoint: s3.flare-forecast.org
+    bucket: drivers/testing/inflow/parquet
+  analysis:
+    endpoint: s3.flare-forecast.org
+    bucket: analysis/testing
   targets:
     endpoint: s3.flare-forecast.org
-    bucket: targets/fcre_aed
+    bucket: targets/testing
   forecasts:
     endpoint: s3.flare-forecast.org
-    bucket: forecasts/fcre_aed
-  forecasts_csv:
+    bucket: forecasts/testing
+  forecasts_parquet:
     endpoint: s3.flare-forecast.org
-    bucket: test-csv/fcre_aed
+    bucket: forecasts/testing/parquet
   warm_start:
     endpoint: s3.flare-forecast.org
-    bucket: restart/fcre_aed
+    bucket: restart/testing
   scores:
     endpoint: s3.flare-forecast.org
-    bucket: scores/fcre_aed
+    bucket: scores/testing/parquet
 location:
   site_id: fcre
   name: Falling Creek Reservoir
@@ -49,14 +55,14 @@ metadata:
     id: INSERT ORCID
 da_setup:
   da_method: enkf
-  par_fit_method: perturb_init
-  ensemble_size: 100
+  par_fit_method: perturb_const
+  ensemble_size: 256
   localization_distance: .na
   no_negative_states: yes
   assimilate_first_step: no
   use_obs_constraint: yes
 model_settings:
-  ncore: 8
+  ncore: 4
   model_name: glm_aed
   base_GLM_nml: glm3.nml
   base_AED_nml: aed2.nml
@@ -137,7 +143,7 @@ default_init:
   blue_ice_thickness: 0.0
 inflow:
   use_forecasted_inflow: yes
-  forecast_inflow_model: inflow/FLOWS-NOAAGEFS-AR1-AED
+  forecast_inflow_model: inflow/FLOWS-NOAAGEFS-AR1
 met:
   use_forecasted_met: yes
   forecast_met_model: noaa/NOAAGEFS_1hr
@@ -153,12 +159,3 @@ output_settings:
   diagnostics_names:
   - extc
   - radn
-management:
-  simulate_sss: yes
-  sss_depth: 8.0
-  use_specified_sss: yes
-  specified_sss_inflow_file: .na
-  specified_sss_outflow_file: .na
-  forecast_sss_flow: 1000
-  forecast_sss_oxy: 500
-  sss_fname: FCR_SSS_inflow_2013_2020.csv
