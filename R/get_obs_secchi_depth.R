@@ -2,7 +2,8 @@ get_obs_secchi_depth <- function(obs_file,
                                  start_datetime,
                                  end_datetime,
                                  forecast_start_datetime,
-                                 forecast_horizon){
+                                 forecast_horizon,
+                                 secchi_sd){
 
 start_datetime <- lubridate::as_datetime(start_datetime)
 if(is.na(forecast_start_datetime)){
@@ -34,6 +35,9 @@ obs_depth <- readr::read_csv(obs_file, show_col_types = FALSE) %>%
   dplyr::arrange(date) %>%
   dplyr::select(observation) %>%
   as_vector()
+
+obs_secchi <- list(obs = obs_secchi,
+                   secchi_sd = secchi_sd)
 
 return(list(obs_secchi = obs_secchi, obs_depth = obs_depth))
 }

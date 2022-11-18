@@ -17,12 +17,12 @@ sapply(files.sources, source)
 sim_names <- "salt_oxy"
 config_set_name <- "glm_salt"
 configure_run_file <- "configure_run.yml"
-use_s3 <- FALE
+use_s3 <- FALSE
 
 
 num_forecasts <- 1 #52 * 3 - 3
 #num_forecasts <- 1#19 * 7 + 1
-days_between_forecasts <- 7
+days_between_forecasts <- 1
 forecast_horizon <- 16 #32
 starting_date <- as_date("2020-09-25")
 #second_date <- as_date("2020-12-01") - days(days_between_forecasts)
@@ -301,7 +301,11 @@ for(i in starting_index:length(forecast_start_dates)){
                                    start_datetime = config$run_config$start_datetime,
                                    end_datetime = config$run_config$end_datetime,
                                    forecast_start_datetime = config$run_config$forecast_start_datetime,
-                                   forecast_horizon =  config$run_config$forecast_horizon)
+                                   forecast_horizon =  config$run_config$forecast_horizon,
+                                   secchi_sd = 0.2)
+
+  obs_secchi_depth$obs_secchi$obs[] <- 2.3
+  print(obs_secchi_depth$obs_secchi)
   #obs[ ,2:dim(obs)[2], ] <- NA
 
   states_config <- FLAREr::generate_states_to_obs_mapping(states_config, obs_config)
@@ -362,5 +366,5 @@ for(i in starting_index:length(forecast_start_dates)){
 
   FLAREr::put_forecast(saved_file, eml_file_name = NULL, config)
 
-  FLAREr::update_run_config(config, lake_directory, configure_run_file, saved_file, new_horizon = forecast_horizon, day_advance = days_between_forecasts)
+  FLAREr::update_run_config(config, lake_directory, configure_run_file, saved_file, new_horizon = forecast_horizon, day_advance = NA)
 }
