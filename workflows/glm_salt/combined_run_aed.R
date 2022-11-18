@@ -391,5 +391,5 @@ for(i in starting_index:length(forecast_start_dates)){
 
 
 
-  FLAREr::update_run_config(config, lake_directory, configure_run_file, saved_file, new_horizon = forecast_horizon, day_advance = NA)
+  #FLAREr::update_run_config(config, lake_directory, configure_run_file, saved_file, new_horizon = forecast_horizon, day_advance = NA)
 }
