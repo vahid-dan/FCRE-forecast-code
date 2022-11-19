@@ -153,9 +153,28 @@ FLAREr::generate_forecast_score_arrow(targets_file = file.path(config$file_path$
 message("Putting forecast")
 FLAREr::put_forecast(saved_file, eml_file_name = NULL, config)
 
-#rm(da_forecast_output)
-#gc()
+config$run_config$start_datetime <- as.character(lubridate::as_datetime(config$run_config$forecast_start_datetime) +
+                                                   lubridate::days(1))
 
-FLAREr::update_run_config(config, lake_directory, configure_run_file, saved_file, new_horizon = 16, day_advance = 1)
+config$run_config$forecast_start_datetime <- config$run_config$start_datetime
+
+config$run_config$restart_file <- basename(saved_file)
+yaml::write_yaml(config$run_config, file = file.path(lake_directory,
+                                                     "restart", config$location$site_id, config$run_config$sim_name,
+                                                     configure_run_file))
+if (config$run_config$use_s3) {
+  aws.s3::put_object(file = file.path(lake_directory, "restart",
+                                      config$location$site_id, config$run_config$sim_name,
+                                      configure_run_file), object = file.path(stringr::str_split_fixed(config$s3$warm_start$bucket,
+                                                                                                       "/", n = 2)[2], config$location$site_id, config$run_config$sim_name,
+                                                                              configure_run_file), bucket = stringr::str_split_fixed(config$s3$warm_start$bucket,
+                                                                                                                                     "/", n = 2)[1], region = stringr::str_split_fixed(config$s3$warm_start$endpoint,
+                                                                                                                                                                                       pattern = "\\.", n = 2)[1], base_url = stringr::str_split_fixed(config$s3$warm_start$endpoint,
+                                                                                                                                                                                                                                                       pattern = "\\.", n = 2)[2], use_https = as.logical(Sys.getenv("USE_HTTPS")))
+}
+
+
+
+#FLAREr::update_run_config(config, lake_directory, configure_run_file, saved_file, new_horizon = 16, day_advance = 1)
 
 message(paste0("successfully generated flare forecats for: ", basename(saved_file)))
