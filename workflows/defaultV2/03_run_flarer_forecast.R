@@ -154,10 +154,13 @@ FLAREr::generate_forecast_score_arrow(targets_file = file.path(config$file_path$
 message("Putting forecast")
 FLAREr::put_forecast(saved_file, eml_file_name = NULL, config)
 
-config$run_config$start_datetime <- as.character(lubridate::as_datetime(config$run_config$forecast_start_datetime) +
+config$run_config$start_datetime <- as.character(lubridate::as_datetime(config$run_config$start_datetime) +
                                                    lubridate::days(1))
 
-config$run_config$forecast_start_datetime <- config$run_config$start_datetime
+#config$run_config$forecast_start_datetime <- config$run_config$start_datetime
+
+config$run_config$forecast_start_datetime <- as.character(lubridate::as_datetime(config$run_config$forecast_start_datetime) +
+                                                            lubridate::days(1))
 
 config$run_config$restart_file <- basename(saved_file)
 yaml::write_yaml(config$run_config, file = file.path(lake_directory,
