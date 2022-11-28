@@ -55,7 +55,7 @@ da_setup:
     ensemble_size:  256
     localization_distance: .na #distance in meters were covariances in the model error are used
     no_negative_states: TRUE
-    assimilate_first_step: FALSE
+    assimilate_first_step: TRUE
     use_obs_constraint: TRUE
 model_settings:
    ncore: 4
