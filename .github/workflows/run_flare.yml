@@ -7,7 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     container:
-      image: flareforecast/flare:22.12.b5
+      image: flareforecast/flare:22.12.b6
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
