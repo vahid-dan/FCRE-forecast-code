@@ -2,8 +2,8 @@ restart_file: .na
 start_datetime: 2022-10-01 00:00:00
 end_datetime: .na
 forecast_start_datetime: 2022-10-02 00:00:00
-forecast_horizon: 5
-sim_name: vdtest2_runS3
+forecast_horizon: 16
+sim_name: vdtest3_runS3
 configure_flare: configure_flare.yml
 configure_obs: observation_processing.yml
 use_s3: TRUE
